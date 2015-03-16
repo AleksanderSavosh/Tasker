@@ -1,0 +1,16 @@
+.idea
+assets
+bit
+gen
+libs/*javadoc.jar
+libs/*sources.jar
+ant.*
+*.iml
+build.xml
+local.properties
+proguard-project.txt
+project.properties
+out
+
+
+

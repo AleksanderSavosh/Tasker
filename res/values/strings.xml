@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tasker</string>
+    <string name="add_description">Make a new task</string>
+    <string name="save_btn">SAVE</string>
+    <string name="all">All</string>
+    <string name="status_new">New</string>
+    <string-array name="default_types">
+        <item>Meet</item>
+        <item>Buy</item>
+        <item>Housework</item>
+        <item>Self-development</item>
+    </string-array>
+    <string-array name="default_statuses">
+        <item>New</item>
+        <item>Active</item>
+        <item>Done</item>
+        <item>Fail</item>
+    </string-array>
+</resources>

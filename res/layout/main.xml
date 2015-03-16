@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#ff000000">
+
+    <LinearLayout android:id="@+id/add_layout"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:padding="12dp">
+
+        <ImageView android:id="@+id/add_btn"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:contentDescription="@string/add_description"
+                   android:clickable="true"
+                   android:focusableInTouchMode="true"
+                   android:src="@drawable/first19"
+                   android:tint="@android:color/background_light"
+                   android:scaleType="center"
+                   android:onClick="click"/>
+
+        <Spinner android:id="@+id/select_btn"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_margin="12dp"
+                 android:layout_gravity="center"/>
+
+
+
+    </LinearLayout>
+
+    <ListView android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000"
+            android:layout_margin="12dp"
+            android:layout_below="@id/add_layout"/>
+
+
+</RelativeLayout>
+
