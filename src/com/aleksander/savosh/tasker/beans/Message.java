@@ -1,12 +1,9 @@
 package com.aleksander.savosh.tasker.beans;
 
-import android.util.Log;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @DatabaseTable(tableName = "messages")

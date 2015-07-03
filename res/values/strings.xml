@@ -5,6 +5,10 @@
     <string name="save_btn">SAVE</string>
     <string name="all">All</string>
     <string name="status_new">New</string>
+    <string name="log_in">LOG IN</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="wait">Wait...</string>
+    <string name="number_or_password_is_invalid">Number or password is invalid</string>
     <string-array name="default_types">
         <item>Meet</item>
         <item>Buy</item>

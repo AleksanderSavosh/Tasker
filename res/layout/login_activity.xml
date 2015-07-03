@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+    <EditText
+            android:id="@+id/login_activity_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:gravity="center"/>
+    <EditText
+            android:id="@+id/login_activity_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_activity_phone_number"
+            android:inputType="textPassword"
+            android:gravity="center"/>
+    <TextView
+            android:id="@+id/login_activity_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_activity_password"
+            android:visibility="gone"/>
+    <Button
+            android:id="@+id/login_activity_log_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_activity_message"
+            android:text="@string/log_in"/>
+    <Button
+            android:id="@+id/login_activity_sign_up"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_activity_log_in"
+            android:text="@string/sign_up"/>
+
+</RelativeLayout>
