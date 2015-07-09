@@ -38,9 +38,8 @@ public class LoginActivity extends Activity {
                             //
                         } else {
                             if ("no results found for query".equalsIgnoreCase(e.getMessage())){
-                                message.setText(
-                                        LoginActivity.this.getResources().getText(R.string.number_or_password_is_invalid)
-                                );
+                                message.setText(LoginActivity.this.getResources()
+                                        .getText(R.string.number_or_password_is_invalid));
                             }
                             Log.d(getClass().getName(), e.getMessage(), e);
                             Log.e(getClass().getName(), e.getMessage());
@@ -51,6 +50,9 @@ public class LoginActivity extends Activity {
 
             } else if (v.getId() == R.id.login_activity_sign_up) {
                 //sign up
+                Intent intent = new Intent(Application.getContext(), SignUpActivity.class);
+                startActivity(intent);
+                finish();
             }
         }
     };

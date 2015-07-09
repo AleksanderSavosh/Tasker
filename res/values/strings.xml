@@ -9,6 +9,10 @@
     <string name="sign_up">SIGN UP</string>
     <string name="wait">Wait...</string>
     <string name="number_or_password_is_invalid">Number or password is invalid</string>
+    <string name="enter_password">Enter password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="enter_phone">Enter phone number</string>
+    <string name="passwords_doesnt_equal">Passwords doesn\'t equal.</string>
     <string-array name="default_types">
         <item>Meet</item>
         <item>Buy</item>
