@@ -11,4 +11,11 @@ public class Account extends BaseModel {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "password='" + password + '\'' +
+                '}';
+    }
 }

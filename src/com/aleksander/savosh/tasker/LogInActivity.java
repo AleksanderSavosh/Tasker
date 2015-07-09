@@ -9,11 +9,15 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.aleksander.savosh.tasker.model.Account;
+import com.aleksander.savosh.tasker.model.AccountBuilder;
 import com.aleksander.savosh.tasker.model.Phone;
+import com.aleksander.savosh.tasker.model.PhoneBuilder;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import java.util.List;
 
 
 public class LogInActivity extends Activity {
@@ -22,23 +26,23 @@ public class LogInActivity extends Activity {
     private class AutoLogInTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
-//            try {
+
 //                ParseQuery getLogInInfo = ParseQuery.getQuery("LogInInfo");
 //                getLogInInfo.fromLocalDatastore();
 //                ParseObject logInInfoObject = getLogInInfo.getFirst();
-                String number = "+380639531649"; //logInInfoObject.getString("number");
-                String password = "Password";//logInInfoObject.getString("password");
+            String number = "+380639531649"; //logInInfoObject.getString("number");
+            String password = "Password";//logInInfoObject.getString("password");
 
-                Phone phone = Application.getPhoneCloudService().read(number);
-                Account account = Application.getAccountCloudService().read(phone.getAccountId());
+            Phone phone = Application.getPhoneCloudService().readFirst(new PhoneBuilder().addNumber(number));
+            if(phone == null){
+                return false;
+            }
+            Account account = Application.getAccountCloudService().readFirst(
+                    new AccountBuilder().addObjectId(phone.getAccountId()));
 
-                if(password.equals(account.getPassword())){
-                    return true;
-                }
-
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
+            if(password.equals(account.getPassword())){
+                return true;
+            }
             return false;
         }
 

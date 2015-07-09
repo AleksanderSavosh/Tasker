@@ -44,18 +44,18 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
 
         //load from storage orm version
-        List<Type> types = getHelper().getTypesRuntimeDao().queryForAll();
-        Log.v(getClass().getName(), Arrays.toString(types.toArray()));
+//        List<Type> types = getHelper().getTypesRuntimeDao().queryForAll();
+//        Log.v(getClass().getName(), Arrays.toString(types.toArray()));
 
-        List<Message> messages = getHelper().getMessagesRuntimeDao().queryForAll();
-        for(Message message : messages){
-            MESSAGES.put(message.getId(), message);
-        }
+//        List<Message> messages = getHelper().getMessagesRuntimeDao().queryForAll();
+//        for(Message message : messages){
+//            MESSAGES.put(message.getId(), message);
+//        }
 
-        types.add(0, new Type(getResources().getString(R.string.all)));
+//        types.add(0, new Type(getResources().getString(R.string.all)));
 
         Spinner spinner = (Spinner) findViewById(R.id.select_btn);
-        spinner.setAdapter(new TypeSpinnerAdapter(this, types));
+//        spinner.setAdapter(new TypeSpinnerAdapter(this, types));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
@@ -109,12 +109,12 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
         adapter.clear();
 
         Spinner spinner = (Spinner) findViewById(R.id.select_btn);
-        String type = ((Type) spinner.getSelectedItem()).getName();
-        if(type.equalsIgnoreCase(getResources().getString(R.string.all))) {
-            adapter.addAll(MESSAGES.values());
-        } else {
-            adapter.addAll(Message.filterByType(MESSAGES.values(), type));
-        }
+//        String type = ((Type) spinner.getSelectedItem()).getName();
+//        if(type.equalsIgnoreCase(getResources().getString(R.string.all))) {
+//            adapter.addAll(MESSAGES.values());
+//        } else {
+//            adapter.addAll(Message.filterByType(MESSAGES.values(), type));
+//        }
 
         adapter.sort(new Message.PriorityComparator());
         adapter.notifyDataSetChanged();

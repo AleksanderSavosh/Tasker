@@ -3,15 +3,15 @@ package com.aleksander.savosh.tasker;
 import android.content.Context;
 import com.aleksander.savosh.tasker.model.Account;
 import com.aleksander.savosh.tasker.model.Phone;
-import com.aleksander.savosh.tasker.service.CloudService;
+import com.aleksander.savosh.tasker.service.CloudDao;
 import com.aleksander.savosh.tasker.service.ParseCloudServiceImpl;
 import com.parse.Parse;
 
 public class Application extends android.app.Application {
 
     private static Context context;
-    private static CloudService<Account> accountCloudService;
-    private static CloudService<Phone> phoneCloudService;
+    private static CloudDao<Account> accountCloudService;
+    private static CloudDao<Phone> phoneCloudService;
 
     public static Context getContext() {
         return context;
@@ -31,11 +31,11 @@ public class Application extends android.app.Application {
         phoneCloudService = new ParseCloudServiceImpl<Phone>(Phone.class);
     }
 
-    public static CloudService<Account> getAccountCloudService() {
+    public static CloudDao<Account> getAccountCloudService() {
         return accountCloudService;
     }
 
-    public static CloudService<Phone> getPhoneCloudService() {
+    public static CloudDao<Phone> getPhoneCloudService() {
         return phoneCloudService;
     }
 }

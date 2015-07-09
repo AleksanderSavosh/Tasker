@@ -8,12 +8,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
+public class ParseLocalDaoImpl<Obj> implements LocalDao<Obj> {
 
     private final Class<Obj> objClass;
 
-    public ParseCloudServiceImpl(Class<Obj> objClass) {
+    public ParseLocalDaoImpl(Class<Obj> objClass) {
         this.objClass = objClass;
     }
 
@@ -25,7 +24,7 @@ public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
                 field.setAccessible(true);
                 parseObject.put(field.getName(), field.get(obj));
             }
-            parseObject.save();
+            parseObject.pin();
             return fromParseObject(parseObject);
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
@@ -38,6 +37,7 @@ public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
         try {
             Log.d(getClass().getName(), objClass.getSimpleName());
             ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
+            parseQuery.fromLocalDatastore();
             for(Field field : objClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 Object value = field.get(constraintObj);

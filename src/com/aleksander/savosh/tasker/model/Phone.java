@@ -22,5 +22,11 @@ public class Phone extends BaseModel {
         this.accountId = accountId;
     }
 
-
+    @Override
+    public String toString() {
+        return "Phone{" +
+                "number='" + number + '\'' +
+                ", accountId='" + accountId + '\'' +
+                '}';
+    }
 }
