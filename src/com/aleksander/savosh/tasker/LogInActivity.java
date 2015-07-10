@@ -8,17 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.aleksander.savosh.tasker.model.Account;
-import com.aleksander.savosh.tasker.model.AccountBuilder;
-import com.aleksander.savosh.tasker.model.Phone;
-import com.aleksander.savosh.tasker.model.PhoneBuilder;
-import com.parse.GetCallback;
+import com.aleksander.savosh.tasker.model.*;
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-
-import java.util.List;
-
 
 public class LogInActivity extends Activity {
 
@@ -26,22 +17,17 @@ public class LogInActivity extends Activity {
     private class AutoLogInTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
-
-//                ParseQuery getLogInInfo = ParseQuery.getQuery("LogInInfo");
-//                getLogInInfo.fromLocalDatastore();
-//                ParseObject logInInfoObject = getLogInInfo.getFirst();
-            String number = "+380639531649"; //logInInfoObject.getString("number");
-            String password = "Password";//logInInfoObject.getString("password");
-
-            Phone phone = Application.getPhoneCloudService().readFirst(new PhoneBuilder().addNumber(number));
-            if(phone == null){
-                return false;
-            }
-            Account account = Application.getAccountCloudService().readFirst(
-                    new AccountBuilder().addObjectId(phone.getAccountId()));
-
-            if(password.equals(account.getPassword())){
-                return true;
+            try {
+                LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(new LogInData());
+                Phone phone = Application.getPhoneCloudService().readFirstThrowExceptions(
+                        new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
+                Account account = Application.getAccountCloudService().readFirstThrowExceptions(
+                        new AccountBuilder().addObjectId(phone.getAccountId()));
+                if (logInData.getPassword().equals(account.getPassword())) {
+                    return true;
+                }
+            } catch (Exception e){
+                Log.e(getClass().getName(), e.getMessage() == null ? e.toString() : e.getMessage());
             }
             return false;
         }
@@ -55,11 +41,6 @@ public class LogInActivity extends Activity {
                 autoLogInTask = null;
             }
         }
-    }
-
-    private class LogInData {
-        public String number;
-        public String password;
     }
 
     private class LogInResult {
@@ -77,18 +58,18 @@ public class LogInActivity extends Activity {
             logInResult.message = LogInActivity.this.getResources()
                     .getString(R.string.log_in_invalid_number_or_password_message);
             try {
-                ParseQuery<ParseObject> getPhone = ParseQuery.getQuery("Phone");
-                getPhone.whereEqualTo("number", logInData.number);
-                ParseObject phoneObject = getPhone.getFirst();
-                String accountId = phoneObject.getString("accountId");
+                Phone phone = Application.getPhoneCloudService()
+                        .readFirstThrowExceptions(new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
+                Account account = Application.getAccountCloudService()
+                        .readFirstThrowExceptions(new AccountBuilder().addObjectId(phone.getAccountId()));
+                logInResult.isLogIn = logInData.getPassword().equals(account.getPassword());
 
-                ParseQuery<ParseObject> getAccount = ParseQuery.getQuery("Account");
-                ParseObject accountObject = getAccount.get(accountId);
-                String accountPassword = accountObject.getString("password");
-                logInResult.isLogIn = logInData.password.equals(accountPassword);
-
-            } catch (ParseException e) {
-                if(e.getCode() != 101) {
+                if(logInResult.isLogIn){
+//                    Application.getLogInDataLocalDao().delete(logInData);
+                    Application.getLogInDataLocalDao().create(logInData);
+                }
+            } catch (Exception e) {
+                if (e instanceof ParseException && ((ParseException) e).getCode() != 101) {
                     Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
                     logInResult.message = LogInActivity.this.getResources().getString(R.string.log_in_error_message);
                 }
@@ -122,8 +103,10 @@ public class LogInActivity extends Activity {
                     message.setText(LogInActivity.this.getResources().getText(R.string.wait));
 
                     LogInData logInData = new LogInData();
-                    logInData.number = ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString();
-                    logInData.password = ((EditText) findViewById(R.id.login_activity_password)).getText().toString();
+                    logInData.setPhoneNumber(
+                            ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString());
+                    logInData.setPassword(
+                            ((EditText) findViewById(R.id.login_activity_password)).getText().toString());
 
                     logInTask = new LogInTask();
                     logInTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, logInData);
