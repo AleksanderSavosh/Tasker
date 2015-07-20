@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
+public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
 
     private final Class<Obj> objClass;
 
-    public ParseCloudServiceImpl(Class<Obj> objClass) {
+    public ParseCloudDaoImpl(Class<Obj> objClass) {
         this.objClass = objClass;
     }
 
@@ -29,14 +29,21 @@ public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException {
-        ParseObject parseObject = new ParseObject(objClass.getSimpleName());
-        for (Field field : objClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            parseObject.put(field.getName(), field.get(obj));
+    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
+        try {
+            ParseObject parseObject = new ParseObject(objClass.getSimpleName());
+            for (Field field : objClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                parseObject.put(field.getName(), field.get(obj));
+            }
+            parseObject.save();
+            return fromParseObject(parseObject);
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
         }
-        parseObject.save();
-        return fromParseObject(parseObject);
     }
 
 
@@ -51,22 +58,29 @@ public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException {
+    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
         Log.d(getClass().getName(), objClass.getSimpleName());
-        ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
-        for(Field field : objClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = field.get(constraintObj);
-            if(value != null) {
-                parseQuery.whereEqualTo(field.getName(), value);
+        try {
+            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
+            for(Field field : objClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(constraintObj);
+                if(value != null) {
+                    parseQuery.whereEqualTo(field.getName(), value);
+                }
             }
+            List<ParseObject> parseObjects = parseQuery.find();
+            List<Obj> objList = new ArrayList<Obj>();
+            for(ParseObject parseObject : parseObjects){
+                objList.add(fromParseObject(parseObject));
+            }
+            return objList;
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
         }
-        List<ParseObject> parseObjects = parseQuery.find();
-        List<Obj> objList = new ArrayList<Obj>();
-        for(ParseObject parseObject : parseObjects){
-            objList.add(fromParseObject(parseObject));
-        }
-        return objList;
     }
 
 
@@ -80,12 +94,12 @@ public class ParseCloudServiceImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public Obj readFirstThrowExceptions(Obj constraintObj) throws ParseException, IllegalAccessException, InstantiationException {
+    public Obj readFirstThrowExceptions(Obj constraintObj) throws ParseException, IllegalAccessException, InstantiationException, DataNotFoundException {
         List<Obj> objList = readThrowExceptions(constraintObj);
         if(objList.size() > 0){
             return objList.get(0);
         }
-        throw new RuntimeException("Data not found.");
+        throw new DataNotFoundException();
     }
 
 

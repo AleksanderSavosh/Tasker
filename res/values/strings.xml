@@ -16,6 +16,7 @@
     <string name="this_phone_already_exist">This number of phone already exist.</string>
     <string name="log_in_error_message">Error on server side.</string>
     <string name="log_in_invalid_number_or_password_message">Number or password is invalid.</string>
+    <string name="some_error_message">Unknowed error.</string>
     <string-array name="default_types">
         <item>Meet</item>
         <item>Buy</item>

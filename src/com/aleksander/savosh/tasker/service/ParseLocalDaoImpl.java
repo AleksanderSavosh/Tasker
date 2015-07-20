@@ -28,17 +28,24 @@ public class ParseLocalDaoImpl<Obj> implements LocalDao<Obj> {
     }
 
     @Override
-    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException {
-        ParseObject parseObject = new ParseObject(objClass.getSimpleName());
-        for (Field field : objClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = field.get(obj);
-            if(value != null) {
-                parseObject.put(field.getName(), field.get(obj));
+    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
+        try {
+            ParseObject parseObject = new ParseObject(objClass.getSimpleName());
+            for (Field field : objClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(obj);
+                if(value != null) {
+                    parseObject.put(field.getName(), field.get(obj));
+                }
             }
+            parseObject.pin();
+            return fromParseObject(parseObject);
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
         }
-        parseObject.pin();
-        return fromParseObject(parseObject);
     }
 
     @Override
@@ -52,23 +59,30 @@ public class ParseLocalDaoImpl<Obj> implements LocalDao<Obj> {
     }
 
     @Override
-    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException {
-        Log.d(getClass().getName(), objClass.getSimpleName());
-        ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
-        parseQuery.fromLocalDatastore();
-        for(Field field : objClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = field.get(constraintObj);
-            if(value != null) {
-                parseQuery.whereEqualTo(field.getName(), value);
+    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
+        try {
+            Log.d(getClass().getName(), objClass.getSimpleName());
+            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
+            parseQuery.fromLocalDatastore();
+            for(Field field : objClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(constraintObj);
+                if(value != null) {
+                    parseQuery.whereEqualTo(field.getName(), value);
+                }
             }
+            List<ParseObject> parseObjects = parseQuery.find();
+            List<Obj> objList = new ArrayList<Obj>();
+            for(ParseObject parseObject : parseObjects){
+                objList.add(fromParseObject(parseObject));
+            }
+            return objList;
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
         }
-        List<ParseObject> parseObjects = parseQuery.find();
-        List<Obj> objList = new ArrayList<Obj>();
-        for(ParseObject parseObject : parseObjects){
-            objList.add(fromParseObject(parseObject));
-        }
-        return objList;
     }
 
     @Override
@@ -82,11 +96,18 @@ public class ParseLocalDaoImpl<Obj> implements LocalDao<Obj> {
 
     @Override
     public Obj readFirstThrowExceptions(Obj constraintObj) throws Exception {
-        List<Obj> objList = readThrowExceptions(constraintObj);
-        if(objList.size() > 0){
-            return objList.get(0);
+        try {
+            List<Obj> objList = readThrowExceptions(constraintObj);
+            if(objList.size() > 0){
+                return objList.get(0);
+            }
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
         }
-        throw new RuntimeException("Data not found.");
+        throw new DataNotFoundException();
     }
 
     private Obj fromParseObject(ParseObject parseObject) throws IllegalAccessException, InstantiationException {

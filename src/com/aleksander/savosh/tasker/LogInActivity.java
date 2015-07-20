@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.aleksander.savosh.tasker.model.*;
-import com.parse.ParseException;
+import com.aleksander.savosh.tasker.service.DataNotFoundException;
 
 public class LogInActivity extends Activity {
 
@@ -19,9 +19,9 @@ public class LogInActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             try {
                 LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(new LogInData());
-                Phone phone = Application.getPhoneCloudService().readFirstThrowExceptions(
+                Phone phone = Application.getPhoneCloudDao().readFirstThrowExceptions(
                         new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
-                Account account = Application.getAccountCloudService().readFirstThrowExceptions(
+                Account account = Application.getAccountCloudDao().readFirstThrowExceptions(
                         new AccountBuilder().addObjectId(phone.getAccountId()));
                 if (logInData.getPassword().equals(account.getPassword())) {
                     return true;
@@ -35,17 +35,17 @@ public class LogInActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             if(aBoolean) {
-                Intent intent = new Intent(Application.getContext(), MainActivity.class);
-                LogInActivity.this.startActivity(intent);
-                LogInActivity.this.finish();
+//                Intent intent = new Intent(Application.getContext(), MainActivity.class);
+//                LogInActivity.this.startActivity(intent);
+//                LogInActivity.this.finish();
                 autoLogInTask = null;
             }
         }
     }
 
     private class LogInResult {
-        public Boolean isLogIn;
-        public String message;
+        public Boolean isLogIn = false;
+        public String message = "";
     }
 
     private static LogInTask logInTask;
@@ -54,25 +54,23 @@ public class LogInActivity extends Activity {
         protected LogInResult doInBackground(LogInData... params) {
             LogInData logInData = params[0];
             LogInResult logInResult = new LogInResult();
-            logInResult.isLogIn = false;
-            logInResult.message = LogInActivity.this.getResources()
-                    .getString(R.string.log_in_invalid_number_or_password_message);
             try {
-                Phone phone = Application.getPhoneCloudService()
+                Phone phone = Application.getPhoneCloudDao()
                         .readFirstThrowExceptions(new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
-                Account account = Application.getAccountCloudService()
+                Account account = Application.getAccountCloudDao()
                         .readFirstThrowExceptions(new AccountBuilder().addObjectId(phone.getAccountId()));
                 logInResult.isLogIn = logInData.getPassword().equals(account.getPassword());
 
-                if(logInResult.isLogIn){
+                if (logInResult.isLogIn) {
 //                    Application.getLogInDataLocalDao().delete(logInData);
                     Application.getLogInDataLocalDao().create(logInData);
                 }
+            } catch (DataNotFoundException e) {
+                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                logInResult.message = LogInActivity.this.getResources().getString(R.string.log_in_invalid_number_or_password_message);
             } catch (Exception e) {
-                if (e instanceof ParseException && ((ParseException) e).getCode() != 101) {
-                    Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
-                    logInResult.message = LogInActivity.this.getResources().getString(R.string.log_in_error_message);
-                }
+                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                logInResult.message = LogInActivity.this.getResources().getString(R.string.some_error_message);
             }
             return logInResult;
         }
