@@ -1,21 +1,22 @@
 package com.aleksander.savosh.tasker.model;
 
-/**
- * Created by Alex on 09.07.2015.
- */
-public class AccountBuilder extends Account {
+public class AccountBuilder {
+
+    private Account account = new Account();
+
+    AccountBuilder(){}
 
     public AccountBuilder addObjectId(String objectId){
-        setObjectId(objectId);
+        account.objectId = objectId;
         return this;
     }
 
-    private AccountBuilder addPassword(String password){
-        setPassword(password);
+    public AccountBuilder addPassword(String password){
+        account.password = password;
         return this;
     }
 
     public Account build(){
-        return this;
+        return new Account(account.objectId, account.password);
     }
 }

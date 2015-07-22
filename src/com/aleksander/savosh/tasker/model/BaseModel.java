@@ -2,14 +2,21 @@ package com.aleksander.savosh.tasker.model;
 
 public abstract class BaseModel {
 
-    private String objectId;
+    protected String objectId;
+
+    BaseModel() {}
+    BaseModel(String objectId) {
+        this.objectId = objectId;
+    }
 
     public String getObjectId() {
         return objectId;
     }
 
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
+    @Override
+    public String toString() {
+        return "BaseModel{" +
+                "objectId='" + objectId + '\'' +
+                '}';
     }
-
 }

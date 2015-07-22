@@ -18,12 +18,19 @@ public class LogInActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(new LogInData());
-                Phone phone = Application.getPhoneCloudDao().readFirstThrowExceptions(
-                        new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
-                Account account = Application.getAccountCloudDao().readFirstThrowExceptions(
-                        new AccountBuilder().addObjectId(phone.getAccountId()));
+                LogInData logInData = Application.getLogInDataLocalDao()
+                        .readFirstThrowExceptions(LogInData.builder().build());
+                Phone phone = Application.getPhoneCloudDao()
+                        .readFirstThrowExceptions(Phone.builder().addNumber(logInData.getPhoneNumber()).build());
+                Account account = Application.getAccountCloudDao()
+                        .readFirstThrowExceptions(Account.builder().addObjectId(phone.getAccountId()).build());
                 if (logInData.getPassword().equals(account.getPassword())) {
+                    Application.getLogInDataLocalDao().delete(logInData);
+                    Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
+                            .addAccountId(account.getObjectId())
+                            .addPhoneNumber(phone.getNumber())
+                            .addPassword(account.getPassword())
+                            .build());
                     return true;
                 }
             } catch (Exception e){
@@ -35,9 +42,9 @@ public class LogInActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             if(aBoolean) {
-//                Intent intent = new Intent(Application.getContext(), MainActivity.class);
-//                LogInActivity.this.startActivity(intent);
-//                LogInActivity.this.finish();
+                Intent intent = new Intent(Application.getContext(), MainActivity.class);
+                LogInActivity.this.startActivity(intent);
+                LogInActivity.this.finish();
                 autoLogInTask = null;
             }
         }
@@ -56,14 +63,18 @@ public class LogInActivity extends Activity {
             LogInResult logInResult = new LogInResult();
             try {
                 Phone phone = Application.getPhoneCloudDao()
-                        .readFirstThrowExceptions(new PhoneBuilder().addNumber(logInData.getPhoneNumber()));
+                        .readFirstThrowExceptions(Phone.builder().addNumber(logInData.getPhoneNumber()).build());
                 Account account = Application.getAccountCloudDao()
-                        .readFirstThrowExceptions(new AccountBuilder().addObjectId(phone.getAccountId()));
+                        .readFirstThrowExceptions(Account.builder().addObjectId(phone.getAccountId()).build());
                 logInResult.isLogIn = logInData.getPassword().equals(account.getPassword());
 
                 if (logInResult.isLogIn) {
-//                    Application.getLogInDataLocalDao().delete(logInData);
-                    Application.getLogInDataLocalDao().create(logInData);
+                    Application.getLogInDataLocalDao().delete(logInData);
+                    Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
+                            .addAccountId(account.getObjectId())
+                            .addPhoneNumber(phone.getNumber())
+                            .addPassword(account.getPassword())
+                            .build());
                 }
             } catch (DataNotFoundException e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
@@ -100,11 +111,10 @@ public class LogInActivity extends Activity {
                     message.setVisibility(View.VISIBLE);
                     message.setText(LogInActivity.this.getResources().getText(R.string.wait));
 
-                    LogInData logInData = new LogInData();
-                    logInData.setPhoneNumber(
-                            ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString());
-                    logInData.setPassword(
-                            ((EditText) findViewById(R.id.login_activity_password)).getText().toString());
+                    LogInData logInData = LogInData.builder()
+                            .addPhoneNumber(((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString())
+                            .addPassword(((EditText) findViewById(R.id.login_activity_password)).getText().toString())
+                            .build();
 
                     logInTask = new LogInTask();
                     logInTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, logInData);

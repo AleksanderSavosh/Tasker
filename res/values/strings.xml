@@ -29,4 +29,5 @@
         <item>Done</item>
         <item>Fail</item>
     </string-array>
+    <string name="action_log_out">Log out</string>
 </resources>

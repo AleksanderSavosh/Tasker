@@ -1,0 +1,52 @@
+package com.aleksander.savosh.tasker.service;
+
+import android.util.Log;
+import com.parse.ParseObject;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+
+public class ParseTransformer<Obj> {
+
+    private Class<Obj> objClass;
+
+    public ParseTransformer(Class<Obj> objClass) {
+        this.objClass = objClass;
+    }
+
+    public Obj fromParseObject(ParseObject parseObject) throws IllegalAccessException, InstantiationException,
+            NoSuchMethodException, InvocationTargetException {
+        Constructor<Obj> constructor = objClass.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        Obj obj = constructor.newInstance();
+        for(Field field : objClass.getDeclaredFields()){
+            Log.d(getClass().getName(), "Field type: " + field.getType());
+            if(field.getType() == String.class){
+                field.setAccessible(true);
+                field.set(obj, parseObject.getString(field.getName()));
+                Log.d(getClass().getName(), "Field set: " +
+                        " name: " + field.getName() +
+                        " value: " + parseObject.getString(field.getName()) +
+                        " result:" + obj.toString());
+            }
+        }
+        for(Field field : objClass.getSuperclass().getDeclaredFields()) {
+            Log.d(getClass().getName(), "Superclass field type: " + field.getType());
+            if(field.getType() == String.class){
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                String value = fieldName.equalsIgnoreCase("objectId") ? parseObject.getObjectId()
+                        : parseObject.getString(field.getName());
+                field.set(obj, value);
+                Log.d(getClass().getName(), "Superclass field set: " +
+                        " name: " + field.getName() +
+                        " value: " + value +
+                        " result:" + obj.toString());
+            }
+        }
+        return obj;
+    }
+
+
+}

@@ -3,23 +3,26 @@ package com.aleksander.savosh.tasker.model;
 
 public class Phone extends BaseModel {
 
-    private String number;
-    private String accountId;
+    protected String number;
+    protected String accountId;
+
+    Phone(){}
+    Phone(String objectId, String number, String accountId) {
+        super(objectId);
+        this.number = number;
+        this.accountId = accountId;
+    }
 
     public String getNumber() {
         return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
     }
 
     public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public static PhoneBuilder builder(){
+        return new PhoneBuilder();
     }
 
     @Override
@@ -27,6 +30,6 @@ public class Phone extends BaseModel {
         return "Phone{" +
                 "number='" + number + '\'' +
                 ", accountId='" + accountId + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

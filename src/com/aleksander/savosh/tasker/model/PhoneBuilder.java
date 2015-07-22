@@ -1,26 +1,27 @@
 package com.aleksander.savosh.tasker.model;
 
-/**
- * Created by Alex on 10.07.2015.
- */
-public class PhoneBuilder extends Phone {
+public class PhoneBuilder {
+
+    private Phone phone = new Phone();
+
+    PhoneBuilder() {}
 
     public PhoneBuilder addObjectId(String objectId){
-        setObjectId(objectId);
+        phone.objectId = objectId;
         return this;
     }
 
     public PhoneBuilder addNumber(String number){
-        setNumber(number);
+        phone.number = number;
         return this;
     }
 
     public PhoneBuilder addAccountId(String accountId){
-        setAccountId(accountId);
+        phone.accountId = accountId;
         return this;
     }
 
     public Phone build(){
-        return this;
+        return new Phone(phone.objectId, phone.number, phone.accountId);
     }
 }

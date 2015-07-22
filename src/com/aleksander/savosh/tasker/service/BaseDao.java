@@ -9,4 +9,6 @@ public interface BaseDao<Model> {
     public List<Model> readThrowExceptions(Model constraintObj) throws Exception;
     public Model readFirst(Model constraintObj);
     public Model readFirstThrowExceptions(Model constraintObj) throws Exception;
+    public void delete(Model constraintObj);
+    public void deleteThrowExceptions(Model constraintObj) throws Exception;
 }

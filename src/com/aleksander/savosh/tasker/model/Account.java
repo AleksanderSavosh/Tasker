@@ -2,20 +2,26 @@ package com.aleksander.savosh.tasker.model;
 
 public class Account extends BaseModel {
 
-    private String password;
+    protected String password;
+
+    Account(){}
+    Account(String objectId, String password) {
+        super(objectId);
+        this.password = password;
+    }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public static AccountBuilder builder(){
+        return new AccountBuilder();
     }
 
     @Override
     public String toString() {
         return "Account{" +
                 "password='" + password + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

@@ -2,17 +2,17 @@ package com.aleksander.savosh.tasker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import com.aleksander.savosh.tasker.adapters.TypeSpinnerAdapter;
 import com.aleksander.savosh.tasker.beans.Message;
 import com.aleksander.savosh.tasker.beans.Type;
 import com.aleksander.savosh.tasker.dao.OrmDatabaseHelper;
+import com.aleksander.savosh.tasker.model.LogInData;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
 import java.text.SimpleDateFormat;
@@ -54,33 +54,33 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
 //        types.add(0, new Type(getResources().getString(R.string.all)));
 
-        Spinner spinner = (Spinner) findViewById(R.id.select_btn);
+//        Spinner spinner = (Spinner) findViewById(R.id.select_btn);
 //        spinner.setAdapter(new TypeSpinnerAdapter(this, types));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                adapter.clear();
-
-                String type = ((TextView) view).getText().toString();
-
-                if(type.equalsIgnoreCase(getResources().getString(R.string.all))) {
-                    adapter.addAll(MESSAGES.values());
-                } else {
-                    adapter.addAll(Message.filterByType(MESSAGES.values(), type));
-                }
-                adapter.sort(new Message.PriorityComparator());
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                adapter.clear();
-                adapter.addAll(MESSAGES.values());
-                adapter.sort(new Message.PriorityComparator());
-                adapter.notifyDataSetChanged();
-            }
-        });
+//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                adapter.clear();
+//
+//                String type = ((TextView) view).getText().toString();
+//
+//                if(type.equalsIgnoreCase(getResources().getString(R.string.all))) {
+//                    adapter.addAll(MESSAGES.values());
+//                } else {
+//                    adapter.addAll(Message.filterByType(MESSAGES.values(), type));
+//                }
+//                adapter.sort(new Message.PriorityComparator());
+//                adapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//                adapter.clear();
+//                adapter.addAll(MESSAGES.values());
+//                adapter.sort(new Message.PriorityComparator());
+//                adapter.notifyDataSetChanged();
+//            }
+//        });
 
 
         final ListView listview = (ListView) findViewById(R.id.list_view);
@@ -118,6 +118,50 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
         adapter.sort(new Message.PriorityComparator());
         adapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.menu_main_log_out) {
+            if(logOutTask == null){
+                logOutTask = new LogOutTask();
+                logOutTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private LogOutTask logOutTask;
+    private class LogOutTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Application.getLogInDataLocalDao().delete(LogInData.builder().build());
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Intent intent = new Intent(Application.getContext(), LogInActivity.class);
+            MainActivity.this.startActivity(intent);
+            MainActivity.this.finish();
+            logOutTask = null;
+        }
     }
 
 
@@ -205,25 +249,6 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
 
     }
-
-
-    public void click(View v){
-
-        switch(v.getId()){
-            case R.id.add_btn:
-                Toast.makeText(this, "add_btn", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, EditMessage.class);
-                startActivity(intent);
-
-
-                break;
-            default:
-        }
-
-    }
-
-
-
 
 
 }

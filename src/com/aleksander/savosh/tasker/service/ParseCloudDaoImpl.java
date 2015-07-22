@@ -6,6 +6,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +14,11 @@ import java.util.List;
 public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
 
     private final Class<Obj> objClass;
+    private final ParseTransformer<Obj> tranformer;
 
     public ParseCloudDaoImpl(Class<Obj> objClass) {
         this.objClass = objClass;
+        this.tranformer = new ParseTransformer<Obj>(objClass);
     }
 
     @Override
@@ -29,7 +32,7 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
+    public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException, NoSuchMethodException, InvocationTargetException {
         try {
             ParseObject parseObject = new ParseObject(objClass.getSimpleName());
             for (Field field : objClass.getDeclaredFields()) {
@@ -37,7 +40,7 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
                 parseObject.put(field.getName(), field.get(obj));
             }
             parseObject.save();
-            return fromParseObject(parseObject);
+            return tranformer.fromParseObject(parseObject);
         } catch (ParseException e){
             if(e.getCode() == 101){
                 throw new DataNotFoundException();
@@ -45,7 +48,6 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
             throw e;
         }
     }
-
 
     @Override
     public List<Obj> read(Obj constraintObj) {
@@ -58,7 +60,7 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException {
+    public List<Obj> readThrowExceptions(Obj constraintObj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException, NoSuchMethodException, InvocationTargetException {
         Log.d(getClass().getName(), objClass.getSimpleName());
         try {
             ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
@@ -72,7 +74,7 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
             List<ParseObject> parseObjects = parseQuery.find();
             List<Obj> objList = new ArrayList<Obj>();
             for(ParseObject parseObject : parseObjects){
-                objList.add(fromParseObject(parseObject));
+                objList.add(tranformer.fromParseObject(parseObject));
             }
             return objList;
         } catch (ParseException e){
@@ -82,7 +84,6 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
             throw e;
         }
     }
-
 
     @Override
     public Obj readFirst(Obj constraintObj) {
@@ -94,7 +95,7 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
     }
 
     @Override
-    public Obj readFirstThrowExceptions(Obj constraintObj) throws ParseException, IllegalAccessException, InstantiationException, DataNotFoundException {
+    public Obj readFirstThrowExceptions(Obj constraintObj) throws ParseException, IllegalAccessException, InstantiationException, DataNotFoundException, NoSuchMethodException, InvocationTargetException {
         List<Obj> objList = readThrowExceptions(constraintObj);
         if(objList.size() > 0){
             return objList.get(0);
@@ -102,23 +103,40 @@ public class ParseCloudDaoImpl<Obj> implements CloudDao<Obj> {
         throw new DataNotFoundException();
     }
 
-
-    private Obj fromParseObject(ParseObject parseObject) throws IllegalAccessException, InstantiationException {
-        Obj obj = objClass.newInstance();
-        for(Field field : objClass.getDeclaredFields()){
-            Log.d(getClass().getName(), "Field type: " + field.getType());
-            if(field.getType() == String.class){
-                field.setAccessible(true);
-                field.set(obj, parseObject.getString(field.getName()));
-                Log.d(getClass().getName(), "Field name: " + field.getName() + " " + obj.toString());
-            }
+    @Override
+    public void delete(Obj constraintObj) {
+        try {
+            deleteThrowExceptions(constraintObj);
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
         }
-        for(Field field : objClass.getSuperclass().getDeclaredFields()) {
-            if(field.getType() == String.class){
-                field.setAccessible(true);
-                field.set(obj, parseObject.getString(field.getName()));
-            }
-        }
-        return obj;
     }
+
+    @Override
+    public void deleteThrowExceptions(Obj constraintObj) throws Exception {
+        try {
+            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
+            for(Field field : objClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(constraintObj);
+                if(value != null) {
+                    parseQuery.whereEqualTo(field.getName(), value);
+                }
+            }
+            List<ParseObject> parseObjects = parseQuery.find();
+            Log.d(getClass().getName(),
+                    " Delete " + objClass.getSimpleName() +
+                    " by constraint " + constraintObj +
+                    " count " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects){
+                parseObject.delete();
+            }
+        } catch (ParseException e){
+            if(e.getCode() == 101){
+                throw new DataNotFoundException();
+            }
+            throw e;
+        }
+    }
+
 }
