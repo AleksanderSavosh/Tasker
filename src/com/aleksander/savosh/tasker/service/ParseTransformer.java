@@ -17,6 +17,7 @@ public class ParseTransformer<Obj> {
 
     public Obj fromParseObject(ParseObject parseObject) throws IllegalAccessException, InstantiationException,
             NoSuchMethodException, InvocationTargetException {
+        Log.d(getClass().getName(), "--- Transform from parse object --- ");
         Constructor<Obj> constructor = objClass.getDeclaredConstructor();
         constructor.setAccessible(true);
         Obj obj = constructor.newInstance();
@@ -45,6 +46,7 @@ public class ParseTransformer<Obj> {
                         " result:" + obj.toString());
             }
         }
+        Log.d(getClass().getName(), "-------------------------------");
         return obj;
     }
 
