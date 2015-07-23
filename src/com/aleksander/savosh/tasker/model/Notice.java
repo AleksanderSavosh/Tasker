@@ -12,15 +12,7 @@ public class Notice extends BaseModel {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-
     public Map<PropertyType, List<Property>> getProperties() {
         return properties;
-    }
-
-    public void setProperties(Map<PropertyType, List<Property>> properties) {
-        this.properties = properties;
     }
 }
