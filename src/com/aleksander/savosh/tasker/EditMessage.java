@@ -93,7 +93,7 @@ public class EditMessage extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
             Log.i(getClass().getName(), "buffer after: "  + buffer.toString());
 
-            MainActivity.MESSAGES.put(buffer.getId(), buffer);
+//            MainActivity.MESSAGES.put(buffer.getId(), buffer);
             finish();
         }
     }

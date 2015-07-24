@@ -30,4 +30,7 @@
         <item>Fail</item>
     </string-array>
     <string name="action_log_out">Log out</string>
+    <string name="action_add_notice">Add notice</string>
+    <string name="title">Title</string>
+    <string name="some_notice_text">Some notice text</string>
 </resources>

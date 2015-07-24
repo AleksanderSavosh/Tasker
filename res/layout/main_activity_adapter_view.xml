@@ -5,7 +5,7 @@
                 android:layout_margin="8dp"
                 android:background="#ffe8e8e8">
 
-    <TextView android:id="@+id/main_adapter_view_title"
+    <TextView android:id="@+id/main_activity_adapter_view_title"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_margin="8dp"
@@ -13,7 +13,7 @@
               android:textColor="#ff000000"
               android:text="@string/add_description"/>
 
-    <TextView android:id="@+id/main_adapter_view_date_create"
+    <TextView android:id="@+id/main_activity_adapter_view_date_create"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textSize="12sp"

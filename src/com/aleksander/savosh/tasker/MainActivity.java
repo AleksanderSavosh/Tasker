@@ -11,28 +11,54 @@ import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.model.Notice;
 import com.aleksander.savosh.tasker.model.Property;
 import com.aleksander.savosh.tasker.model.PropertyType;
+import com.aleksander.savosh.tasker.service.PropertyService;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
 public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
+    public class NoticeWithProperties {
+        public NoticeWithProperties(Notice notice, Map<PropertyType, List<Property>> properties) {
+            this.notice = notice;
+            this.properties = properties;
+        }
+        public Notice notice;
+        public Map<PropertyType, List<Property>> properties;
+    }
+
     private Adapter adapter = new Adapter(Application.getContext());
 
     private UpdateAdapterTask updateAdapterTask;
-    public class UpdateAdapterTask extends AsyncTask<Void, Void, List<Notice>> {
+    public class UpdateAdapterTask extends AsyncTask<Void, Void, List<NoticeWithProperties>> {
         @Override
-        protected List<Notice> doInBackground(Void... params) {
+        protected List<NoticeWithProperties> doInBackground(Void... params) {
             //get notices from local repository;
+            try {
+                LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(null);
+                List<Notice> notices = Application.getNoticeLocalDao()
+                        .readThrowExceptions(Notice.builder().setAccountId(logInData.getAccountId()).build());
+                List<NoticeWithProperties> list = new ArrayList<NoticeWithProperties>();
+                for(Notice notice : notices){
+                    list.add(new NoticeWithProperties(notice, PropertyService.getLocalNoticeProperties(notice)));
+                }
+                return list;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return null;
         }
+
         @Override
-        protected void onPostExecute(List<Notice> notices) {
-            adapter.clear();
-            adapter.addAll(notices);
-            adapter.notifyDataSetChanged();
+        protected void onPostExecute(List<NoticeWithProperties> notices) {
+            if(notices != null) {
+                adapter.clear();
+                adapter.addAll(notices);
+                adapter.notifyDataSetChanged();
+            }
             updateAdapterTask = null;
         }
     }
@@ -40,9 +66,9 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.main_activity);
 
-        final ListView listview = (ListView) findViewById(R.id.list_view);
+        final ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -85,6 +111,10 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
                 logOutTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
             return true;
+        } else if (id == R.id.menu_main_add_notice){
+            Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -107,7 +137,7 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
     }
 
 
-    public class Adapter extends ArrayAdapter<Notice> {
+    public class Adapter extends ArrayAdapter<NoticeWithProperties> {
 
         class ViewHolder {
             public TextView title;
@@ -126,30 +156,30 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
             if(rowView == null) {
                 LayoutInflater inflater = (LayoutInflater) getContext()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                rowView = inflater.inflate(R.layout.item_view, parent, false);
+                rowView = inflater.inflate(R.layout.main_activity_adapter_view, parent, false);
 
                 //configure view holder
                 final ViewHolder viewHolder = new ViewHolder();
-                viewHolder.title = (TextView) rowView.findViewById(R.id.main_adapter_view_title);
-                viewHolder.createDate = (TextView) rowView.findViewById(R.id.main_adapter_view_date_create);
+                viewHolder.title = (TextView) rowView.findViewById(R.id.main_activity_adapter_view_title);
+                viewHolder.createDate = (TextView) rowView.findViewById(R.id.main_activity_adapter_view_date_create);
 
                 rowView.setTag(viewHolder);
             }
 
             ViewHolder holder = (ViewHolder) rowView.getTag();
-            Map<PropertyType, List<Property>> properties = getItem(position).getProperties();
+            Map<PropertyType, List<Property>> properties = getItem(position).properties;
 
             //set title
-            if(properties.containsKey(PropertyType.TITLE)) {
+            if(properties.containsKey(PropertyType.TITLE) && !properties.get(PropertyType.TITLE).isEmpty()) {
                 holder.title.setText(properties.get(PropertyType.TITLE).get(0).getText());
-            } else if(properties.containsKey(PropertyType.TEXT)) {
+            } else if(properties.containsKey(PropertyType.TEXT) && !properties.get(PropertyType.TEXT).isEmpty()) {
                 holder.title.setText(properties.get(PropertyType.TEXT).get(0).getText());
             } else {
                 holder.title.setText("No text or title...");
             }
 
             //set create date
-            if(properties.containsKey(PropertyType.CREATE_DATE)) {
+            if(properties.containsKey(PropertyType.CREATE_DATE) && !properties.get(PropertyType.CREATE_DATE).isEmpty()) {
                 holder.createDate.setText(StringUtil
                         .dateToReadableString(properties.get(PropertyType.CREATE_DATE).get(0).getDate()));
             } else {

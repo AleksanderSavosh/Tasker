@@ -37,8 +37,14 @@ public class ParseTransformer<Obj> {
             if(field.getType() == String.class){
                 field.setAccessible(true);
                 String fieldName = field.getName();
-                String value = fieldName.equalsIgnoreCase("objectId") ? parseObject.getObjectId()
-                        : parseObject.getString(field.getName());
+                Object value = parseObject.get(fieldName);
+
+                if(value == null){
+                    if(fieldName.equals("objectId")){
+                        value = parseObject.getObjectId();
+                    }
+                }
+
                 field.set(obj, value);
                 Log.d(getClass().getName(), "Superclass field set: " +
                         " name: " + field.getName() +

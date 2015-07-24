@@ -1,6 +1,8 @@
 package com.aleksander.savosh.tasker.service;
 
 import android.util.Log;
+import com.aleksander.savosh.tasker.model.Property;
+import com.aleksander.savosh.tasker.model.PropertyType;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -40,14 +42,41 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             ParseObject parseObject = new ParseObject(objClass.getSimpleName());
             for (Field field : objClass.getDeclaredFields()) {
                 field.setAccessible(true);
-                parseObject.put(field.getName(), field.get(obj));
+                Object value = field.get(obj);
+                if(value != null && value.getClass().isEnum()){
+                    value = value.toString();
+                }
+                if(value != null) {
+                    Log.d(getClass().getName(), "parseObject.put(" + field.getName() + ", " + value + "); "
+                            + "field type: " + field.getType());
+                    parseObject.put(field.getName(), value);
+                }
             }
+
+            for (Field field : objClass.getSuperclass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(obj);
+                if(value != null && value.getClass().isEnum()){
+                    value = value.toString();
+                }
+                if(value != null) {
+                    Log.d(getClass().getName(), "parseObject.put(" + field.getName() + ", " + value + "); "
+                            + "field type: " + field.getType());
+                    parseObject.put(field.getName(), value);
+                }
+            }
+
             if(isCloudStorage) {
                 parseObject.save();
             } else {
                 parseObject.pin();
             }
             Obj result = transformer.fromParseObject(parseObject);
+            for (Field field : objClass.getDeclaredFields()) {//пишем старые значения enum и надеемся что ранее они были сохранены
+                if(field.isEnumConstant()){
+                    field.set(result, field.get(obj));
+                }
+            }
             Log.d(getClass().getName(), " Result: " + result);
             Log.d(getClass().getName(), " ============================================ ");
             return result;
@@ -80,7 +109,7 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             }
             for(Field field : objClass.getDeclaredFields()) {
                 field.setAccessible(true);
-                Object value = field.get(constraintObj);
+                Object value = constraintObj != null ? field.get(constraintObj) : null;
                 if(value != null) {
                     parseQuery.whereEqualTo(field.getName(), value);
                 }

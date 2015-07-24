@@ -5,7 +5,7 @@
               android:layout_height="fill_parent"
               android:background="#ff000000">
 
-    <ListView android:id="@+id/list_view"
+    <ListView android:id="@+id/main_activity_list_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#000"
