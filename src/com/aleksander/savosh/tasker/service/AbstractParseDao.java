@@ -1,16 +1,13 @@
 package com.aleksander.savosh.tasker.service;
 
 import android.util.Log;
-import com.aleksander.savosh.tasker.model.Property;
-import com.aleksander.savosh.tasker.model.PropertyType;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
 
@@ -37,28 +34,13 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
     @Override
     public Obj createThrowExceptions(Obj obj) throws IllegalAccessException, ParseException, InstantiationException, DataNotFoundException, NoSuchMethodException, InvocationTargetException {
         try {
-            Log.d(getClass().getName(), " === Create " + (isCloudStorage?"":"local ") + objClass.getSimpleName() +
-                    " obj: " + obj + " === ");
+            Log.d(getClass().getName(),
+                    " === Create " + (isCloudStorage?"":"local ") + objClass.getSimpleName() + " obj: " + obj + " === ");
             ParseObject parseObject = new ParseObject(objClass.getSimpleName());
-            for (Field field : objClass.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object value = field.get(obj);
-                if(value != null && value.getClass().isEnum()){
-                    value = value.toString();
-                }
-                if(value != null) {
-                    Log.d(getClass().getName(), "parseObject.put(" + field.getName() + ", " + value + "); "
-                            + "field type: " + field.getType());
-                    parseObject.put(field.getName(), value);
-                }
-            }
 
-            for (Field field : objClass.getSuperclass().getDeclaredFields()) {
+            for (Field field : ReflectionUtil.getAllFields(objClass)) {
                 field.setAccessible(true);
                 Object value = field.get(obj);
-                if(value != null && value.getClass().isEnum()){
-                    value = value.toString();
-                }
                 if(value != null) {
                     Log.d(getClass().getName(), "parseObject.put(" + field.getName() + ", " + value + "); "
                             + "field type: " + field.getType());
@@ -71,12 +53,8 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             } else {
                 parseObject.pin();
             }
+
             Obj result = transformer.fromParseObject(parseObject);
-            for (Field field : objClass.getDeclaredFields()) {//пишем старые значения enum и надеемся что ранее они были сохранены
-                if(field.isEnumConstant()){
-                    field.set(result, field.get(obj));
-                }
-            }
             Log.d(getClass().getName(), " Result: " + result);
             Log.d(getClass().getName(), " ============================================ ");
             return result;
@@ -107,14 +85,35 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             if(!isCloudStorage){
                 parseQuery.fromLocalDatastore();
             }
-            for(Field field : objClass.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object value = constraintObj != null ? field.get(constraintObj) : null;
-                if(value != null) {
-                    parseQuery.whereEqualTo(field.getName(), value);
+
+            List<ParseObject> parseObjects = new ArrayList<ParseObject>();
+            Map<String, Field> fieldMap = ReflectionUtil.fieldsListToMap(ReflectionUtil.getAllFields(objClass));
+
+            //get by id
+            Field objectIdField = fieldMap.get("objectId");
+            objectIdField.setAccessible(true);
+            String objectId = constraintObj != null ? (String) objectIdField.get(constraintObj) : null;
+            if(objectId != null){
+                if(isCloudStorage) {
+                    parseObjects.add(ParseQuery.getQuery(objClass.getSimpleName()).get(objectId));
+                } else {
+                    parseObjects = ParseQuery.getQuery(objClass.getSimpleName())
+                            .whereEqualTo("objectId", objectId).find();
                 }
             }
-            List<ParseObject> parseObjects = parseQuery.find();
+
+            //find other variants
+            if(parseObjects.isEmpty()){
+                for(Field field : fieldMap.values()) {
+                    field.setAccessible(true);
+                    Object value = constraintObj != null ? field.get(constraintObj) : null;
+                    if(value != null) {
+                        parseQuery.whereEqualTo(field.getName(), value);
+                    }
+                }
+                parseObjects = parseQuery.find();
+            }
+
             List<Obj> objList = new ArrayList<Obj>();
             for(ParseObject parseObject : parseObjects){
                 objList.add(transformer.fromParseObject(parseObject));

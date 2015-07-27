@@ -14,23 +14,101 @@ import java.util.*;
 
 public class NoticeActivity extends Activity {
 
+    public UpdateNoticeTask updateNoticeTask;
+    public class UpdateNoticeTask extends AsyncTask<NoticeWithProperties, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(NoticeWithProperties... params) {
+            try {
+                NoticeWithProperties oldNoticeWithProperties = params[0];
+
+                Map<Integer, List<Property>> newPropertiesMap = NoticeActivity.this
+                        .getNewMapOfProperties(oldNoticeWithProperties.getNotice().getObjectId());
+
+                Set<Integer> newNoticeTypes = new HashSet<Integer>();
+                Set<Integer> commonNoticeTypes = new HashSet<Integer>();
+                Set<Integer> oldNoticeTypes = new HashSet<Integer>();
+
+                newNoticeTypes.addAll(newPropertiesMap.keySet());
+                oldNoticeTypes.addAll(oldNoticeWithProperties.getPropertiesMap().keySet());
+
+                newNoticeTypes.remove(PropertyType.CREATE_DATE);
+                oldNoticeTypes.remove(PropertyType.CREATE_DATE);
+
+                Set<Integer> allNoticeTypes = new HashSet<Integer>();
+                allNoticeTypes.addAll(newNoticeTypes);
+                allNoticeTypes.addAll(oldNoticeTypes);
+
+                for(Integer key : allNoticeTypes){
+                    if(newNoticeTypes.contains(key) && oldNoticeTypes.contains(key)){
+                        commonNoticeTypes.add(key);
+                        newNoticeTypes.remove(key);
+                        oldNoticeTypes.remove(key);
+                    }
+                }
+
+                for(Integer key : newNoticeTypes){
+                    for(Property property : newPropertiesMap.get(key)){
+                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
+                    }
+                }
+
+                for(Integer key : oldNoticeTypes){
+                    for(Property property : oldNoticeWithProperties.getPropertiesMap().get(key)){
+                        Application.getPropertySynchronizedDao().deleteThrowExceptions(property);
+                    }
+                }
+
+                for(Integer key : commonNoticeTypes){
+                    List<Property> newProperties = newPropertiesMap.get(key);
+                    List<Property> oldProperties = oldNoticeWithProperties.getPropertiesMap().get(key);
+
+                    for(Property property : oldProperties){
+                        Application.getPropertySynchronizedDao().deleteThrowExceptions(property);
+                    }
+
+                    for(Property property : newProperties){
+                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if(aBoolean){
+                Intent intent = new Intent(Application.getContext(), MainActivity.class);
+                NoticeActivity.this.startActivity(intent);
+                NoticeActivity.this.finish();
+            }
+            updateNoticeTask = null;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(null == null);
+    }
+
     public CreateNoticeTask createNoticeTask;
     public class CreateNoticeTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
                 LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(null);
-                Notice notice = Application.getNoticeCloudDao()
-                        .createThrowExceptions(Notice.builder().setAccountId(logInData.getAccountId()).build());
-                Application.getNoticeLocalDao().createThrowExceptions(notice);
+                Notice notice = Application.getNoticeSynchronizedDao().createThrowExceptions(Notice.builder()
+                        .setAccountId(logInData.getAccountId()).build());
 
-                Map<PropertyType, List<Property>> propertiesMap = NoticeActivity.this
-                        .getMapOfPropertiesForNewNotice(notice.getObjectId());
+                Map<Integer, List<Property>> propertiesMap = NoticeActivity.this
+                        .getNewMapOfProperties(notice.getObjectId());
 
-                for(PropertyType type : propertiesMap.keySet()){
+                for(Integer type : propertiesMap.keySet()){
                     for(Property property : propertiesMap.get(type)){
-                        property = Application.getPropertyCloudDao().createThrowExceptions(property);
-                        Application.getPropertyLocalDao().createThrowExceptions(property);
+                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
                     }
                 }
             } catch (Exception e) {
@@ -57,40 +135,67 @@ public class NoticeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notice_activity);
 
-        final Notice notice = savedInstanceState != null && savedInstanceState.containsKey("notice") ?
-                (Notice) savedInstanceState.getSerializable("notice") : null;
+        EditText text = (EditText) findViewById(R.id.notice_activity_text);
+        EditText title = (EditText) findViewById(R.id.notice_activity_title);
+
+        final NoticeWithProperties noticeWithProperties =
+                (NoticeWithProperties) getIntent().getSerializableExtra(MainActivity.EXTRA_KEY_NOTICE_WITH_PROPERTIES);
+
+        Log.d(getClass().getName(),
+                "getIntent().getSerializableExtra(MainActivity.EXTRA_KEY_NOTICE_WITH_PROPERTIES) -> " + noticeWithProperties);
+
+        if(noticeWithProperties != null){
+            Map<Integer, List<Property>> propertiesMap = noticeWithProperties.getPropertiesMap();
+            if(propertiesMap.containsKey(PropertyType.TEXT)){
+                List<Property> list = propertiesMap.get(PropertyType.TEXT);
+                if(!list.isEmpty()){
+                    text.setText(list.get(0).getText());
+                }
+            }
+
+            if(propertiesMap.containsKey(PropertyType.TITLE)){
+                List<Property> list = propertiesMap.get(PropertyType.TITLE);
+                if(!list.isEmpty()){
+                    title.setVisibility(View.VISIBLE);
+                    title.setText(list.get(0).getText());
+                }
+            }
+        }
 
         Button save = (Button) findViewById(R.id.notice_activity_save);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(notice == null){
+                if(noticeWithProperties == null){
                     if(createNoticeTask == null){
                         createNoticeTask = new CreateNoticeTask();
                         createNoticeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
+                } else {
+                    if(updateNoticeTask == null){
+                        updateNoticeTask = new UpdateNoticeTask();
+                        updateNoticeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, noticeWithProperties);
+                    }
                 }
-
             }
         });
     }
 
 
-    private Map<PropertyType, List<Property>> getMapOfPropertiesForNewNotice(String noticeId){
-        Map<PropertyType, List<Property>> map = new HashMap<PropertyType, List<Property>>();
-        List<PropertyType> propertyTypes = Arrays.asList(
+    private Map<Integer, List<Property>> getNewMapOfProperties(String noticeId){
+        Map<Integer, List<Property>> map = new HashMap<Integer, List<Property>>();
+        List<Integer> propertyTypes = Arrays.asList(
                 PropertyType.TITLE, PropertyType.CREATE_DATE, PropertyType.TEXT);
-        for(PropertyType type : propertyTypes){
+        for(Integer type : propertyTypes){
             map.put(type, getProperties(type, noticeId));
         }
         return map;
     }
 
-    private List<Property> getProperties(PropertyType propertyType, String noticeId){
+    private List<Property> getProperties(Integer propertyType, String noticeId){
         List<Property> properties = new ArrayList<Property>();
         switch(propertyType) {
-            case TITLE: {
+            case PropertyType.TITLE: {
                 EditText editText = (EditText) findViewById(R.id.notice_activity_title);
                 if(editText.getVisibility() == View.VISIBLE){
                     properties.add(Property.builder()
@@ -101,7 +206,7 @@ public class NoticeActivity extends Activity {
                 }
                 break;
             }
-            case TEXT: {
+            case PropertyType.TEXT: {
                 EditText editText = (EditText) findViewById(R.id.notice_activity_text);
                 if(editText.getVisibility() == View.VISIBLE){
                     properties.add(Property.builder()
@@ -112,7 +217,7 @@ public class NoticeActivity extends Activity {
                 }
                 break;
             }
-            case CREATE_DATE: {
+            case PropertyType.CREATE_DATE: {
                 properties.add(Property.builder()
                         .setNoticeId(noticeId)
                         .setType(propertyType)

@@ -4,11 +4,12 @@ public class LogInData extends BaseModel {
     protected String accountId;
     protected String phoneNumber;
     protected String password;
+    protected Boolean rememberMe;
 
     LogInData() {
     }
 
-    LogInData(String objectId, String accountId, String phoneNumber, String password) {
+    public LogInData(String objectId, String accountId, String phoneNumber, String password) {
         super(objectId);
         this.accountId = accountId;
         this.phoneNumber = phoneNumber;

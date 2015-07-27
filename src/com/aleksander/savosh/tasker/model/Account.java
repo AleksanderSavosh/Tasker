@@ -3,7 +3,6 @@ package com.aleksander.savosh.tasker.model;
 public class Account extends BaseModel {
 
     protected String password;
-
     Account(){}
     Account(String objectId, String password) {
         super(objectId);

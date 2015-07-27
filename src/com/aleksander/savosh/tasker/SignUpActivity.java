@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class SignUpActivity extends Activity {
 
@@ -124,7 +125,7 @@ public class SignUpActivity extends Activity {
 
                 SignUpData signUpData = new SignUpData();
                 signUpData.number = phoneEditText.getText().toString();
-                signUpData.password = passwordEditText.getText().toString();
+                signUpData.password = StringUtil.encodePassword(passwordEditText.getText().toString());
                 signUpTask = new SignUpTask();
                 signUpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, signUpData);
             }

@@ -11,7 +11,7 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder setType(PropertyType type) {
+    public PropertyBuilder setType(Integer type) {
         property.type = type;
         return this;
     }

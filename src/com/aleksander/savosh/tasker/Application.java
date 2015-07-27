@@ -2,10 +2,7 @@ package com.aleksander.savosh.tasker;
 
 import android.content.Context;
 import com.aleksander.savosh.tasker.model.*;
-import com.aleksander.savosh.tasker.service.CloudDao;
-import com.aleksander.savosh.tasker.service.LocalDao;
-import com.aleksander.savosh.tasker.service.ParseCloudDaoImpl;
-import com.aleksander.savosh.tasker.service.ParseLocalDaoImpl;
+import com.aleksander.savosh.tasker.service.*;
 import com.parse.Parse;
 
 public class Application extends android.app.Application {
@@ -18,6 +15,9 @@ public class Application extends android.app.Application {
     private static CloudDao<Notice> noticeCloudDao;
     private static CloudDao<Property> propertyCloudDao;
     private static LocalDao<Property> propertyLocalDao;
+
+    private static SynchronizedDao<Notice> noticeSynchronizedDao;
+    private static SynchronizedDao<Property> propertySynchronizedDao;
 
     public static Context getContext() {
         return context;
@@ -40,6 +40,9 @@ public class Application extends android.app.Application {
         noticeCloudDao = new ParseCloudDaoImpl<Notice>(Notice.class);
         propertyCloudDao = new ParseCloudDaoImpl<Property>(Property.class);
         propertyLocalDao = new ParseLocalDaoImpl<Property>(Property.class);
+
+        noticeSynchronizedDao = new ParseSynchronizedDaoImpl<Notice>(noticeCloudDao, noticeLocalDao);
+        propertySynchronizedDao = new ParseSynchronizedDaoImpl<Property>(propertyCloudDao, propertyLocalDao);
     }
 
     public static CloudDao<Account> getAccountCloudDao() {
@@ -68,5 +71,13 @@ public class Application extends android.app.Application {
 
     public static LocalDao<Property> getPropertyLocalDao() {
         return propertyLocalDao;
+    }
+
+    public static SynchronizedDao<Notice> getNoticeSynchronizedDao() {
+        return noticeSynchronizedDao;
+    }
+
+    public static SynchronizedDao<Property> getPropertySynchronizedDao() {
+        return propertySynchronizedDao;
     }
 }

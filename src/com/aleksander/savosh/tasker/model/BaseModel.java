@@ -1,8 +1,13 @@
 package com.aleksander.savosh.tasker.model;
 
-public abstract class BaseModel {
+import java.io.Serializable;
+import java.util.Date;
+
+public abstract class BaseModel implements Serializable {
 
     protected String objectId;
+    protected Date createdAt;
+    protected Date updatedAt;
 
     BaseModel() {}
     BaseModel(String objectId) {

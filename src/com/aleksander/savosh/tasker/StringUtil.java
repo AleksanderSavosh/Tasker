@@ -1,6 +1,9 @@
 package com.aleksander.savosh.tasker;
 
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,6 +15,8 @@ public class StringUtil {
     }
 
 
-
+    public static String encodePassword(String password){
+        return new String(Hex.encodeHex(DigestUtils.md5(password)));
+    }
 
 }

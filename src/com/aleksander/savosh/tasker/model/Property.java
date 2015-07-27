@@ -5,13 +5,13 @@ import java.util.Date;
 public class Property extends BaseModel {
 
     protected String noticeId;
-    protected PropertyType type;
+    protected Integer type;
     protected String text;
     protected Date date;
 
     Property() {
     }
-    Property(String objectId, String noticeId, PropertyType type, String text, Date date) {
+    Property(String objectId, String noticeId, Integer type, String text, Date date) {
         super(objectId);
         this.noticeId = noticeId;
         this.type = type;
@@ -23,7 +23,7 @@ public class Property extends BaseModel {
         return noticeId;
     }
 
-    public PropertyType getType() {
+    public Integer getType() {
         return type;
     }
 

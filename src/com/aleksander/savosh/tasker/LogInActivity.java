@@ -56,6 +56,7 @@ public class LogInActivity extends Activity {
     }
 
     private static LogInTask logInTask;
+
     private class LogInTask extends AsyncTask<LogInData, Void, LogInResult> {
         @Override
         protected LogInResult doInBackground(LogInData... params) {
@@ -111,9 +112,13 @@ public class LogInActivity extends Activity {
                     message.setVisibility(View.VISIBLE);
                     message.setText(LogInActivity.this.getResources().getText(R.string.wait));
 
+                    String number = ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString();
+                    String password = ((EditText) findViewById(R.id.login_activity_password)).getText().toString();
+
+
                     LogInData logInData = LogInData.builder()
-                            .addPhoneNumber(((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString())
-                            .addPassword(((EditText) findViewById(R.id.login_activity_password)).getText().toString())
+                            .addPhoneNumber(number)
+                            .addPassword(StringUtil.encodePassword(password))
                             .build();
 
                     logInTask = new LogInTask();
@@ -128,6 +133,10 @@ public class LogInActivity extends Activity {
             }
         }
     };
+
+    public static void main(String[] args) {
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

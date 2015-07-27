@@ -2,6 +2,7 @@ package com.aleksander.savosh.tasker.model;
 
 public class Notice extends BaseModel {
 
+
     protected String accountId;
 
     Notice() {}

@@ -4,13 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.aleksander.savosh.tasker.dao.OrmDatabaseHelper;
-import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.model.Notice;
-import com.aleksander.savosh.tasker.model.Property;
-import com.aleksander.savosh.tasker.model.PropertyType;
+import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.service.PropertyService;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
@@ -21,14 +19,7 @@ import java.util.Map;
 
 public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
-    public class NoticeWithProperties {
-        public NoticeWithProperties(Notice notice, Map<PropertyType, List<Property>> properties) {
-            this.notice = notice;
-            this.properties = properties;
-        }
-        public Notice notice;
-        public Map<PropertyType, List<Property>> properties;
-    }
+    public static final String EXTRA_KEY_NOTICE_WITH_PROPERTIES = "MainActivity.NoticeWithProperties";
 
     private Adapter adapter = new Adapter(Application.getContext());
 
@@ -47,7 +38,8 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
                 }
                 return list;
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
             }
             return null;
         }
@@ -74,12 +66,13 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
                                     int position, long id) {
-//                final Message item = (Message) parent.getItemAtPosition(position);
-//                Intent intent = new Intent(MainActivity.this, EditMessage.class);
-//                intent.putExtra("selectedMessage", item);
-//                startActivity(intent);
+                NoticeWithProperties item = (NoticeWithProperties) parent.getItemAtPosition(position);
+                Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
+                Log.d(getClass().getName(), "intent.putExtra(EXTRA_KEY_NOTICE_WITH_PROPERTIES, " + item + ")");
+                intent.putExtra(EXTRA_KEY_NOTICE_WITH_PROPERTIES, item);
+                startActivity(intent);
+                finish();
             }
-
         });
         if(updateAdapterTask == null){
             updateAdapterTask = new UpdateAdapterTask();
@@ -167,7 +160,7 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
             }
 
             ViewHolder holder = (ViewHolder) rowView.getTag();
-            Map<PropertyType, List<Property>> properties = getItem(position).properties;
+            Map<Integer, List<Property>> properties = getItem(position).getPropertiesMap();
 
             //set title
             if(properties.containsKey(PropertyType.TITLE) && !properties.get(PropertyType.TITLE).isEmpty()) {
