@@ -1,5 +1,7 @@
 package com.aleksander.savosh.tasker.model;
 
+import java.util.Date;
+
 public class LogInData extends BaseModel {
     protected String accountId;
     protected String phoneNumber;
@@ -9,11 +11,12 @@ public class LogInData extends BaseModel {
     LogInData() {
     }
 
-    public LogInData(String objectId, String accountId, String phoneNumber, String password) {
-        super(objectId);
+    public LogInData(String objectId, Date createdAt, Date updatedAt, String accountId, String phoneNumber, String password, Boolean rememberMe) {
+        super(objectId, createdAt, updatedAt);
         this.accountId = accountId;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.rememberMe = rememberMe;
     }
 
     public String getAccountId() {
@@ -38,6 +41,7 @@ public class LogInData extends BaseModel {
                 "accountId='" + accountId + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", password='" + password + '\'' +
-                "} " + super.toString();
+                ", rememberMe=" + rememberMe +
+                '}';
     }
 }

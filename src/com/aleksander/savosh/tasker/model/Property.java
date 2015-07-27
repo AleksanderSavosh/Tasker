@@ -11,8 +11,8 @@ public class Property extends BaseModel {
 
     Property() {
     }
-    Property(String objectId, String noticeId, Integer type, String text, Date date) {
-        super(objectId);
+    Property(String objectId, Date createdAt, Date updatedAt, String noticeId, Integer type, String text, Date date) {
+        super(objectId, createdAt, updatedAt);
         this.noticeId = noticeId;
         this.type = type;
         this.text = text;

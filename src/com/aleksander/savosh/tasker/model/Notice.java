@@ -1,13 +1,14 @@
 package com.aleksander.savosh.tasker.model;
 
-public class Notice extends BaseModel {
+import java.util.Date;
 
+public class Notice extends BaseModel {
 
     protected String accountId;
 
     Notice() {}
-    Notice(String objectId, String accountId) {
-        super(objectId);
+    Notice(String objectId, Date createdAt, Date updatedAt, String accountId) {
+        super(objectId, createdAt, updatedAt);
         this.accountId = accountId;
     }
 

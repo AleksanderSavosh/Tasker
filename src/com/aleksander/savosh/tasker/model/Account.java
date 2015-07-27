@@ -1,11 +1,13 @@
 package com.aleksander.savosh.tasker.model;
 
+import java.util.Date;
+
 public class Account extends BaseModel {
 
     protected String password;
     Account(){}
-    Account(String objectId, String password) {
-        super(objectId);
+    Account(String objectId, Date createdAt, Date updatedAt, String password) {
+        super(objectId, createdAt, updatedAt);
         this.password = password;
     }
 

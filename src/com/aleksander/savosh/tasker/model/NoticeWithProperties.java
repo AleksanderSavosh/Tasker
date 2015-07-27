@@ -1,4 +1,7 @@
 package com.aleksander.savosh.tasker.model;
+import com.aleksander.savosh.tasker.model.Notice;
+import com.aleksander.savosh.tasker.model.Property;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;

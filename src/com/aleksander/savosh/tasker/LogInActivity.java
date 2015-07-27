@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.aleksander.savosh.tasker.model.*;
+import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.service.DataNotFoundException;
 
 public class LogInActivity extends Activity {
@@ -21,15 +22,15 @@ public class LogInActivity extends Activity {
                 LogInData logInData = Application.getLogInDataLocalDao()
                         .readFirstThrowExceptions(LogInData.builder().build());
                 Phone phone = Application.getPhoneCloudDao()
-                        .readFirstThrowExceptions(Phone.builder().addNumber(logInData.getPhoneNumber()).build());
+                        .readFirstThrowExceptions(Phone.builder().setNumber(logInData.getPhoneNumber()).build());
                 Account account = Application.getAccountCloudDao()
-                        .readFirstThrowExceptions(Account.builder().addObjectId(phone.getAccountId()).build());
+                        .readFirstThrowExceptions(Account.builder().setObjectId(phone.getAccountId()).build());
                 if (logInData.getPassword().equals(account.getPassword())) {
                     Application.getLogInDataLocalDao().delete(logInData);
                     Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
-                            .addAccountId(account.getObjectId())
-                            .addPhoneNumber(phone.getNumber())
-                            .addPassword(account.getPassword())
+                            .setAccountId(account.getObjectId())
+                            .setPhoneNumber(phone.getNumber())
+                            .setPassword(account.getPassword())
                             .build());
                     return true;
                 }
@@ -64,17 +65,17 @@ public class LogInActivity extends Activity {
             LogInResult logInResult = new LogInResult();
             try {
                 Phone phone = Application.getPhoneCloudDao()
-                        .readFirstThrowExceptions(Phone.builder().addNumber(logInData.getPhoneNumber()).build());
+                        .readFirstThrowExceptions(Phone.builder().setNumber(logInData.getPhoneNumber()).build());
                 Account account = Application.getAccountCloudDao()
-                        .readFirstThrowExceptions(Account.builder().addObjectId(phone.getAccountId()).build());
+                        .readFirstThrowExceptions(Account.builder().setObjectId(phone.getAccountId()).build());
                 logInResult.isLogIn = logInData.getPassword().equals(account.getPassword());
 
                 if (logInResult.isLogIn) {
                     Application.getLogInDataLocalDao().delete(logInData);
                     Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
-                            .addAccountId(account.getObjectId())
-                            .addPhoneNumber(phone.getNumber())
-                            .addPassword(account.getPassword())
+                            .setAccountId(account.getObjectId())
+                            .setPhoneNumber(phone.getNumber())
+                            .setPassword(account.getPassword())
                             .build());
                 }
             } catch (DataNotFoundException e) {
@@ -117,8 +118,8 @@ public class LogInActivity extends Activity {
 
 
                     LogInData logInData = LogInData.builder()
-                            .addPhoneNumber(number)
-                            .addPassword(StringUtil.encodePassword(password))
+                            .setPhoneNumber(number)
+                            .setPassword(StringUtil.encodePassword(password))
                             .build();
 
                     logInTask = new LogInTask();

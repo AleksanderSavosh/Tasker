@@ -2,6 +2,7 @@ package com.aleksander.savosh.tasker;
 
 import android.content.Context;
 import com.aleksander.savosh.tasker.model.*;
+import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.service.*;
 import com.parse.Parse;
 

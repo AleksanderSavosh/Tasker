@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import com.aleksander.savosh.tasker.model.*;
+import com.aleksander.savosh.tasker.model.LogInData;
+import com.aleksander.savosh.tasker.model.NoticeWithProperties;
 
 import java.util.*;
 

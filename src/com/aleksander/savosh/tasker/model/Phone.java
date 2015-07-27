@@ -1,14 +1,16 @@
 package com.aleksander.savosh.tasker.model;
 
 
+import java.util.Date;
+
 public class Phone extends BaseModel {
 
     protected String number;
     protected String accountId;
 
     Phone(){}
-    Phone(String objectId, String number, String accountId) {
-        super(objectId);
+    Phone(String objectId, Date createdAt, Date updatedAt, String number, String accountId) {
+        super(objectId, createdAt, updatedAt);
         this.number = number;
         this.accountId = accountId;
     }
