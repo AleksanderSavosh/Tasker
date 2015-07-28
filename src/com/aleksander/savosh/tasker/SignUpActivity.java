@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class SignUpActivity extends Activity {
 

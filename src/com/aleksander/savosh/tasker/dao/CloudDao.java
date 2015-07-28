@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao;
 
 public interface CloudDao<Model> extends BaseDao<Model> {
 }

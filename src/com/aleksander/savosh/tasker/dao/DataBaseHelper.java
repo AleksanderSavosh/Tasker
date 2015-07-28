@@ -6,9 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-/**
- * Created by user on 3/11/15.
- */
+@Deprecated
 public class DataBaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
     // константы для конструктора

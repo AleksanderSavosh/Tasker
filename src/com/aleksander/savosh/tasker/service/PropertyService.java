@@ -1,7 +1,7 @@
 package com.aleksander.savosh.tasker.service;
 
-import android.content.Intent;
 import com.aleksander.savosh.tasker.Application;
+import com.aleksander.savosh.tasker.dao.LocalDao;
 import com.aleksander.savosh.tasker.model.Notice;
 import com.aleksander.savosh.tasker.model.Property;
 import com.aleksander.savosh.tasker.model.PropertyType;
@@ -31,6 +31,9 @@ public class PropertyService {
 
         return map;
     }
+
+
+
 
 
 }

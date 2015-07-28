@@ -15,7 +15,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
-
+@Deprecated
 public class OrmDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME = "notes_orm.db";

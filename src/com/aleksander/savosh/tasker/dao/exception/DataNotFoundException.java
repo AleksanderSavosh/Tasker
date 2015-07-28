@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao.exception;
 
 public class DataNotFoundException extends Exception {
 }

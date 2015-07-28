@@ -1,4 +1,6 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao.parse;
+
+import com.aleksander.savosh.tasker.dao.CloudDao;
 
 public class ParseCloudDaoImpl<Obj> extends AbstractParseDao<Obj> implements CloudDao<Obj> {
 

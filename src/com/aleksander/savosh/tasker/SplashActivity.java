@@ -1,66 +1,31 @@
 package com.aleksander.savosh.tasker;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import com.aleksander.savosh.tasker.service.ParseUtil;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseRelation;
+import com.aleksander.savosh.tasker.model.LogInData;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class SplashActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         try {
-            ParseObject author = ParseObject.create("Author");
-            author.put("name", "Savosh Alex 3");
-            author.pin();
+            LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
+            if(logInData == null || logInData.getRememberMe() == null || !logInData.getRememberMe()){
+                Application.getLogInDataLocalDao().delete(logInData);
+                Intent intent = new Intent(Application.getContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
 
-            List<ParseObject> list = new ArrayList<ParseObject>();
-            for(int i = 0; i < 5; i++) {
-                ParseObject object = ParseObject.create("Book");
-                object.put("name", "Book 3 " + i);
-//                object.put("author", author);
-                object.pin();
-                list.add(object);
+                //run synchronization task and after this go to main activity
+
             }
-            author.put("books", list);
-            author.pin();
 
-            System.out.println(ParseUtil.toString(author));
-
-//            for(ParseObject object : (List<ParseObject>) author.get("books")){
-//                System.out.println(ParseUtil.toString(object));
-//            }
-
-
-//            ParseQuery parseQuery = ParseQuery.getQuery("Book");
-//            parseQuery.fromLocalDatastore();
-//            parseQuery.whereEqualTo("author", author);
-//            for(ParseObject book : (List<ParseObject>) parseQuery.find()){
-//                System.out.println(ParseUtil.toString(book));
-//            }
-
-
-
-
-//            for(ParseObject obj : ParseQuery.getQuery("Test").find()){
-//                System.out.println(ParseUtil.toString(obj));
-//            }
-
-
-
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 }

@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao.parse;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -8,7 +8,7 @@ public class ReflectionUtil {
     public static List<Field> getAllFields(Class objClass){
         Set<Field> fieldSet = new HashSet<Field>();
         Class temp = objClass;
-        while(temp != null) {
+        while(temp != null && temp != Object.class) {
             fieldSet.addAll(Arrays.asList(temp.getFields()));
             fieldSet.addAll(Arrays.asList(temp.getDeclaredFields()));
             temp = temp.getSuperclass();

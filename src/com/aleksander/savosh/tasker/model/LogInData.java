@@ -31,6 +31,10 @@ public class LogInData extends BaseModel {
         return password;
     }
 
+    public Boolean getRememberMe() {
+        return rememberMe;
+    }
+
     public static LogInDataBuilder builder(){
         return new LogInDataBuilder();
     }

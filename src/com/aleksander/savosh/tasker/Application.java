@@ -1,9 +1,12 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
+import com.aleksander.savosh.tasker.dao.CloudDao;
+import com.aleksander.savosh.tasker.dao.LocalDao;
+import com.aleksander.savosh.tasker.dao.SynchronizedDao;
+import com.aleksander.savosh.tasker.dao.parse.*;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.service.*;
 import com.parse.Parse;
 
 public class Application extends android.app.Application {

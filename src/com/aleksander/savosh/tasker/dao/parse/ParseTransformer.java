@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao.parse;
 
 import android.util.Log;
 import com.parse.ParseObject;
@@ -29,6 +29,12 @@ public class ParseTransformer<Obj> {
             if(value == null){
                 if(fieldName.equals("objectId")){
                     value = parseObject.getObjectId();
+                }
+                if(fieldName.equals("createdAt")){
+                    value = parseObject.getCreatedAt();
+                }
+                if(fieldName.equals("updatedAt")){
+                    value = parseObject.getUpdatedAt();
                 }
             }
             Log.d(getClass().getName(), "field set: name: " + fieldName + " value: " + value);

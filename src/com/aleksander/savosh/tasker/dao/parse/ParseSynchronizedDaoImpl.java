@@ -1,11 +1,13 @@
-package com.aleksander.savosh.tasker.service;
+package com.aleksander.savosh.tasker.dao.parse;
 
 import android.util.Log;
+import com.aleksander.savosh.tasker.dao.CloudDao;
+import com.aleksander.savosh.tasker.dao.LocalDao;
+import com.aleksander.savosh.tasker.dao.SynchronizedDao;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+@Deprecated
 public class ParseSynchronizedDaoImpl<Model> implements SynchronizedDao<Model> {
     private CloudDao<Model> cloudDao;
     private LocalDao<Model> localDao;

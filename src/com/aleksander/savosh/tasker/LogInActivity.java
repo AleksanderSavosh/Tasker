@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.service.DataNotFoundException;
+import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 
 public class LogInActivity extends Activity {
 

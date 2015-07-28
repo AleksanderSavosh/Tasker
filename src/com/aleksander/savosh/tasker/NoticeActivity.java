@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import com.aleksander.savosh.tasker.dao.LocalDao;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.model.NoticeWithProperties;
+import com.aleksander.savosh.tasker.service.NoticeService;
 
 import java.util.*;
 
@@ -48,15 +50,17 @@ public class NoticeActivity extends Activity {
                     }
                 }
 
+                LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
+
                 for(Integer key : newNoticeTypes){
                     for(Property property : newPropertiesMap.get(key)){
-                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
+                        propertyLocalDao.createThrowExceptions(property);
                     }
                 }
 
                 for(Integer key : oldNoticeTypes){
                     for(Property property : oldNoticeWithProperties.getPropertiesMap().get(key)){
-                        Application.getPropertySynchronizedDao().deleteThrowExceptions(property);
+                        propertyLocalDao.deleteThrowExceptions(property);
                     }
                 }
 
@@ -65,11 +69,11 @@ public class NoticeActivity extends Activity {
                     List<Property> oldProperties = oldNoticeWithProperties.getPropertiesMap().get(key);
 
                     for(Property property : oldProperties){
-                        Application.getPropertySynchronizedDao().deleteThrowExceptions(property);
+                        propertyLocalDao.deleteThrowExceptions(property);
                     }
 
                     for(Property property : newProperties){
-                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
+                        propertyLocalDao.createThrowExceptions(property);
                     }
                 }
 
@@ -92,27 +96,29 @@ public class NoticeActivity extends Activity {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(null == null);
-    }
-
     public CreateNoticeTask createNoticeTask;
     public class CreateNoticeTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(null);
-                Notice notice = Application.getNoticeSynchronizedDao().createThrowExceptions(Notice.builder()
-                        .setAccountId(logInData.getAccountId()).build());
+                LocalDao<LogInData> logInDataLocalDao = Application.getLogInDataLocalDao();
+                LocalDao<Notice> noticeLocalDao = Application.getNoticeLocalDao();
+                LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
+
+                LogInData logInData = logInDataLocalDao.readFirst(null);
+
+                Notice notice = noticeLocalDao.createThrowExceptions(Notice.builder()
+                        .setAccountId(logInData == null ? NoticeService.DEFAULT_ACCOUNT_ID : logInData.getAccountId()).build());
 
                 Map<Integer, List<Property>> propertiesMap = NoticeActivity.this
                         .getNewMapOfProperties(notice.getObjectId());
 
                 for(Integer type : propertiesMap.keySet()){
                     for(Property property : propertiesMap.get(type)){
-                        Application.getPropertySynchronizedDao().createThrowExceptions(property);
+                        propertyLocalDao.createThrowExceptions(property);
                     }
                 }
+
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
                 Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);

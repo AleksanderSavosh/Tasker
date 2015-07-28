@@ -10,6 +10,7 @@ import com.aleksander.savosh.tasker.beans.Message;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class MessagesDao {
 
     public static List<Message> select(Context context){

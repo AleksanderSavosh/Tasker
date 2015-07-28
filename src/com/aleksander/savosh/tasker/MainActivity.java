@@ -1,5 +1,6 @@
 package com.aleksander.savosh.tasker;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -11,15 +12,14 @@ import com.aleksander.savosh.tasker.dao.OrmDatabaseHelper;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.model.NoticeWithProperties;
-import com.aleksander.savosh.tasker.service.PropertyService;
+import com.aleksander.savosh.tasker.service.NoticeService;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
+public class MainActivity extends Activity {
 
     public static final String EXTRA_KEY_NOTICE_WITH_PROPERTIES = "MainActivity.NoticeWithProperties";
 
@@ -31,14 +31,12 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
         protected List<NoticeWithProperties> doInBackground(Void... params) {
             //get notices from local repository;
             try {
-                LogInData logInData = Application.getLogInDataLocalDao().readFirstThrowExceptions(null);
-                List<Notice> notices = Application.getNoticeLocalDao()
-                        .readThrowExceptions(Notice.builder().setAccountId(logInData.getAccountId()).build());
-                List<NoticeWithProperties> list = new ArrayList<NoticeWithProperties>();
-                for(Notice notice : notices){
-                    list.add(new NoticeWithProperties(notice, PropertyService.getLocalNoticeProperties(notice)));
+                LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
+                if(logInData == null) { //get notices without account
+                    return NoticeService.getLocalNoticesWithoutAccountId();
+                } else { //get notices by account id
+                    return NoticeService.getLocalNoticesByAccountId(logInData.getAccountId());
                 }
-                return list;
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
                 Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
@@ -82,38 +80,78 @@ public class MainActivity extends OrmLiteBaseActivity<OrmDatabaseHelper> {
         }
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem itemAddNotice = menu.add(R.string.action_add_notice);
+        itemAddNotice.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+        });
+
+        final LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
+        if(logInData == null) {
+            MenuItem itemLogIn = menu.add(R.string.action_log_in);
+            itemLogIn.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Intent intent = new Intent(Application.getContext(), LogInActivity.class);
+                    startActivity(intent);
+                    finish();
+                    return true;
+                }
+            });
+        } else {
+            MenuItem itemLogOut = menu.add(R.string.action_log_out);
+            itemLogOut.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Application.getLogInDataLocalDao().delete(logInData);
+                    Intent intent = new Intent(Application.getContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                    return true;
+                }
+            });
+        }
+
         return true;
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_main_log_out) {
-            if(logOutTask == null){
-                logOutTask = new LogOutTask();
-                logOutTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            }
-            return true;
-        } else if (id == R.id.menu_main_add_notice){
-            Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.menu_main_log_out) {
+//            if(logOutTask == null){
+//                logOutTask = new LogOutTask();
+//                logOutTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//            }
+//            return true;
+//        } else if (id == R.id.menu_main_add_notice){
+//            Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private LogOutTask logOutTask;
     private class LogOutTask extends AsyncTask<Void, Void, Void> {

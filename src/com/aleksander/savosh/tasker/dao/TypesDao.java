@@ -9,6 +9,7 @@ import com.aleksander.savosh.tasker.beans.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class TypesDao {
 
     public static String[] select(Context context){
