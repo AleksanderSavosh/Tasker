@@ -46,7 +46,14 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
                 String name = field.getName();
 
                 if(!isCloudStorage && name.equalsIgnoreCase("objectId")){
-                    field.set(obj, "" + ((int) (Math.random() * 1000)));
+                    String id;
+                    do {
+                        id = "" + ((int) (Math.random() * 1000000));
+                    } while(!ParseQuery.getQuery(objClass.getSimpleName())
+                            .fromLocalDatastore()
+                            .whereEqualTo("objectId", id)
+                            .find().isEmpty());
+                    field.set(obj, id);
                 }
 
                 if(!isCloudStorage && name.equalsIgnoreCase("createdAt")){
@@ -58,7 +65,6 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
                 }
 
                 Object value = field.get(obj);
-
                 if(value != null) {
                     Log.d(getClass().getName(),
                             "parseObject.put(" + name + ", " + value + "); " + "field type: " + field.getType());
@@ -102,41 +108,6 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
         Log.d(getClass().getName(), "INPUT: " + constraintObj);
 
         try {
-//            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
-//            if(!isCloudStorage){
-//                parseQuery.fromLocalDatastore();
-//            }
-//
-//            List<ParseObject> parseObjects = new ArrayList<ParseObject>();
-//            Map<String, Field> fieldMap = ReflectionUtil.fieldsListToMap(ReflectionUtil.getAllFields(objClass));
-//            Log.d(getClass().getName(), "OBJECT FIELD MAP: " + fieldMap.toString());
-//
-//
-//            //get by id
-//            Field objectIdField = fieldMap.get("objectId");
-//            objectIdField.setAccessible(true);
-//            String objectId = constraintObj != null ? (String) objectIdField.get(constraintObj) : null;
-//            if(objectId != null){
-//                if(isCloudStorage) {
-//                    parseObjects.add(ParseQuery.getQuery(objClass.getSimpleName()).get(objectId));
-//                } else {
-//                    parseObjects = ParseQuery.getQuery(objClass.getSimpleName())
-//                            .whereEqualTo("objectId", objectId).find();
-//                }
-//            }
-//
-//            //find other variants
-//            if(parseObjects.isEmpty()){
-//                for(Field field : fieldMap.values()) {
-//                    field.setAccessible(true);
-//                    Object value = constraintObj != null ? field.get(constraintObj) : null;
-//                    if(value != null) {
-//                        parseQuery.whereEqualTo(field.getName(), value);
-//                    }
-//                }
-//                parseObjects = parseQuery.find();
-//            }
-
             List<Obj> objList = new ArrayList<Obj>();
             for(ParseObject parseObject : findParseObjects(constraintObj)){
                 objList.add(transformer.fromParseObject(parseObject));
@@ -154,36 +125,42 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
     }
 
     private List<ParseObject> findParseObjects(Obj constraintObj) throws IllegalAccessException, ParseException {
-        ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
-        if(!isCloudStorage){
-            parseQuery.fromLocalDatastore();
-        }
-
         List<ParseObject> parseObjects = new ArrayList<ParseObject>();
         Map<String, Field> fieldMap = ReflectionUtil.fieldsListToMap(ReflectionUtil.getAllFields(objClass));
         Log.d(getClass().getName(), "OBJECT FIELD MAP: " + fieldMap.toString());
-
 
         //get by id
         Field objectIdField = fieldMap.get("objectId");
         objectIdField.setAccessible(true);
         String objectId = constraintObj != null ? (String) objectIdField.get(constraintObj) : null;
         if(objectId != null){
+            Log.d(getClass().getName(), "FIND BY ID: " + objectId);
             if(isCloudStorage) {
                 parseObjects.add(ParseQuery.getQuery(objClass.getSimpleName()).get(objectId));
             } else {
-                parseObjects = ParseQuery.getQuery(objClass.getSimpleName())
-                        .whereEqualTo("objectId", objectId).find();
+                ParseQuery<ParseObject> queryById = ParseQuery.getQuery(objClass.getSimpleName());
+                queryById.fromLocalDatastore();
+                parseObjects = queryById.whereEqualTo("objectId", objectId).find();
             }
         }
 
         //find other variants
         if(parseObjects.isEmpty()){
+            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
+            if(!isCloudStorage){
+                parseQuery.fromLocalDatastore();
+            }
+            Log.d(getClass().getName(), "FIND BY MAP:");
             for(Field field : fieldMap.values()) {
+                String name = field.getName();
+                if(name.equals("objectId") || name.equals("createdAt") || name.equals("updatedAt")){
+                    continue;
+                }
                 field.setAccessible(true);
                 Object value = constraintObj != null ? field.get(constraintObj) : null;
                 if(value != null) {
-                    parseQuery.whereEqualTo(field.getName(), value);
+                    Log.d(getClass().getName(), "..." + name + ":" + value);
+                    parseQuery.whereEqualTo(name, value);
                 }
             }
             parseObjects = parseQuery.find();
@@ -227,35 +204,6 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             if(constraintObj == null){
                 return;
             }
-//            ParseQuery<ParseObject> parseQuery = ParseQuery.getQuery(objClass.getSimpleName());
-//            if(!isCloudStorage){
-//                parseQuery.fromLocalDatastore();
-//            }
-//
-//            List<ParseObject> parseObjects = new ArrayList<ParseObject>();
-//            Map<String, Field> fieldMap = ReflectionUtil.fieldsListToMap(ReflectionUtil.getAllFields(objClass));
-//            Log.d(getClass().getName(), "OBJECT FIELD MAP: " + fieldMap.toString());
-//
-//            //delete by id
-//            Field objectIdField = fieldMap.get("objectId");
-//            objectIdField.setAccessible(true);
-//            String objectId = constraintObj != null ? (String) objectIdField.get(constraintObj) : null;
-//            if(objectId != null){
-//                if(isCloudStorage) {
-//                    parseObjects.add(ParseQuery.getQuery(objClass.getSimpleName()).get(objectId));
-//                } else {
-//                    parseObjects = ParseQuery.getQuery(objClass.getSimpleName())
-//                            .whereEqualTo("objectId", objectId).find();
-//                }
-//            }
-//
-//            for(Field field : objClass.getDeclaredFields()) {
-//                field.setAccessible(true);
-//                Object value = field.get(constraintObj);
-//                if(value != null) {
-//                    parseQuery.whereEqualTo(field.getName(), value);
-//                }
-//            }
 
             List<ParseObject> parseObjects = findParseObjects(constraintObj);
             Log.d(getClass().getName(), "Count " + parseObjects.size());
@@ -275,6 +223,4 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
             Log.d(getClass().getName(), " ========================================================= ");
         }
     }
-
-
 }

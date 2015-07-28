@@ -9,19 +9,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:hint="@string/enter_phone"/>
     <EditText
             android:id="@+id/login_activity_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/login_activity_phone_number"
             android:inputType="textPassword"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:hint="@string/enter_password"/>
+    <CheckBox
+            android:id="@+id/login_activity_remember_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_activity_password"
+            android:text="@string/remember_me"/>
+
     <TextView
             android:id="@+id/login_activity_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/login_activity_password"
+            android:layout_below="@id/login_activity_remember_me"
             android:visibility="gone"/>
     <Button
             android:id="@+id/login_activity_log_in"

@@ -46,6 +46,6 @@ public class LogInData extends BaseModel {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", password='" + password + '\'' +
                 ", rememberMe=" + rememberMe +
-                '}';
+                "} " + super.toString();
     }
 }
