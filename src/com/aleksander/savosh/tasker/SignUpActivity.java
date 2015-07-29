@@ -129,7 +129,6 @@ public class SignUpActivity extends Activity {
                         }
                     }
                 }
-
                 result.isSignUp = true;
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage());
@@ -142,7 +141,7 @@ public class SignUpActivity extends Activity {
                 Log.d(getClass().getName(), ".  updatedLocalNoticeList: " + updatedLocalNoticeList);
                 Log.d(getClass().getName(), ".  createdCloudNoticeList: " + createdCloudNoticeList);
                 Log.d(getClass().getName(), ".updatedLocalPropertyList: " + updatedLocalPropertyList);
-                Log.d(getClass().getName(), ".createdCloudPropertyList: " + logInData);
+                Log.d(getClass().getName(), ".createdCloudPropertyList: " + createdCloudPropertyList);
 
                 if (account != null) {
                     accountCloudDao.delete(Account.builder().setObjectId(account.getObjectId()).build());
@@ -195,6 +194,7 @@ public class SignUpActivity extends Activity {
                 SignUpActivity.this.startActivity(intent);
                 SignUpActivity.this.finish();
             } else {
+                ((TextView) findViewById(R.id.sign_up_activity_message)).setVisibility(View.VISIBLE);
                 ((TextView) findViewById(R.id.sign_up_activity_message)).setText(result.message);
             }
             signUpTask = null;
@@ -214,7 +214,6 @@ public class SignUpActivity extends Activity {
         final EditText phoneEditText = (EditText) findViewById(R.id.sign_up_activity_phone);
         final EditText passwordEditText = (EditText) findViewById(R.id.sign_up_activity_password);
         final EditText repeatPasswordEditText = (EditText) findViewById(R.id.sign_up_activity_repeat_password);
-        final TextView message = (TextView) findViewById(R.id.sign_up_activity_message);
         final CheckBox transferNotes = (CheckBox) findViewById(R.id.sign_up_activity_transfer_notes);
 
         findViewById(R.id.sign_up_activity_sign_up).setOnClickListener(new View.OnClickListener() {

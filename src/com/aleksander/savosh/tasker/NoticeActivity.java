@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -236,6 +238,26 @@ public class NoticeActivity extends Activity {
         }
 
         return properties;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuItem itemAddTitle = menu.add(R.string.action_add_remove_title);
+        itemAddTitle.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                View view = findViewById(R.id.notice_activity_title);
+                if(view.getVisibility() == View.GONE) {
+                    view.setVisibility(View.VISIBLE);
+                } else {
+                    view.setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
+
+        return true;
     }
 
 }
