@@ -1,7 +1,7 @@
 package com.aleksander.savosh.tasker.model;
 
 
-public class PhoneBuilder extends BaseBuilder<AccountBuilder> {
+public class PhoneBuilder extends BaseBuilder<PhoneBuilder> {
 
     private Phone phone = new Phone();
 

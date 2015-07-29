@@ -16,6 +16,10 @@ public class Notice extends BaseModel {
         return new NoticeBuilder();
     }
 
+    public static NoticeBuilder builder(Notice notice){
+        return new NoticeBuilder(notice);
+    }
+
     @Override
     public String toString() {
         return "Notice{" +

@@ -9,6 +9,9 @@ import java.util.Date;
 
 public class StringUtil {
 
+    public static boolean isEmpty(String s){
+        return s == null || s.trim().length() == 0;
+    }
 
     public static String dateToReadableString(Date date){
         return new SimpleDateFormat("dd.MM.yyyy").format(date);

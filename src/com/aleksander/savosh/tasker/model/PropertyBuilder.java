@@ -2,9 +2,16 @@ package com.aleksander.savosh.tasker.model;
 
 import java.util.Date;
 
-public class PropertyBuilder extends BaseBuilder<AccountBuilder> {
+public class PropertyBuilder extends BaseBuilder<PropertyBuilder> {
 
     private Property property = new Property();
+
+    PropertyBuilder() {
+    }
+    PropertyBuilder(Property property) {
+        this.property = new Property(property.objectId, property.createdAt, property.updatedAt, property.noticeId,
+                property.type, property.text, property.date);
+    }
 
     public PropertyBuilder setNoticeId(String noticeId) {
         property.noticeId = noticeId;

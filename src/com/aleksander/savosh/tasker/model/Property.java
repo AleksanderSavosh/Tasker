@@ -38,7 +38,9 @@ public class Property extends BaseModel {
     public static PropertyBuilder builder(){
         return new PropertyBuilder();
     }
-
+    public static PropertyBuilder builder(Property property) {
+        return new PropertyBuilder(property);
+    }
     @Override
     public String toString() {
         return "Property{" +
@@ -48,4 +50,6 @@ public class Property extends BaseModel {
                 ", date=" + date +
                 "} " + super.toString();
     }
+
+
 }

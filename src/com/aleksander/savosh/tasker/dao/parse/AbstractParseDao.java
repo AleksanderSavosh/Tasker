@@ -1,6 +1,7 @@
 package com.aleksander.savosh.tasker.dao.parse;
 
 import android.util.Log;
+import com.aleksander.savosh.tasker.StringUtil;
 import com.aleksander.savosh.tasker.dao.BaseDao;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.parse.ParseException;
@@ -45,7 +46,7 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
                 field.setAccessible(true);
                 String name = field.getName();
 
-                if(!isCloudStorage && name.equalsIgnoreCase("objectId")){
+                if(!isCloudStorage && name.equalsIgnoreCase("objectId") && StringUtil.isEmpty((String) field.get(obj))){
                     String id;
                     do {
                         id = "" + ((int) (Math.random() * 1000000));
@@ -56,18 +57,25 @@ public abstract class AbstractParseDao<Obj> implements BaseDao<Obj> {
                     field.set(obj, id);
                 }
 
-                if(!isCloudStorage && name.equalsIgnoreCase("createdAt")){
+                if(!isCloudStorage && name.equalsIgnoreCase("createdAt") && field.get(obj) == null){
                     field.set(obj, new Date());
                 }
 
-                if(!isCloudStorage && name.equalsIgnoreCase("updatedAt")){
+                if(!isCloudStorage && name.equalsIgnoreCase("updatedAt") && field.get(obj) == null){
                     field.set(obj, new Date());
+                }
+
+                if(isCloudStorage && (name.equalsIgnoreCase("objectId") ||
+                        name.equalsIgnoreCase("createdAt") ||
+                        name.equalsIgnoreCase("updatedAt"))){
+                    continue;
                 }
 
                 Object value = field.get(obj);
                 if(value != null) {
                     Log.d(getClass().getName(),
                             "parseObject.put(" + name + ", " + value + "); " + "field type: " + field.getType());
+
                     parseObject.put(name, value);
                 }
             }

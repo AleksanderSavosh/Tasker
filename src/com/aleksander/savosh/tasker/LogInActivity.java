@@ -6,8 +6,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.aleksander.savosh.tasker.dao.CloudDao;
+import com.aleksander.savosh.tasker.dao.LocalDao;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
@@ -15,26 +18,34 @@ import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 public class LogInActivity extends Activity {
 
     private static AutoLogInTask autoLogInTask;
+
     private class AutoLogInTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
+            LocalDao<LogInData> logInDataLocalDao = Application.getLogInDataLocalDao();
+            CloudDao<Phone> phoneCloudDao = Application.getPhoneCloudDao();
+            CloudDao<Account> accountCloudDao = Application.getAccountCloudDao();
             try {
-                LogInData logInData = Application.getLogInDataLocalDao()
-                        .readFirstThrowExceptions(LogInData.builder().build());
-                Phone phone = Application.getPhoneCloudDao()
-                        .readFirstThrowExceptions(Phone.builder().setNumber(logInData.getPhoneNumber()).build());
-                Account account = Application.getAccountCloudDao()
-                        .readFirstThrowExceptions(Account.builder().setObjectId(phone.getAccountId()).build());
-                if (logInData.getPassword().equals(account.getPassword())) {
-                    Application.getLogInDataLocalDao().delete(logInData);
-                    Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
-                            .setAccountId(account.getObjectId())
-                            .setPhoneNumber(phone.getNumber())
-                            .setPassword(account.getPassword())
+                LogInData logInData = logInDataLocalDao.readFirstThrowExceptions(null);
+                if (logInData.getRememberMe() != null && logInData.getRememberMe()) {
+                    Phone phone = phoneCloudDao.readFirstThrowExceptions(Phone.builder()
+                            .setNumber(logInData.getPhoneNumber())
                             .build());
-                    return true;
+                    Account account = accountCloudDao.readFirstThrowExceptions(Account.builder()
+                            .setObjectId(phone.getAccountId())
+                            .build());
+                    if (logInData.getPassword().equals(account.getPassword())) {
+                        logInDataLocalDao.delete(logInData);
+                        logInDataLocalDao.createThrowExceptions(LogInData.builder()
+                                .setAccountId(account.getObjectId())
+                                .setPhoneNumber(phone.getNumber())
+                                .setPassword(account.getPassword())
+                                .setRememberMe(logInData.getRememberMe())
+                                .build());
+                        return true;
+                    }
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() == null ? e.toString() : e.getMessage());
             }
             return false;
@@ -42,7 +53,7 @@ public class LogInActivity extends Activity {
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            if(aBoolean) {
+            if (aBoolean) {
                 Intent intent = new Intent(Application.getContext(), MainActivity.class);
                 LogInActivity.this.startActivity(intent);
                 LogInActivity.this.finish();
@@ -76,6 +87,7 @@ public class LogInActivity extends Activity {
                             .setAccountId(account.getObjectId())
                             .setPhoneNumber(phone.getNumber())
                             .setPassword(account.getPassword())
+                            .setRememberMe(logInData.getRememberMe())
                             .build());
                 }
             } catch (DataNotFoundException e) {
@@ -90,7 +102,7 @@ public class LogInActivity extends Activity {
 
         @Override
         protected void onPostExecute(LogInResult logInResult) {
-            if(logInResult.isLogIn){
+            if (logInResult.isLogIn) {
                 Intent intent = new Intent(Application.getContext(), MainActivity.class);
                 LogInActivity.this.startActivity(intent);
                 LogInActivity.this.finish();
@@ -108,18 +120,20 @@ public class LogInActivity extends Activity {
         public void onClick(View v) {
             if (v.getId() == R.id.login_activity_log_in) {
 
-                if(logInTask == null){
+                if (logInTask == null) {
                     TextView message = (TextView) findViewById(R.id.login_activity_message);
                     message.setVisibility(View.VISIBLE);
                     message.setText(LogInActivity.this.getResources().getText(R.string.wait));
 
                     String number = ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString();
                     String password = ((EditText) findViewById(R.id.login_activity_password)).getText().toString();
+                    Boolean rememberMe = ((CheckBox) findViewById(R.id.login_activity_remember_me)).isChecked();
 
 
                     LogInData logInData = LogInData.builder()
                             .setPhoneNumber(number)
                             .setPassword(StringUtil.encodePassword(password))
+                            .setRememberMe(rememberMe)
                             .build();
 
                     logInTask = new LogInTask();
@@ -147,7 +161,7 @@ public class LogInActivity extends Activity {
         findViewById(R.id.login_activity_log_in).setOnClickListener(clickListener);
         findViewById(R.id.login_activity_sign_up).setOnClickListener(clickListener);
 
-        if(autoLogInTask == null) {
+        if (autoLogInTask == null) {
             autoLogInTask = new AutoLogInTask();
             autoLogInTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

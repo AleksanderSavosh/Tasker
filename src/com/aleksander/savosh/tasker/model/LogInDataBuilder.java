@@ -1,7 +1,7 @@
 package com.aleksander.savosh.tasker.model;
 
 
-public class LogInDataBuilder extends BaseBuilder<AccountBuilder> {
+public class LogInDataBuilder extends BaseBuilder<LogInDataBuilder> {
 
     private LogInData logInData = new LogInData();
 
