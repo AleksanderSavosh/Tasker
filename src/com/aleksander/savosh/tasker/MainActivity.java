@@ -8,12 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.aleksander.savosh.tasker.dao.OrmDatabaseHelper;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
 import com.aleksander.savosh.tasker.model.NoticeWithProperties;
 import com.aleksander.savosh.tasker.service.NoticeService;
-import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
 import java.util.List;
 import java.util.Map;

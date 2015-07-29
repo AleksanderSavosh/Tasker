@@ -1,25 +1,9 @@
 package com.aleksander.savosh.tasker.model;
 
-import java.util.Date;
 
-public class LogInDataBuilder {
+public class LogInDataBuilder extends BaseBuilder<AccountBuilder> {
 
     private LogInData logInData = new LogInData();
-
-    public LogInDataBuilder setObjectId(String objectId) {
-        logInData.objectId = objectId;
-        return this;
-    }
-
-    public LogInDataBuilder setCreatedAt(Date createdAt) {
-        logInData.createdAt = createdAt;
-        return this;
-    }
-
-    public LogInDataBuilder setUpdatedAt(Date updatedAt) {
-        logInData.updatedAt = updatedAt;
-        return this;
-    }
 
     public LogInDataBuilder setAccountId(String accountId){
         logInData.accountId = accountId;
@@ -42,7 +26,7 @@ public class LogInDataBuilder {
     }
 
     public LogInData build(){
-        return new LogInData(logInData.objectId, logInData.createdAt, logInData.updatedAt,
-                logInData.accountId, logInData.phoneNumber, logInData.password, logInData.rememberMe);
+        return new LogInData(objectId, createdAt, updatedAt, logInData.accountId, logInData.phoneNumber,
+                logInData.password, logInData.rememberMe);
     }
 }
