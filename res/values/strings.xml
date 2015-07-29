@@ -35,4 +35,5 @@
     <string name="title">Title</string>
     <string name="some_notice_text">Some notice text</string>
     <string name="remember_me">Remember me</string>
+    <string name="transfer_notes">Transfer notes in the account</string>
 </resources>

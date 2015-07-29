@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/login_activity_password"
-            android:text="@string/remember_me"/>
+            android:hint="@string/remember_me"/>
 
     <TextView
             android:id="@+id/login_activity_message"
