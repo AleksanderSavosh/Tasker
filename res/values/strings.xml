@@ -38,4 +38,5 @@
     <string name="transfer_notes">Transfer notes in the account</string>
     <string name="action_add_title">Add title</string>
     <string name="action_add_remove_title">Title</string>
+    <string name="update_local_data_exception">Update local data error</string>
 </resources>

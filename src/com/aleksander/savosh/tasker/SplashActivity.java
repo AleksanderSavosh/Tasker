@@ -4,46 +4,39 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import com.aleksander.savosh.tasker.dao.CloudDao;
-import com.aleksander.savosh.tasker.dao.LocalDao;
+import android.util.Log;
+import android.widget.Toast;
 import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.model.Notice;
-import com.aleksander.savosh.tasker.model.Property;
-
-import java.util.List;
+import com.aleksander.savosh.tasker.service.SynchronizeService;
 
 
 public class SplashActivity extends Activity {
 
-    public class SynchronizeDataTask extends AsyncTask <LogInData, Void, Void> {
-
-        CloudDao<Notice> noticeCloudDao = Application.getNoticeCloudDao();
-        CloudDao<Property> propertyCloudDao = Application.getPropertyCloudDao();
-        LocalDao<Notice> noticeLocalDao = Application.getNoticeLocalDao();
-        LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
+    public class SynchronizeDataTask extends AsyncTask <LogInData, Void, Boolean> {
 
         @Override
-        protected Void doInBackground(LogInData... params) {
+        protected Boolean doInBackground(LogInData... params) {
             LogInData logInData = params[0];
 
             try {
-                List<Notice> localNotices = noticeLocalDao.readThrowExceptions(Notice.builder()
-                        .setAccountId(logInData.getAccountId())
-                        .build());
-                List<Notice> cloudNotices = noticeCloudDao.readThrowExceptions(Notice.builder()
-                        .setAccountId(logInData.getAccountId())
-                        .build());
-
-                //todo
-
+                SynchronizeService.updateLocalByCloud(logInData.getAccountId());
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(getClass().getName(), e.getMessage());
+                Log.d(getClass().getName(), e.getMessage(), e);
+                return true;
             }
-            return null;
+            return false;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(Boolean wasException) {
+            if(wasException){
+                Toast.makeText(
+                        Application.getContext(),
+                        getResources().getText(R.string.update_local_data_exception),
+                        Toast.LENGTH_LONG)
+                        .show();
+            }
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
             startActivity(intent);
             finish();
@@ -53,20 +46,15 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
-            if(logInData == null || logInData.getRememberMe() == null || !logInData.getRememberMe()){
-                Application.getLogInDataLocalDao().delete(logInData);
-                Intent intent = new Intent(Application.getContext(), MainActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                //run synchronization task and after this go to main activity
-                new SynchronizeDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, logInData);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
+        if(logInData == null || logInData.getRememberMe() == null || !logInData.getRememberMe()){
+            Application.getLogInDataLocalDao().delete(logInData);
+            Intent intent = new Intent(Application.getContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            //run synchronization task and after this go to main activity
+            new SynchronizeDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, logInData);
         }
     }
 }

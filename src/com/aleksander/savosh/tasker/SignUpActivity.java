@@ -16,6 +16,7 @@ import com.aleksander.savosh.tasker.dao.LocalDao;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.service.NoticeService;
+import com.aleksander.savosh.tasker.service.SynchronizeService;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -46,10 +47,7 @@ public class SignUpActivity extends Activity {
             CloudDao<Phone> phoneCloudDao = Application.getPhoneCloudDao();
             CloudDao<Account> accountCloudDao = Application.getAccountCloudDao();
             LocalDao<LogInData> logInDataLocalDao = Application.getLogInDataLocalDao();
-            LocalDao<Notice> noticeLocalDao = Application.getNoticeLocalDao();
-            CloudDao<Notice> noticeCloudDao = Application.getNoticeCloudDao();
-            LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
-            CloudDao<Property> propertyCloudDao = Application.getPropertyCloudDao();
+
 
             SignUpData data = params[0];
             SignUpResult result = new SignUpResult();
@@ -71,7 +69,7 @@ public class SignUpActivity extends Activity {
                 phoneCloudDao.readFirstThrowExceptions(Phone.builder().setNumber(data.number).build());
                 result.message = getResources().getString(R.string.this_phone_already_exist);
                 return result;
-            } catch (DataNotFoundException e) {
+            } catch (DataNotFoundException normalSituationException) {
 
             } catch (Exception e) {
                 result.message = getResources().getString(R.string.some_error_message);
@@ -81,10 +79,6 @@ public class SignUpActivity extends Activity {
             Account account = null;
             Phone phone = null;
             LogInData logInData = null;
-            List<Notice> updatedLocalNoticeList = new ArrayList<Notice>();
-            List<Notice> createdCloudNoticeList = new ArrayList<Notice>();
-            List<Property> updatedLocalPropertyList = new ArrayList<Property>();
-            List<Property> createdCloudPropertyList = new ArrayList<Property>();
             try {
                 account = accountCloudDao.createThrowExceptions(Account.builder()
                         .setPassword(data.password)
@@ -102,32 +96,7 @@ public class SignUpActivity extends Activity {
                         .build());
 
                 if(data.transferNotes) {
-                    List<Notice> localNoticeList = noticeLocalDao.read(Notice.builder()
-                            .setAccountId(NoticeService.DEFAULT_ACCOUNT_ID)
-                            .build());
-
-                    for (Notice localNotice : localNoticeList) {
-                        Notice cloudNotice = noticeCloudDao.createThrowExceptions(Notice.builder(localNotice)
-                                .setAccountId(account.getObjectId())
-                                .build());
-                        createdCloudNoticeList.add(cloudNotice);
-                        noticeLocalDao.deleteThrowExceptions(localNotice);
-                        noticeLocalDao.createThrowExceptions(cloudNotice);
-                        updatedLocalNoticeList.add(localNotice);
-
-                        List<Property> localPropertyList = propertyLocalDao.readThrowExceptions(Property.builder()
-                                .setNoticeId(localNotice.getObjectId())
-                                .build());
-
-                        for (Property localProperty : localPropertyList) {
-                            Property cloudProperty = propertyCloudDao.createThrowExceptions(Property
-                                    .builder(localProperty).setNoticeId(cloudNotice.getObjectId()).build());
-                            createdCloudPropertyList.add(cloudProperty);
-                            propertyLocalDao.deleteThrowExceptions(localProperty);
-                            propertyLocalDao.createThrowExceptions(cloudProperty);
-                            updatedLocalPropertyList.add(localProperty);
-                        }
-                    }
+                    SynchronizeService.transferLocalNoticesToCloud(account.getObjectId());
                 }
                 result.isSignUp = true;
             } catch (Exception e) {
@@ -138,10 +107,7 @@ public class SignUpActivity extends Activity {
                 Log.d(getClass().getName(), ".    delete cloud account: " + account);
                 Log.d(getClass().getName(), ".      delete cloud phone: " + phone);
                 Log.d(getClass().getName(), ".               logInData: " + logInData);
-                Log.d(getClass().getName(), ".  updatedLocalNoticeList: " + updatedLocalNoticeList);
-                Log.d(getClass().getName(), ".  createdCloudNoticeList: " + createdCloudNoticeList);
-                Log.d(getClass().getName(), ".updatedLocalPropertyList: " + updatedLocalPropertyList);
-                Log.d(getClass().getName(), ".createdCloudPropertyList: " + createdCloudPropertyList);
+
 
                 if (account != null) {
                     accountCloudDao.delete(Account.builder().setObjectId(account.getObjectId()).build());
@@ -155,29 +121,6 @@ public class SignUpActivity extends Activity {
                             .build());
                 }
 
-                if (!updatedLocalNoticeList.isEmpty()) {
-                    for (Notice notice : updatedLocalNoticeList) {
-                        noticeLocalDao.create(notice);
-                    }
-                }
-
-                if (!createdCloudNoticeList.isEmpty()) {
-                    for (Notice notice : createdCloudNoticeList) {
-                        noticeCloudDao.delete(notice);
-                    }
-                }
-
-                if (!updatedLocalPropertyList.isEmpty()) {
-                    for (Property property : updatedLocalPropertyList) {
-                        propertyLocalDao.create(property);
-                    }
-                }
-
-                if (!createdCloudPropertyList.isEmpty()) {
-                    for (Property property : createdCloudPropertyList) {
-                        propertyCloudDao.delete(property);
-                    }
-                }
                 Log.d(getClass().getName(), "##################################################");
                 result.message = getResources().getString(R.string.some_error_message);
                 return result;

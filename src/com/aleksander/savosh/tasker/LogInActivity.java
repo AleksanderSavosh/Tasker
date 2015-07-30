@@ -68,7 +68,6 @@ public class LogInActivity extends Activity {
     }
 
     private static LogInTask logInTask;
-
     private class LogInTask extends AsyncTask<LogInData, Void, LogInResult> {
         @Override
         protected LogInResult doInBackground(LogInData... params) {
