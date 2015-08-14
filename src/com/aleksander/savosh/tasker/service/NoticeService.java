@@ -2,9 +2,9 @@ package com.aleksander.savosh.tasker.service;
 
 
 import com.aleksander.savosh.tasker.Application;
-import com.aleksander.savosh.tasker.dao.LocalDao;
-import com.aleksander.savosh.tasker.model.Notice;
-import com.aleksander.savosh.tasker.model.NoticeWithProperties;
+import com.aleksander.savosh.tasker.dao.relational.LocalDao;
+import com.aleksander.savosh.tasker.model.relational.Notice;
+import com.aleksander.savosh.tasker.model.relational.NoticeWithProperties;
 
 import java.util.ArrayList;
 import java.util.List;

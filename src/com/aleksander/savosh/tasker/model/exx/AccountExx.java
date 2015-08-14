@@ -1,8 +1,6 @@
 package com.aleksander.savosh.tasker.model.exx;
 
-import com.aleksander.savosh.tasker.model.AccountBuilder;
-import com.aleksander.savosh.tasker.model.BaseModel;
-import com.parse.ParseClassName;
+import com.aleksander.savosh.tasker.model.relational.BaseModel;
 
 import java.util.Date;
 
@@ -15,6 +13,11 @@ public class AccountExx extends BaseModel {
     }
     public AccountExx(String password) {
 //        super("AccountExx");
+        this.password = password;
+    }
+
+    public AccountExx(String objectId, Date createdAt, Date updatedAt, String password) {
+        super(objectId, createdAt, updatedAt);
         this.password = password;
     }
 

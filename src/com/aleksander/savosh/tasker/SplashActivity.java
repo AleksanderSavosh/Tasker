@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import com.aleksander.savosh.tasker.model.LogInData;
+import com.aleksander.savosh.tasker.model.relational.LogInData;
 import com.aleksander.savosh.tasker.service.SynchronizeService;
 
 

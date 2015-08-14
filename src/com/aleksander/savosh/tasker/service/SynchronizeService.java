@@ -2,11 +2,11 @@ package com.aleksander.savosh.tasker.service;
 
 import android.util.Log;
 import com.aleksander.savosh.tasker.Application;
-import com.aleksander.savosh.tasker.dao.CloudDao;
-import com.aleksander.savosh.tasker.dao.LocalDao;
-import com.aleksander.savosh.tasker.model.BaseModel;
-import com.aleksander.savosh.tasker.model.Notice;
-import com.aleksander.savosh.tasker.model.Property;
+import com.aleksander.savosh.tasker.dao.relational.CloudDao;
+import com.aleksander.savosh.tasker.dao.relational.LocalDao;
+import com.aleksander.savosh.tasker.model.relational.BaseModel;
+import com.aleksander.savosh.tasker.model.relational.Notice;
+import com.aleksander.savosh.tasker.model.relational.Property;
 
 import java.util.*;
 

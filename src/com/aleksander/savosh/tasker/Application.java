@@ -1,16 +1,14 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
-import com.aleksander.savosh.tasker.dao.CloudDao;
-import com.aleksander.savosh.tasker.dao.LocalDao;
-import com.aleksander.savosh.tasker.dao.SynchronizedDao;
-import com.aleksander.savosh.tasker.dao.parse.*;
-import com.aleksander.savosh.tasker.model.*;
-import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.model.exx.AccountExx;
-import com.aleksander.savosh.tasker.model.exx.PhoneExx;
+import com.aleksander.savosh.tasker.dao.relational.CloudDao;
+import com.aleksander.savosh.tasker.dao.relational.LocalDao;
+import com.aleksander.savosh.tasker.dao.relational.SynchronizedDao;
+import com.aleksander.savosh.tasker.dao.relational.parse.ParseCloudDaoImpl;
+import com.aleksander.savosh.tasker.dao.relational.parse.ParseLocalDaoImpl;
+import com.aleksander.savosh.tasker.dao.relational.parse.ParseSynchronizedDaoImpl;
+import com.aleksander.savosh.tasker.model.relational.*;
 import com.parse.Parse;
-import com.parse.ParseObject;
 
 public class Application extends android.app.Application {
 

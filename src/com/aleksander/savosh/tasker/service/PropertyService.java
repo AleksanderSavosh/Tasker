@@ -1,10 +1,10 @@
 package com.aleksander.savosh.tasker.service;
 
 import com.aleksander.savosh.tasker.Application;
-import com.aleksander.savosh.tasker.dao.LocalDao;
-import com.aleksander.savosh.tasker.model.Notice;
-import com.aleksander.savosh.tasker.model.Property;
-import com.aleksander.savosh.tasker.model.PropertyType;
+import com.aleksander.savosh.tasker.dao.relational.LocalDao;
+import com.aleksander.savosh.tasker.model.relational.Notice;
+import com.aleksander.savosh.tasker.model.relational.Property;
+import com.aleksander.savosh.tasker.model.relational.PropertyType;
 
 import java.util.Arrays;
 import java.util.HashMap;

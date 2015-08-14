@@ -1,10 +1,11 @@
 package com.aleksander.savosh.tasker.dao.exception;
 
-public class DataNotFoundException extends Exception {
+public class CannotCreateException extends Exception {
+
     /**
      * Constructs a new {@code Exception} that includes the current stack trace.
      */
-    public DataNotFoundException() {
+    public CannotCreateException() {
     }
 
     /**
@@ -13,7 +14,7 @@ public class DataNotFoundException extends Exception {
      *
      * @param detailMessage the detail message for this exception.
      */
-    public DataNotFoundException(String detailMessage) {
+    public CannotCreateException(String detailMessage) {
         super(detailMessage);
     }
 
@@ -24,7 +25,7 @@ public class DataNotFoundException extends Exception {
      * @param detailMessage the detail message for this exception.
      * @param throwable
      */
-    public DataNotFoundException(String detailMessage, Throwable throwable) {
+    public CannotCreateException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }
 
@@ -34,7 +35,7 @@ public class DataNotFoundException extends Exception {
      *
      * @param throwable the cause of this exception.
      */
-    public DataNotFoundException(Throwable throwable) {
+    public CannotCreateException(Throwable throwable) {
         super(throwable);
     }
 }

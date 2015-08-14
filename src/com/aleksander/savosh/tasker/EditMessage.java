@@ -8,7 +8,7 @@ import com.aleksander.savosh.tasker.adapters.TypeSpinnerAdapter;
 import com.aleksander.savosh.tasker.beans.Message;
 import com.aleksander.savosh.tasker.beans.Status;
 import com.aleksander.savosh.tasker.beans.Type;
-import com.aleksander.savosh.tasker.dao.OrmDatabaseHelper;
+import com.aleksander.savosh.tasker.dao.relational.OrmDatabaseHelper;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
 import java.io.Serializable;

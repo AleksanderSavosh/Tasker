@@ -1,9 +1,7 @@
 package com.aleksander.savosh.tasker.model.exx;
 
 
-import com.aleksander.savosh.tasker.model.BaseModel;
-import com.aleksander.savosh.tasker.model.PhoneBuilder;
-import com.parse.ParseClassName;
+import com.aleksander.savosh.tasker.model.relational.BaseModel;
 
 import java.util.Date;
 
@@ -19,6 +17,12 @@ public class PhoneExx extends BaseModel {
     }
     public PhoneExx(String number, AccountExx accountExx) {
 //        super("PhoneExx");
+        this.number = number;
+        this.accountExx = accountExx;
+    }
+
+    public PhoneExx(String objectId, Date createdAt, Date updatedAt, String number, AccountExx accountExx) {
+        super(objectId, createdAt, updatedAt);
         this.number = number;
         this.accountExx = accountExx;
     }

@@ -8,9 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.aleksander.savosh.tasker.model.*;
-import com.aleksander.savosh.tasker.model.LogInData;
-import com.aleksander.savosh.tasker.model.NoticeWithProperties;
+import com.aleksander.savosh.tasker.model.relational.LogInData;
+import com.aleksander.savosh.tasker.model.relational.NoticeWithProperties;
+import com.aleksander.savosh.tasker.model.relational.Property;
+import com.aleksander.savosh.tasker.model.relational.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
 
 import java.util.List;
