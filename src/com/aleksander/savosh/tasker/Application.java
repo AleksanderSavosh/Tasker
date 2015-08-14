@@ -7,7 +7,10 @@ import com.aleksander.savosh.tasker.dao.SynchronizedDao;
 import com.aleksander.savosh.tasker.dao.parse.*;
 import com.aleksander.savosh.tasker.model.*;
 import com.aleksander.savosh.tasker.model.LogInData;
+import com.aleksander.savosh.tasker.model.exx.AccountExx;
+import com.aleksander.savosh.tasker.model.exx.PhoneExx;
 import com.parse.Parse;
+import com.parse.ParseObject;
 
 public class Application extends android.app.Application {
 
@@ -34,7 +37,9 @@ public class Application extends android.app.Application {
         context = this;
 
         // Enable Local Datastore.
-        Parse.enableLocalDatastore(this);
+//        Parse.enableLocalDatastore(this);
+//        ParseObject.registerSubclass(AccountExx.class);
+//        ParseObject.registerSubclass(PhoneExx.class);
         Parse.initialize(this, "cv5X8Il8up7Y4YvrBz6nM6icaf7lBYXfPlwQSmAR", "6fDQLSh7mmIqoZEU5V0BNOrFxHavGEFkVnNDZlrZ");
 
         accountCloudDao = new ParseCloudDaoImpl<Account>(Account.class);

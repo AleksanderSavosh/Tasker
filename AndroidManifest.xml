@@ -18,5 +18,6 @@
         <activity android:name=".SignUpActivity"></activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".NoticeActivity"></activity>
+        <activity android:name=".ExxActivity"></activity>
     </application>
 </manifest>
