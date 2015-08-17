@@ -2,6 +2,7 @@ package com.aleksander.savosh.tasker.dao.object;
 
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
+import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.model.object.Base;
 
 public interface CrudDao<Model extends Base, PK> {
@@ -16,10 +17,10 @@ public interface CrudDao<Model extends Base, PK> {
     public Model updateWithRelations(Model model);
     public boolean deleteWithRelations(PK pk);
 
-    public Model createThrowException(Model model) throws CannotCreateException;
-    public Model readThrowException(PK pk) throws DataNotFoundException;
-    public Model updateThrowException(Model model) throws DataNotFoundException;
-    public boolean deleteThrowException(PK pk) throws DataNotFoundException;
+    public Model createThrowException(Model model) throws CannotCreateException, OtherException;
+    public Model readThrowException(PK pk) throws DataNotFoundException, OtherException;
+    public Model updateThrowException(Model model) throws DataNotFoundException, OtherException;
+    public boolean deleteThrowException(PK pk) throws DataNotFoundException, OtherException;
 
     public Model createWithRelationsThrowException(Model model) throws CannotCreateException;
     public Model readWithRelationsThrowException(PK pk) throws DataNotFoundException;
