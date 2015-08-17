@@ -5,6 +5,7 @@ import android.util.Log;
 import com.aleksander.savosh.tasker.StringUtil;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
+import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.ReflectionUtil;
 import com.aleksander.savosh.tasker.model.object.Base;
@@ -209,7 +210,6 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
 
             ParseObject parseObject = Util.getParseObjectById(s, clazz, isCloudStorage);
 
-
             if(isCloudStorage) {
                 parseObject.delete();
             } else {
@@ -217,7 +217,6 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
             }
 
             return true;
-
         } catch (ParseException e) {
             if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
                 throw new DataNotFoundException(e.getMessage(), e);
@@ -233,7 +232,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
 
 
     @Override
-    public Model createWithRelationsThrowException(Model model) throws CannotCreateException {
+    public Model createWithRelationsThrowException(Model model) throws CannotCreateException, OtherException {
         String className = clazz.getSimpleName();
         try {
             Log.d(getClass().getName(), " --- === CREATE WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
@@ -243,36 +242,54 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
             Map<Integer, List<Util.Relations>> map = Util.getMapRelationsRec(model, 1);
             Util.fillMapRelations(map, isCloudStorage);
             Util.createRelations(map);
+            Util.saveRelationsParseObject(map, isCloudStorage);
+            Util.updateRelationsModels(map);
 
-
-//            if(isCloudStorage) {
-//                parseObject.delete();
-//            } else {
-//                parseObject.unpin();
-//            }
-//
-//            return true;
-
+            return model;
         } catch (ParseException e) {
-//            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
-//                throw new DataNotFoundException(e.getMessage(), e);
-//            }
-//            throw new OtherException(e.getMessage(), e);
-        } catch (OtherException e) {
-//            throw new OtherException(e.getMessage(), e);
+            throw new OtherException(e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new OtherException(e.getMessage(), e);
         } catch (DataNotFoundException e) {
-            e.printStackTrace();
+            throw new OtherException(e.getMessage(), e);
         } finally {
             Log.d(getClass().getName(), " ============================================ ");
         }
-        return null;
     }
 
     @Override
-    public Model readWithRelationsThrowException(String s) throws DataNotFoundException {
-        return null;
+    @SuppressWarnings("unchecked")
+    public Model readWithRelationsThrowException(String s) throws DataNotFoundException, OtherException {
+        String className = clazz.getSimpleName();
+        try {
+            Log.d(getClass().getName(), " --- === READ WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
+            Log.d(getClass().getName(), "CLASS NAME: " + className);
+            Log.d(getClass().getName(), "INPUT: " + s);
+
+            ParseObject object = Util.getParseObjectById(s, clazz, isCloudStorage);
+            Base base = Util.paresObjectToBaseModel(object, clazz);
+
+            Util.fillModelRelationsRec(base, object, isCloudStorage);
+
+            return (Model) base;
+        } catch (ParseException e) {
+            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+                throw new DataNotFoundException();
+            }
+            throw new OtherException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (DataNotFoundException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new OtherException(e.getMessage(), e);
+        } finally {
+            Log.d(getClass().getName(), " ============================================ ");
+        }
     }
 
     @Override

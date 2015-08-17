@@ -22,8 +22,8 @@ public interface CrudDao<Model extends Base, PK> {
     public Model updateThrowException(Model model) throws DataNotFoundException, OtherException;
     public boolean deleteThrowException(PK pk) throws DataNotFoundException, OtherException;
 
-    public Model createWithRelationsThrowException(Model model) throws CannotCreateException;
-    public Model readWithRelationsThrowException(PK pk) throws DataNotFoundException;
+    public Model createWithRelationsThrowException(Model model) throws CannotCreateException, OtherException;
+    public Model readWithRelationsThrowException(PK pk) throws DataNotFoundException, OtherException;
     public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException;
     public boolean deleteWithRelationsThrowException(PK pk) throws DataNotFoundException;
 

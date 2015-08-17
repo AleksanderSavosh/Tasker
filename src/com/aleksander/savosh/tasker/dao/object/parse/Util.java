@@ -10,16 +10,22 @@ import com.parse.ParseQuery;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 public class Util {
 
-    private static final Set<Class> CLASSES = new HashSet<Class>(Arrays.asList(
+    public static final Set<Class> CLASSES = new HashSet<Class>(Arrays.asList(
             new Class[] {String.class, Integer.class, Date.class}));
-    private static final Set<Class> RELATIVE_CLASSES = new HashSet<Class>(Arrays.asList(
+    public static final Set<Class> RELATIVE_CLASSES = new HashSet<Class>(Arrays.asList(
             new Class[] {Account.class, Phone.class, Notice.class, Property.class, List.class}));
 
-    private static Set<Field> getFieldsWithAccessible(Class clazz, Set<Class> classesType) {
+    public static Class getListGenericType(Field field) {
+        ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
+        return (Class) stringListType.getActualTypeArguments()[0];
+    }
+
+    public static Set<Field> getFieldsWithAccessible(Class clazz, Set<Class> classesType) {
         Set<Field> results = new HashSet<Field>();
         while(clazz != null){
             for(Field field : clazz.getDeclaredFields()){
@@ -38,7 +44,7 @@ public class Util {
         return id == null || id.trim().length() == 0;
     }
 
-    private static String getIdForLocalDb(Class clazz) throws ParseException {
+    public static String getIdForLocalDb(Class clazz) throws ParseException {
         String id;
         do {
             id = "" + ((int) (Math.random() * 1000000));
@@ -145,11 +151,39 @@ public class Util {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static Base paresObjectToBaseModel(ParseObject parseObject, Class clazz) throws
-            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static List<ParseObject> getRelationsParseObjects(
+            ParseObject parent, Class childClazz, boolean isCloudStorage) throws ParseException {
+        String childClazzName = childClazz.getName();
+        if(isCloudStorage){
+            return ParseQuery.getQuery(childClazz.getSimpleName())
+                    .whereEqualTo(childClazzName, parent).find();
+        } else {
+            return ParseQuery.getQuery(childClazz.getSimpleName()).fromLocalDatastore()
+                    .whereEqualTo(childClazzName, parent).find();
+        }
+    }
 
-        Base base = (Base) clazz.getConstructor().newInstance();
+    public static void fillModelRelationsRec(Base base, ParseObject object, boolean isCloudStorage) throws
+            ParseException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+            IllegalAccessException {
+        Class clazz = base.getClass();
+        for(Field field : Util.getFieldsWithAccessible(clazz, Util.RELATIVE_CLASSES)){
+            if(field.getType().equals(List.class)){
+                Class childClazz = Util.getListGenericType(field);
+                List<ParseObject> childrenParseObjects = getRelationsParseObjects(object, childClazz, isCloudStorage);
+                List<Base> bases = new ArrayList<Base>();
+                for(ParseObject childParseObject : childrenParseObjects){
+                    Base childBase = Util.paresObjectToBaseModel(childParseObject, childClazz);
+                    fillModelRelationsRec(childBase, childParseObject, isCloudStorage);
+                    bases.add(childBase);
+                }
+                field.set(base, bases);
+            }
+        }
+    }
+
+    public static void updateModelByParseObject(Base base, ParseObject parseObject) throws IllegalAccessException {
+        Class clazz = base.getClass();
 
         for(Field field : getFieldsWithAccessible(clazz, CLASSES)) {
             String fieldName = field.getName();
@@ -167,9 +201,56 @@ public class Util {
             }
             field.set(base, value);
         }
+    }
 
+    @SuppressWarnings("unchecked")
+    public static Base paresObjectToBaseModel(ParseObject parseObject, Class clazz) throws
+            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Base base = (Base) clazz.getConstructor().newInstance();
+        updateModelByParseObject(base, parseObject);
         return base;
     }
+
+//    public static Map<Integer, List<Relations>> getMapRelationsRec(
+//            String s, Class clazz, boolean isCloudMode, Integer deep
+//    ) throws ParseException, OtherException, DataNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+//        Map<Integer, List<Relations>> map = new HashMap<Integer, List<Relations>>();
+//
+//        Relations relations = new Relations();
+//        relations.parentObject = getParseObjectById(s, clazz, isCloudMode);
+//
+//        map.put(deep, new ArrayList<Relations>(Arrays.asList(relations)));
+//
+//        for(Class childClazz : RELATIVE_CLASSES){
+//            String key = childClazz.getSimpleName();
+//            if(relations.parentObject.containsKey(key)){
+//                List<ParseObject> objects;
+//                if(isCloudMode){
+//                    objects = ParseQuery.getQuery(key)
+//                            .whereEqualTo(clazz.getSimpleName(), relations.parentObject).find();
+//                } else {
+//                    objects = ParseQuery.getQuery(key).fromLocalDatastore()
+//                            .whereEqualTo(clazz.getSimpleName(), relations.parentObject).find();
+//                }
+//                if(relations.childObjects == null){
+//                    relations.childObjects = new ArrayList<ParseObject>();
+//                }
+//                if(relations.children == null){
+//                    relations.children = new ArrayList<Base>();
+//                }
+//                for(ParseObject object : objects){
+//                    relations.childObjects.add(object);
+//                    Base base = paresObjectToBaseModel(object, childClazz);
+//                    relations.children.add(base);
+//                    Map<Integer, List<Relations>> childMap = getMapRelationsRec(base.getObjectId(), childClazz,
+//                            isCloudMode, deep + 1);
+//
+//                }
+//            }
+//        }
+//        return map;
+//    }
+
 
     public static class Relations {
         public Integer deep;
@@ -177,16 +258,62 @@ public class Util {
         public Base parent;
         public ParseObject parentObject;
 
-        public List<Base> children = new ArrayList<Base>();
+        public List<Base> children;
         public List<ParseObject> childObjects;
+    }
+
+    public static void updateRelationsModels(Map<Integer, List<Relations>> map) throws IllegalAccessException,
+            OtherException {
+        for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
+            for(Util.Relations relations : map.get(key)) {
+                if(relations.children != null) {
+                    for (int i = 0; i < relations.children.size(); i++) {
+                        updateModelByParseObject(relations.children.get(i), relations.childObjects.get(i));
+                    }
+                }
+            }
+        }
+        if(map.get(1).size() == 1){
+            updateModelByParseObject(map.get(1).get(1).parent, map.get(1).get(1).parentObject);
+        } else {
+            throw new OtherException();
+        }
+    }
+
+    public static void saveRelationsParseObject(Map<Integer, List<Relations>> map, boolean isCloudStorage) throws
+            ParseException, OtherException {
+        for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
+            for(Util.Relations relations : map.get(key)) {
+                if(relations.childObjects != null){
+                    for (ParseObject childObject : relations.childObjects) {
+                        if (isCloudStorage) {
+                            childObject.save();
+                        } else {
+                            childObject.pin();
+                        }
+                    }
+                }
+            }
+        }
+        if(map.get(1).size() == 1){
+            if(isCloudStorage) {
+                map.get(1).get(0).parentObject.save();
+            } else {
+                map.get(1).get(0).parentObject.pin();
+            }
+        } else {
+            throw new OtherException();
+        }
     }
 
     public static void createRelations(Map<Integer, List<Relations>> map){
         for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
             for(Util.Relations relations : map.get(key)) {
-                for (ParseObject childObject : relations.childObjects) {
-                    String childClassName = childObject.getClassName();
-                    relations.parentObject.put(childClassName, childObject);
+                if(relations.childObjects != null) {
+                    for (ParseObject childObject : relations.childObjects) {
+                        String childClassName = childObject.getClassName();
+                        relations.parentObject.put(childClassName, childObject);
+                    }
                 }
             }
         }
@@ -199,15 +326,12 @@ public class Util {
                 if(relations.parentObject == null) {
                     relations.parentObject = Util.baseModelToParseObject(relations.parent, isCloudStorage);
                 }
-                if(relations.childObjects == null) {
+                if(relations.childObjects == null && relations.children != null) {
                     relations.childObjects = new ArrayList<ParseObject>();
                     for (Base child : relations.children) {
                         relations.childObjects.add(Util.baseModelToParseObject(child, isCloudStorage));
                     }
                 }
-
-
-
             }
         }
     }
@@ -219,14 +343,16 @@ public class Util {
         Relations relations = getModelRelations(base);
         map.put(deep, new ArrayList<Relations>(Arrays.asList(relations)));
 
-        for(Base child : relations.children){
-            Map<Integer, List<Relations>> childRelations = getMapRelationsRec(child, deep + 1);
+        if(relations.children != null) {
+            for (Base child : relations.children) {
+                Map<Integer, List<Relations>> childRelations = getMapRelationsRec(child, deep + 1);
 
-            for(Integer key : childRelations.keySet()){
-                if(map.containsKey(key)){
-                    map.get(key).addAll(childRelations.get(key));
-                } else {
-                    map.put(key, childRelations.get(key));
+                for (Integer key : childRelations.keySet()) {
+                    if (map.containsKey(key)) {
+                        map.get(key).addAll(childRelations.get(key));
+                    } else {
+                        map.put(key, childRelations.get(key));
+                    }
                 }
             }
         }

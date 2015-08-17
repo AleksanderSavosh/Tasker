@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
+import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
 import com.aleksander.savosh.tasker.model.object.Account;
@@ -49,26 +50,19 @@ public class ExxActivity extends Activity {
     }
 
 
-    private void test1() throws CannotCreateException {
+    private void test1() throws CannotCreateException, OtherException {
         CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
 
-        Account one = new Account("test one", createRandomPhones(), createRandomNotices());
-//        Account two = new Account("test two", createRandomPhones(), createRandomNotices());
-//        Account three = new Account("test three", createRandomPhones(), createRandomNotices());
-
-        System.out.println(crudDao.createWithRelationsThrowException(one));
-//        crudDao.createWithRelationsThrowException(two);
-//        crudDao.createWithRelationsThrowException(three);
-
+        System.out.println("ACCOUNT: " + crudDao.createWithRelationsThrowException(createAccount()));
 
     }
 
-    private void test2(String id) throws DataNotFoundException {
+    private void test2(String id) throws DataNotFoundException, OtherException {
         CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
         System.out.println(crudDao.readWithRelationsThrowException(id));
     }
 
-    private void test3(String id) throws DataNotFoundException {
+    private void test3(String id) throws DataNotFoundException, OtherException {
         CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
         Account account = crudDao.readWithRelationsThrowException(id);
         System.out.println("ACCOUNT: " + account);
@@ -79,11 +73,11 @@ public class ExxActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-//            test1();
+            test1();
 
             //test2("Xn2oAEi3vP");
 
-            test3("Sl6t23qJ9g");
+//            test3("Sl6t23qJ9g");
         } catch (Exception e) {
             e.printStackTrace();
         }
