@@ -44,6 +44,10 @@ public class ExxActivity extends Activity {
         return phones;
     }
 
+    private Account createAccount(){
+        return new Account("test one", createRandomPhones(), createRandomNotices());
+    }
+
 
     private void test1() throws CannotCreateException {
         CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
