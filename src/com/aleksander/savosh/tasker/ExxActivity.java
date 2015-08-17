@@ -52,7 +52,7 @@ public class ExxActivity extends Activity {
 //        Account two = new Account("test two", createRandomPhones(), createRandomNotices());
 //        Account three = new Account("test three", createRandomPhones(), createRandomNotices());
 
-        crudDao.createWithRelationsThrowException(one);
+        System.out.println(crudDao.createWithRelationsThrowException(one));
 //        crudDao.createWithRelationsThrowException(two);
 //        crudDao.createWithRelationsThrowException(three);
 
@@ -64,15 +64,22 @@ public class ExxActivity extends Activity {
         System.out.println(crudDao.readWithRelationsThrowException(id));
     }
 
+    private void test3(String id) throws DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = crudDao.readWithRelationsThrowException(id);
+        System.out.println("ACCOUNT: " + account);
+        crudDao.deleteWithRelationsThrowException(account.getObjectId());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
 //            test1();
 
-            test2("Xn2oAEi3vP");
+            //test2("Xn2oAEi3vP");
 
-
+            test3("Sl6t23qJ9g");
         } catch (Exception e) {
             e.printStackTrace();
         }

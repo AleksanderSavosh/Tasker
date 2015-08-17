@@ -48,6 +48,30 @@ public class Property extends Base {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Property)) return false;
+        if (!super.equals(o)) return false;
+
+        Property property = (Property) o;
+
+        if (date != null ? !date.equals(property.date) : property.date != null) return false;
+        if (text != null ? !text.equals(property.text) : property.text != null) return false;
+        if (type != null ? !type.equals(property.type) : property.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Property{" +
                 "text='" + text + '\'' +

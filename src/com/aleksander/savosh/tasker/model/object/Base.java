@@ -43,6 +43,26 @@ public abstract class Base implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Base)) return false;
+
+        Base base = (Base) o;
+
+        if (createdAt != null ? !createdAt.equals(base.createdAt) : base.createdAt != null) return false;
+        if (objectId != null ? !objectId.equals(base.objectId) : base.objectId != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = objectId != null ? objectId.hashCode() : 0;
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Base{" +
                 "objectId='" + objectId + '\'' +

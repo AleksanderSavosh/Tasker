@@ -49,6 +49,28 @@ public class Account extends Base {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Account)) return false;
+
+        Account account = (Account) o;
+
+        if (notices != null ? !notices.equals(account.notices) : account.notices != null) return false;
+        if (password != null ? !password.equals(account.password) : account.password != null) return false;
+        if (phones != null ? !phones.equals(account.phones) : account.phones != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = password != null ? password.hashCode() : 0;
+        result = 31 * result + (phones != null ? phones.hashCode() : 0);
+        result = 31 * result + (notices != null ? notices.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Account{" +
                 "password='" + password + '\'' +

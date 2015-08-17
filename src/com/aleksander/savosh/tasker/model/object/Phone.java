@@ -26,6 +26,26 @@ public class Phone extends Base {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Phone)) return false;
+        if (!super.equals(o)) return false;
+
+        Phone phone = (Phone) o;
+
+        if (number != null ? !number.equals(phone.number) : phone.number != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Phone{" +
                 "number='" + number + '\'' +
