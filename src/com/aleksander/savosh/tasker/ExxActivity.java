@@ -7,20 +7,21 @@ import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
+import com.aleksander.savosh.tasker.dao.object.parse.Util;
 import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Phone;
 import com.aleksander.savosh.tasker.model.object.Property;
+import com.parse.ParseException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class ExxActivity extends Activity {
 
     private List<Property> createRandomProperties(){
         List<Property> properties = new ArrayList<Property>();
-        int count = 5;//(int) (Math.random() * 50);
+        int count = 2;//(int) (Math.random() * 50);
         for(int i = 0; i < count; i++){
             properties.add(new Property(i, "Some text " + i, new Date()));
         }
@@ -29,7 +30,7 @@ public class ExxActivity extends Activity {
 
     private List<Notice> createRandomNotices(){
         List<Notice> notices = new ArrayList<Notice>();
-        int count = 5;//(int) (Math.random() * 50);
+        int count = 2;//(int) (Math.random() * 50);
         for(int i = 0; i < count; i++){
             notices.add(new Notice(createRandomProperties()));
         }
@@ -38,7 +39,7 @@ public class ExxActivity extends Activity {
 
     private List<Phone> createRandomPhones(){
         List<Phone> phones = new ArrayList<Phone>();
-        int count = 5;// (int) (Math.random() * 50);
+        int count = 2;// (int) (Math.random() * 50);
         for(int i = 0; i < count; i++){
             phones.add(new Phone("Number " + i + i + i + i + i + i));
         }
@@ -73,13 +74,58 @@ public class ExxActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            test1();
-
-            //test2("Xn2oAEi3vP");
-
-//            test3("Sl6t23qJ9g");
+            testCreateWithRelations();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public void testCreate() throws OtherException, CannotCreateException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = createAccount();
+        crudDao.createThrowException(account);
+        System.out.println("ACCOUNT: " + account);
+    }
+
+    public void testRead() throws OtherException, DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = crudDao.readThrowException("Bpiqqs5yLk");
+        System.out.println("ACCOUNT: " + account);
+    }
+
+    public void testUpdate() throws OtherException, DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = crudDao.readThrowException("Bpiqqs5yLk");
+        System.out.println("ACCOUNT: " + account);
+        account.setPassword("New pass");
+        crudDao.updateThrowException(account);
+        System.out.println("ACCOUNT: " + account);
+    }
+
+    public void testCreateWithRelations() throws OtherException, CannotCreateException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = createAccount();
+        account.setPassword("WithRelations");
+        crudDao.createWithRelationsThrowException(account);
+        System.out.println("ACCOUNT: " + account);
+    }
+
+
+    public void testUtil() throws NoSuchMethodException, ParseException, InstantiationException, DataNotFoundException, IllegalAccessException, InvocationTargetException, OtherException {
+        Account account = createAccount();
+        Map<Integer, List<Util.ModelPONode>> map = Util.getModelPoTreeRec(Account.class, 1, account, null, true, true);
+
+        for(Integer key : new TreeSet<Integer>(map.keySet())){
+            System.out.println("level: " + key);
+            for(Util.ModelPONode node : map.get(key)){
+                System.out.println("\tnode: " + node);
+                for(Util.ModelPONode child : node.nodes){
+                    System.out.println("\t\tchild: " + child);
+                }
+            }
+        }
+
+    }
+
+
 }
