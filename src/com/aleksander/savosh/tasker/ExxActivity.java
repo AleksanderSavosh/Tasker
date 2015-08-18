@@ -74,7 +74,7 @@ public class ExxActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            testCreateWithRelations();
+            testDeleteWithRelations();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,6 +110,18 @@ public class ExxActivity extends Activity {
         System.out.println("ACCOUNT: " + account);
     }
 
+    public void testReadWithRelations() throws OtherException, CannotCreateException, DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        Account account = crudDao.readWithRelationsThrowException("98X0EngczM");
+        System.out.println("ACCOUNT: " + account);
+    }
+
+    public void testDeleteWithRelations() throws OtherException, CannotCreateException, DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        System.out.println("DELETE: " + crudDao.deleteWithRelationsThrowException("98X0EngczM"));
+        System.out.println("DELETE: " + crudDao.deleteWithRelationsThrowException("p3eS2FqzTF"));
+        System.out.println("DELETE: " + crudDao.deleteWithRelationsThrowException("c7vDsW7rnh"));
+    }
 
     public void testUtil() throws NoSuchMethodException, ParseException, InstantiationException, DataNotFoundException, IllegalAccessException, InvocationTargetException, OtherException {
         Account account = createAccount();

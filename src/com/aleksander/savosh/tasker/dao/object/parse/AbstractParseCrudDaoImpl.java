@@ -208,65 +208,62 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
             Log.d(getClass().getName(), "CLASS NAME: " + className);
             Log.d(getClass().getName(), "INPUT: " + model);
 
-            Map<Integer, List<Util.ModelPONode>> map = Util.getModelPoTreeRec(Account.class, 1, model, null, true, true);
+            Map<Integer, List<Util.ModelPONode>> map =
+                    Util.getModelPoTreeRec(clazz, 1, model, null, true, isCloudStorage);
             Util.createRelations(map);
             Util.save(map, isCloudStorage);
-
-
+            Util.setPO2Model(map);
 
             return model;
         } catch (ParseException e) {
-            throw new OtherException(e.getMessage(), e);
+            throw new CannotCreateException(e.getMessage(), e);
         } catch (IllegalAccessException e) {
             throw new OtherException(e.getMessage(), e);
         } catch (DataNotFoundException e) {
             throw new OtherException(e.getMessage(), e);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            throw new OtherException(e.getMessage(), e);
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            throw new OtherException(e.getMessage(), e);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw new OtherException(e.getMessage(), e);
         } finally {
             Log.d(getClass().getName(), " ============================================ ");
         }
-        return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Model readWithRelationsThrowException(String s) throws DataNotFoundException, OtherException {
-//        String className = clazz.getSimpleName();
-//        try {
-//            Log.d(getClass().getName(), " --- === READ WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
-//            Log.d(getClass().getName(), "CLASS NAME: " + className);
-//            Log.d(getClass().getName(), "INPUT: " + s);
-//
-//            ParseObject object = Util.getParseObjectById(s, clazz, isCloudStorage);
-//            Base base = Util.paresObjectToBaseModel(object, clazz);
-//
-//            Util.fillModelRelationsRec(base, object, isCloudStorage);
-//
-//            return (Model) base;
-//        } catch (ParseException e) {
-//            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
-//                throw new DataNotFoundException();
-//            }
-//            throw new OtherException(e.getMessage(), e);
-//        } catch (IllegalAccessException e) {
-//            throw new OtherException(e.getMessage(), e);
-//        } catch (DataNotFoundException e) {
-//            throw new OtherException(e.getMessage(), e);
-//        } catch (NoSuchMethodException e) {
-//            throw new OtherException(e.getMessage(), e);
-//        } catch (InstantiationException e) {
-//            throw new OtherException(e.getMessage(), e);
-//        } catch (InvocationTargetException e) {
-//            throw new OtherException(e.getMessage(), e);
-//        } finally {
-//            Log.d(getClass().getName(), " ============================================ ");
-//        }
-        return null;
+        String className = clazz.getSimpleName();
+        try {
+            Log.d(getClass().getName(), " --- === READ WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
+            Log.d(getClass().getName(), "CLASS NAME: " + className);
+            Log.d(getClass().getName(), "INPUT: " + s);
+
+            ParseObject po = Util.getPO(clazz, s, isCloudStorage);
+            Map<Integer, List<Util.ModelPONode>> map =
+                    Util.getModelPoTreeRec(clazz, 1, null, po, true, isCloudStorage);
+            Util.createRelations(map);
+            Util.setPO2Model(map);
+
+            return (Model) map.get(1).get(0).modelPO.base;
+        } catch (ParseException e) {
+            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+                throw new DataNotFoundException();
+            }
+            throw new OtherException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new OtherException(e.getMessage(), e);
+        } finally {
+            Log.d(getClass().getName(), " ============================================ ");
+        }
     }
 
     @Override
@@ -275,7 +272,35 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
     }
 
     @Override
-    public boolean deleteWithRelationsThrowException(String s) throws DataNotFoundException {
-        return false;
+    public boolean deleteWithRelationsThrowException(String s) throws DataNotFoundException, OtherException {
+        String className = clazz.getSimpleName();
+        try {
+            Log.d(getClass().getName(), " --- === DELETE WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
+            Log.d(getClass().getName(), "CLASS NAME: " + className);
+            Log.d(getClass().getName(), "INPUT: " + s);
+
+            ParseObject po = Util.getPO(clazz, s, isCloudStorage);
+            Map<Integer, List<Util.ModelPONode>> map =
+                    Util.getModelPoTreeRec(clazz, 1, null, po, true, isCloudStorage);
+            Util.createRelations(map);
+            Util.delete(map, isCloudStorage);
+
+            return true;
+        } catch (ParseException e) {
+            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+                throw new DataNotFoundException();
+            }
+            throw new OtherException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new OtherException(e.getMessage(), e);
+        } finally {
+            Log.d(getClass().getName(), " ============================================ ");
+        }
     }
 }

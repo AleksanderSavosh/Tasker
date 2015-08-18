@@ -158,6 +158,9 @@ public class Util {
 
     ///////////////////////////////////////////////////////////////////// RELATIONS
 
+    /**
+     * Класс который описывает связку модели и парс объекта
+     */
     public static class ModelPO {
         public ParseObject po;
         public Base base;
@@ -171,6 +174,9 @@ public class Util {
         }
     }
 
+    /**
+     * Класс который описывает узел который содержит в себе модель и ее узлы зависимостей
+     */
     public static class ModelPONode {
         public Integer deep;
         public ModelPO modelPO;
@@ -225,6 +231,23 @@ public class Util {
         }
     }
 
+    /**
+     * Создание дерева и карты уровней узлов. Развернутое представление зависимостей модели, под модели и т.д.
+     * @param clazz
+     * @param deep
+     * @param base
+     * @param po
+     * @param isCreateMode
+     * @param isCloudMode
+     * @return
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws ParseException
+     * @throws OtherException
+     * @throws DataNotFoundException
+     */
     @SuppressLint("UseSparseArrays")
     @SuppressWarnings("unchecked")
     public static Map<Integer, List<ModelPONode>> getModelPoTreeRec(
@@ -297,7 +320,6 @@ public class Util {
     }
 
     public static void createRelationsInNodeRec(ModelPONode node) throws IllegalAccessException {
-
         for(Field field : getFieldsWithAccessible(node.modelPO.base.getClass(), RELATIVE_CLASSES)){
             if(field.getType().equals(List.class)){
                 Class childClazz = getListGenericType(field);
@@ -309,7 +331,6 @@ public class Util {
                 }
                 field.set(node.modelPO.base, childBases);
             } else {
-
                 Class childClazz = field.getType();
                 Base childBase = null;
                 for(ModelPONode child : node.nodes){
@@ -322,31 +343,36 @@ public class Util {
                     field.set(node.modelPO.base, childBase);
                 }
             }
-
-
         }
-
         for(ModelPONode child : node.nodes){
             child.modelPO.po.put(node.modelPO.po.getClassName(), node.modelPO.po);
         }
-
         for(ModelPONode child : node.nodes) {
             createRelationsInNodeRec(child);
         }
     }
 
     public static void createRelations(Map<Integer, List<ModelPONode>> map) throws IllegalAccessException {
-
         ModelPONode node = map.get(1).get(0);
         createRelationsInNodeRec(node);
-
     }
 
-    public static void save(Map<Integer, List<ModelPONode>> map, boolean isCloudMode) throws ParseException {
-
+    public static void setPO2Model(Map<Integer, List<ModelPONode>> map) throws IllegalAccessException {
         for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
             for(Util.ModelPONode node : map.get(key)){
                 for(Util.ModelPONode child : node.nodes){
+                    setPO2Model(child.modelPO.po, child.modelPO.base);
+                }
+            }
+        }
+        setPO2Model(map.get(1).get(0).modelPO.po, map.get(1).get(0).modelPO.base);
+    }
+
+    public static void save(Map<Integer, List<ModelPONode>> map, boolean isCloudMode) throws ParseException {
+        for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
+            for(Util.ModelPONode node : map.get(key)){
+                for(Util.ModelPONode child : node.nodes){
+                    System.out.println(" save:" + child.modelPO.base);
                     if(isCloudMode){
                         child.modelPO.po.save();
                     } else {
@@ -355,9 +381,34 @@ public class Util {
                 }
             }
         }
-
+        System.out.println(" save:" + map.get(1).get(0).modelPO.base);
+        if(isCloudMode){
+            map.get(1).get(0).modelPO.po.save();
+        } else {
+            map.get(1).get(0).modelPO.po.pin();
+        }
     }
 
+    public static void delete(Map<Integer, List<ModelPONode>> map, boolean isCloudMode) throws ParseException {
+        for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
+            for(Util.ModelPONode node : map.get(key)){
+                for(Util.ModelPONode child : node.nodes){
+                    System.out.println(" delete:" + child.modelPO.base);
+                    if(isCloudMode){
+                        child.modelPO.po.delete();
+                    } else {
+                        child.modelPO.po.unpin();
+                    }
+                }
+            }
+        }
+        System.out.println(" delete:" + map.get(1).get(0).modelPO.base);
+        if(isCloudMode){
+            map.get(1).get(0).modelPO.po.delete();
+        } else {
+            map.get(1).get(0).modelPO.po.unpin();
+        }
+    }
 
     private static List<Property> createRandomProperties(){
         List<Property> properties = new ArrayList<Property>();
