@@ -411,6 +411,68 @@ public class Util {
         }
     }
 
+    public static void delete(List<ModelPO> modelPOs, boolean isCloudMode) throws ParseException {
+        for(ModelPO modelPO : modelPOs){
+            if(isCloudMode){
+                modelPO.po.delete();
+            } else {
+                modelPO.po.unpin();
+            }
+        }
+    }
+
+    public static List<ModelPO> diff(Map<Integer, List<ModelPONode>> from, Map<Integer, List<ModelPONode>> what){
+        Map<String, ModelPO> equals = new HashMap<String, ModelPO>();
+
+        ModelPO rootFrom = from.get(1).get(0).modelPO;
+        ModelPO rootWhat = what.get(1).get(0).modelPO;
+
+        if(!idIsEmpty(rootFrom.base.getObjectId()) && !idIsEmpty(rootWhat.base.getObjectId()) &&
+                rootFrom.base.getObjectId().equals(rootWhat.base.getObjectId())){
+            equals.put(rootFrom.base.getObjectId(), rootFrom);
+        }
+
+        for(Integer key : new TreeSet<Integer>(from.keySet()).descendingSet()){
+            for(Util.ModelPONode nodeFrom : from.get(key)){
+                for(Util.ModelPONode childFrom : nodeFrom.nodes){
+
+                    for(Util.ModelPONode nodeWhat : what.get(key)){
+                        for(Util.ModelPONode childWhat : nodeWhat.nodes){
+
+                            if(!idIsEmpty(childFrom.modelPO.base.getObjectId()) &&
+                                    !idIsEmpty(childWhat.modelPO.base.getObjectId()) &&
+                                    childFrom.modelPO.base.getObjectId().equals(childWhat.modelPO.base.getObjectId())){
+                                equals.put(childFrom.modelPO.base.getObjectId(), childFrom.modelPO);
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+
+        List<ModelPO> diff = new ArrayList<ModelPO>();
+
+        for(Integer key : new TreeSet<Integer>(from.keySet()).descendingSet()){
+            for(Util.ModelPONode nodeFrom : from.get(key)){
+                for(Util.ModelPONode childFrom : nodeFrom.nodes){
+
+                    if(!idIsEmpty(childFrom.modelPO.base.getObjectId())){
+                        if(!equals.containsKey(childFrom.modelPO.base.getObjectId())){
+                            diff.add(childFrom.modelPO);
+                        }
+                    } else {
+                        diff.add(childFrom.modelPO);
+                    }
+
+                }
+            }
+        }
+
+        return diff;
+    }
+
     private static List<Property> createRandomProperties(){
         List<Property> properties = new ArrayList<Property>();
         int count = 5;//(int) (Math.random() * 50);

@@ -74,7 +74,7 @@ public class ExxActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            testDeleteWithRelations();
+            testUpdateWithRelatives();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -136,6 +136,28 @@ public class ExxActivity extends Activity {
                 }
             }
         }
+
+    }
+
+    public void testUpdateWithRelatives() throws OtherException, DataNotFoundException, CannotCreateException {
+        CrudDao<Account, String> crudDao = new ParseCloudCrudDaoImpl<Account>(Account.class);
+        CrudDao<Notice, String> noticeCrudDao = new ParseCloudCrudDaoImpl<Notice>(Notice.class);
+        Account account = createAccount();
+        crudDao.createWithRelationsThrowException(account);
+        System.out.println("ACCOUNT: " + account);
+
+        Notice notice = account.getNotices().get(0);
+        System.out.println("NOTICE IN DB: " + notice);
+        Iterator it = notice.getProperties().iterator();
+        it.next();
+        it.remove();
+        notice.getProperties().add(new Property(999, "UPDATE", new Date()));
+        System.out.println("NOTICE FOR CHANGE: " + notice);
+        noticeCrudDao.updateWithRelationsThrowException(notice);
+        System.out.println("NOTICE FOR CHANGE: " + notice);
+
+        account = crudDao.readWithRelationsThrowException(account.getObjectId());
+        System.out.println("ACCOUNT: " + account);
 
     }
 

@@ -282,13 +282,20 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
                     Util.getModelPoTreeRec(clazz, 1, null, po, false, isCloudStorage);
 
             //найти разницу между mapExists - mapNeed = diffExistsNeed
-            //diffExistsNeed удалить
-            //mapNeed сохранить
+            List<Util.ModelPO> diff = Util.diff(mapExists, mapNeed);
 
-            return null;
+            //diffExistsNeed удалить
+            Util.delete(diff, isCloudStorage);
+
+            //mapNeed сохранить
+            Util.createRelations(mapNeed);
+            Util.save(mapNeed, isCloudStorage);
+            Util.setPO2Model(mapNeed);
+
+            return model;
         } catch (ParseException e) {
             if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
-                throw new DataNotFoundException();
+                throw new DataNotFoundException(e.getMessage(), e);
             }
             throw new OtherException(e.getMessage(), e);
         } catch (IllegalAccessException e) {
