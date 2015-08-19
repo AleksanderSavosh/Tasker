@@ -267,8 +267,41 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
     }
 
     @Override
-    public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException {
-        return null;
+    public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException, OtherException {
+        String className = clazz.getSimpleName();
+        try {
+            Log.d(getClass().getName(), " --- === UPDATE WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");
+            Log.d(getClass().getName(), "CLASS NAME: " + className);
+            Log.d(getClass().getName(), "INPUT: " + model);
+
+            ParseObject po = Util.getPO(clazz, model.getObjectId(), isCloudStorage);
+
+            Map<Integer, List<Util.ModelPONode>> mapNeed =
+                    Util.getModelPoTreeRec(clazz, 1, model, null, false, isCloudStorage);
+            Map<Integer, List<Util.ModelPONode>> mapExists =
+                    Util.getModelPoTreeRec(clazz, 1, null, po, false, isCloudStorage);
+
+            //найти разницу между mapExists - mapNeed = diffExistsNeed
+            //diffExistsNeed удалить
+            //mapNeed сохранить
+
+            return null;
+        } catch (ParseException e) {
+            if(e.getCode() == ParseException.OBJECT_NOT_FOUND){
+                throw new DataNotFoundException();
+            }
+            throw new OtherException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            throw new OtherException(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new OtherException(e.getMessage(), e);
+        } finally {
+            Log.d(getClass().getName(), " ============================================ ");
+        }
     }
 
     @Override

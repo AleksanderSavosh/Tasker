@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-
+@Deprecated
 public class EditMessage extends OrmLiteBaseActivity<OrmDatabaseHelper> {
 
     private static final int MODE_EDIT_MESSAGE = 158;

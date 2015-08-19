@@ -204,7 +204,8 @@ public class Util {
             setPO2Model(po, node.modelPO.base);
         }
         if(base != null && po == null){
-            node.modelPO.po = isCreateMode ? createPO(clazz) : getPO(clazz, base.getObjectId(), isCloudMode);
+            node.modelPO.po = isCreateMode || idIsEmpty(base.getObjectId()) ?
+                    createPO(clazz) : getPO(clazz, base.getObjectId(), isCloudMode);
             setModel2PO(base, node.modelPO.po, isCloudMode);
         }
         return node;
