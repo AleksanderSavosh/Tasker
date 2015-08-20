@@ -5,6 +5,8 @@ import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.model.object.Base;
 
+import java.util.List;
+
 public interface CrudDao<Model extends Base, PK> {
 
     public Model create(Model model);
@@ -26,5 +28,13 @@ public interface CrudDao<Model extends Base, PK> {
     public Model readWithRelationsThrowException(PK pk) throws DataNotFoundException, OtherException;
     public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException, OtherException;
     public boolean deleteWithRelationsThrowException(PK pk) throws DataNotFoundException, OtherException;
+
+
+    //additions
+    public List<Model> readAll();
+    public List<Model> readAllThrowException() throws DataNotFoundException, OtherException;
+    public List<Model> readAllWithRelations();
+    public List<Model> readAllWithRelationsThrowException() throws OtherException, DataNotFoundException;
+
 
 }

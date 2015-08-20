@@ -8,34 +8,37 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.aleksander.savosh.tasker.model.relational.LogInData;
-import com.aleksander.savosh.tasker.model.relational.NoticeWithProperties;
-import com.aleksander.savosh.tasker.model.relational.Property;
-import com.aleksander.savosh.tasker.model.relational.PropertyType;
+import com.aleksander.savosh.tasker.model.object.Config;
+import com.aleksander.savosh.tasker.model.object.Notice;
+import com.aleksander.savosh.tasker.model.object.Property;
+import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
+import com.aleksander.savosh.tasker.service.PropertyService;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MainActivity extends Activity {
 
-    public static final String EXTRA_KEY_NOTICE_WITH_PROPERTIES = "MainActivity.NoticeWithProperties";
 
     private Adapter adapter = new Adapter(Application.getContext());
 
     private UpdateAdapterTask updateAdapterTask;
-    public class UpdateAdapterTask extends AsyncTask<Void, Void, List<NoticeWithProperties>> {
+    public class UpdateAdapterTask extends AsyncTask<Void, Void, Collection<Notice>> {
         @Override
-        protected List<NoticeWithProperties> doInBackground(Void... params) {
-            //get notices from local repository;
+        protected Collection<Notice> doInBackground(Void... params) {
             try {
-                LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
-                if(logInData == null) { //get notices without account
-                    return NoticeService.getLocalNoticesWithoutAccountId();
-                } else { //get notices by account id
-                    return NoticeService.getLocalNoticesByAccountId(logInData.getAccountId());
+                Config config = ((Application) getApplicationContext()).getConfig();
+
+                if(StringUtil.isEmpty(config.rememberMeAccountId)){
+                    return ((Application) getApplicationContext()).getLocalNotices().values();
+                } else {
+                    return ((Application) getApplicationContext())
+                            .getAccounts()
+                            .get(config.rememberMeAccountId)
+                            .getNotices();
                 }
+
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
                 Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
@@ -44,7 +47,7 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(List<NoticeWithProperties> notices) {
+        protected void onPostExecute(Collection<Notice> notices) {
             if(notices != null) {
                 adapter.clear();
                 adapter.addAll(notices);
@@ -63,12 +66,10 @@ public class MainActivity extends Activity {
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                NoticeWithProperties item = (NoticeWithProperties) parent.getItemAtPosition(position);
+            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+                Notice item = (Notice) parent.getItemAtPosition(position);
                 Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
-                Log.d(getClass().getName(), "intent.putExtra(EXTRA_KEY_NOTICE_WITH_PROPERTIES, " + item + ")");
-                intent.putExtra(EXTRA_KEY_NOTICE_WITH_PROPERTIES, item);
+                intent.putExtra(NoticeActivity.EXTRA_NOTICE_ID, item.getObjectId());
                 startActivity(intent);
                 finish();
             }
@@ -93,8 +94,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        final LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
-        if(logInData == null) {
+        Config config = ((Application) getApplicationContext()).getConfig();
+        if(StringUtil.isEmpty(config.rememberMeAccountId)) {
             MenuItem itemLogIn = menu.add(R.string.action_log_in);
             itemLogIn.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -110,7 +111,7 @@ public class MainActivity extends Activity {
             itemLogOut.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    Application.getLogInDataLocalDao().delete(logInData);
+                    ((Application) getApplicationContext()).logOut();
                     Intent intent = new Intent(Application.getContext(), MainActivity.class);
                     startActivity(intent);
                     finish();
@@ -152,24 +153,7 @@ public class MainActivity extends Activity {
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    private LogOutTask logOutTask;
-    private class LogOutTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            Application.getLogInDataLocalDao().delete(LogInData.builder().build());
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Intent intent = new Intent(Application.getContext(), LogInActivity.class);
-            MainActivity.this.startActivity(intent);
-            MainActivity.this.finish();
-            logOutTask = null;
-        }
-    }
-
-
-    public class Adapter extends ArrayAdapter<NoticeWithProperties> {
+    public class Adapter extends ArrayAdapter<Notice> {
 
         class ViewHolder {
             public TextView title;
@@ -199,7 +183,7 @@ public class MainActivity extends Activity {
             }
 
             ViewHolder holder = (ViewHolder) rowView.getTag();
-            Map<Integer, List<Property>> properties = getItem(position).getPropertiesMap();
+            Map<Integer, List<Property>> properties = PropertyService.convertToMap(getItem(position).getProperties());
 
             //set title
             if(properties.containsKey(PropertyType.TITLE) && !properties.get(PropertyType.TITLE).isEmpty()) {
@@ -220,6 +204,10 @@ public class MainActivity extends Activity {
 
             return rowView;
         }
+
+
+
+
     }
 
 

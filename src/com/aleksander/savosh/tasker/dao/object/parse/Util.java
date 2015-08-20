@@ -69,7 +69,8 @@ public class Util {
         if(isCloudMode){
             return ParseQuery.getQuery(clazz.getSimpleName()).get(id);
         } else {
-            List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName()).whereEqualTo("objectId", id).find();
+            List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
+                    .fromLocalDatastore().whereEqualTo("objectId", id).find();
             if(objects.size() == 1){
                 return objects.get(0);
             } else if(objects.size() == 0){
@@ -77,6 +78,15 @@ public class Util {
             } else {
                 throw new OtherException();
             }
+        }
+    }
+
+    public static List<ParseObject> getPOs(Class clazz, boolean isCloudMode) throws ParseException,
+            DataNotFoundException, OtherException {
+        if(isCloudMode){
+            return ParseQuery.getQuery(clazz.getSimpleName()).find();
+        } else {
+            return ParseQuery.getQuery(clazz.getSimpleName()).fromLocalDatastore().find();
         }
     }
 
@@ -110,7 +120,6 @@ public class Util {
                 po.remove(fieldName);
             }
 
-            po.put(fieldName, field.get(base));
             Object value = field.get(base);
             if(value != null) {
                 po.put(fieldName, value);
@@ -472,36 +481,4 @@ public class Util {
 
         return diff;
     }
-
-    private static List<Property> createRandomProperties(){
-        List<Property> properties = new ArrayList<Property>();
-        int count = 5;//(int) (Math.random() * 50);
-        for(int i = 0; i < count; i++){
-            properties.add(new Property(i, "Some text " + i, new Date()));
-        }
-        return properties;
-    }
-
-    private static List<Notice> createRandomNotices(){
-        List<Notice> notices = new ArrayList<Notice>();
-        int count = 5;//(int) (Math.random() * 50);
-        for(int i = 0; i < count; i++){
-            notices.add(new Notice(createRandomProperties()));
-        }
-        return notices;
-    }
-
-    private static List<Phone> createRandomPhones(){
-        List<Phone> phones = new ArrayList<Phone>();
-        int count = 5;// (int) (Math.random() * 50);
-        for(int i = 0; i < count; i++){
-            phones.add(new Phone("Number " + i + i + i + i + i + i));
-        }
-        return phones;
-    }
-
-    private static Account createRandomAccount(){
-        return new Account("test one", createRandomPhones(), createRandomNotices());
-    }
-
 }

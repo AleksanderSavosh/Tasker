@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.model.relational;
+package com.aleksander.savosh.tasker.model.object;
 
 public class PropertyType {
     public static final int CREATE_DATE = 0;

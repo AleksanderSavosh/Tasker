@@ -1,15 +1,11 @@
 package com.aleksander.savosh.tasker.service;
 
 import com.aleksander.savosh.tasker.Application;
-import com.aleksander.savosh.tasker.dao.relational.LocalDao;
-import com.aleksander.savosh.tasker.model.relational.Notice;
-import com.aleksander.savosh.tasker.model.relational.Property;
-import com.aleksander.savosh.tasker.model.relational.PropertyType;
+import com.aleksander.savosh.tasker.model.object.Notice;
+import com.aleksander.savosh.tasker.model.object.Property;
+import com.aleksander.savosh.tasker.model.object.PropertyType;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PropertyService {
 
@@ -19,19 +15,31 @@ public class PropertyService {
                 PropertyType.TEXT,
                 PropertyType.TITLE
         );
-        LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
+//        LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
         Map<Integer, List<Property>> map = new HashMap<Integer, List<Property>>();
-
-        for(Integer type : propertyTypes){
-            map.put(type, propertyLocalDao.read(Property.builder()
-                    .setType(type)
-                    .setNoticeId(notice.getObjectId())
-                    .build()));
-        }
+//
+//        for(Integer type : propertyTypes){
+//            map.put(type, propertyLocalDao.read(Property.builder()
+//                    .setType(type)
+//                    .setNoticeId(notice.getObjectId())
+//                    .build()));
+//        }
 
         return map;
     }
 
+
+    public static Map<Integer, List<Property>> convertToMap(List<Property> list){
+        Map<Integer, List<Property>> map = new HashMap<Integer, List<Property>>();
+        for(Property prop : list){
+            if(map.containsKey(prop.getType())){
+                map.get(prop.getType()).add(prop);
+            } else {
+                map.put(prop.getType(), new ArrayList<Property>(Arrays.asList(prop)));
+            }
+        }
+        return map;
+    }
 
 
 

@@ -6,20 +6,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import com.aleksander.savosh.tasker.model.relational.LogInData;
+import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.service.SynchronizeService;
+import java.util.Map;
 
 
 public class SplashActivity extends Activity {
 
-    public class SynchronizeDataTask extends AsyncTask <LogInData, Void, Boolean> {
+    public class SynchronizeDataTask extends AsyncTask <Void, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(LogInData... params) {
-            LogInData logInData = params[0];
-
+        protected Boolean doInBackground(Void... params) {
             try {
-                SynchronizeService.updateLocalByCloud(logInData.getAccountId());
+                Map<String, Account> accounts = ((Application) getApplicationContext()).getAccounts();
+                for(Account acc : accounts.values()) {
+                    SynchronizeService.updateAccountLocalByCloud(acc);
+                }
+
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage());
                 Log.d(getClass().getName(), e.getMessage(), e);
@@ -46,15 +49,6 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogInData logInData = Application.getLogInDataLocalDao().readFirst(null);
-        if(logInData == null || logInData.getRememberMe() == null || !logInData.getRememberMe()){
-            Application.getLogInDataLocalDao().delete(logInData);
-            Intent intent = new Intent(Application.getContext(), MainActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            //run synchronization task and after this go to main activity
-            new SynchronizeDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, logInData);
-        }
+        new SynchronizeDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }
