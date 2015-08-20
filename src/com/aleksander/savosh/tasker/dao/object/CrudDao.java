@@ -29,12 +29,20 @@ public interface CrudDao<Model extends Base, PK> {
     public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException, OtherException;
     public boolean deleteWithRelationsThrowException(PK pk) throws DataNotFoundException, OtherException;
 
-
     //additions
     public List<Model> readAll();
     public List<Model> readAllThrowException() throws DataNotFoundException, OtherException;
     public List<Model> readAllWithRelations();
     public List<Model> readAllWithRelationsThrowException() throws OtherException, DataNotFoundException;
 
+    public List<Model> readBy(KeyValue... keyValues);
+    public List<Model> readByThrowException(KeyValue... keyValues) throws OtherException, DataNotFoundException;
+    public List<Model> readByWithRelations(KeyValue... keyValues);
+    public List<Model> readByWithRelationsThrowException(KeyValue... keyValues) throws OtherException, DataNotFoundException;
+
+    public Base getParent(Class parentClazz, Model model);
+    public Base getParentThrowException(Class parentClazz, Model model) throws DataNotFoundException, OtherException;
+    public Base getParentWithRelations(Class parentClazz, Model model);
+    public Base getParentWithRelationsThrowException(Class parentClazz, Model model) throws OtherException, DataNotFoundException;
 
 }

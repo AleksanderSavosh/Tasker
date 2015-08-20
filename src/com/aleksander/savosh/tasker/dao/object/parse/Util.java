@@ -3,6 +3,7 @@ package com.aleksander.savosh.tasker.dao.object.parse;
 import android.annotation.SuppressLint;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
+import com.aleksander.savosh.tasker.dao.object.KeyValue;
 import com.aleksander.savosh.tasker.model.object.*;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -90,6 +91,18 @@ public class Util {
         }
     }
 
+    public static List<ParseObject> getPOsBy(Class clazz, boolean isCloudMode, KeyValue... keyValues) throws
+            ParseException, DataNotFoundException, OtherException {
+        ParseQuery query = ParseQuery.getQuery(clazz.getSimpleName());
+        if(!isCloudMode){
+            query.fromLocalDatastore();
+        }
+        for(int i = 0; i < keyValues.length; i++){
+            query.whereEqualTo(keyValues[i].key, keyValues[i].value);
+        }
+        return query.find();
+    }
+
     public static void setModel2PO(Base base, ParseObject po, boolean isCloudMode) throws ParseException,
             IllegalAccessException {
 
@@ -127,22 +140,23 @@ public class Util {
         }
     }
 
-    public static void setPO2Model(ParseObject po, Base base) throws IllegalAccessException {
+    public static void setPO2Model(ParseObject po, Base base, boolean isCloudMode) throws IllegalAccessException {
         Class clazz = base.getClass();
 
         for(Field field : getFieldsWithAccessible(clazz, CLASSES)) {
             String fieldName = field.getName();
-            Object value = po.get(fieldName);
-            if(value == null){
-                if(fieldName.equals("objectId")){
-                    value = po.getObjectId();
-                }
-                if(fieldName.equals("createdAt")){
-                    value = po.getCreatedAt();
-                }
-                if(fieldName.equals("updatedAt")){
-                    value = po.getUpdatedAt();
-                }
+            Object value = null;
+            if(fieldName.equals("objectId") && isCloudMode){
+                value = po.getObjectId();
+            }
+            if(fieldName.equals("createdAt") && isCloudMode){
+                value = po.getCreatedAt();
+            }
+            if(fieldName.equals("updatedAt") && isCloudMode){
+                value = po.getUpdatedAt();
+            }
+            if(value == null) {
+                value = po.get(fieldName);
             }
             field.set(base, value);
         }
@@ -210,7 +224,7 @@ public class Util {
         node.modelPO.po = po;
         if(base == null && po != null){
             node.modelPO.base = createModel(clazz);
-            setPO2Model(po, node.modelPO.base);
+            setPO2Model(po, node.modelPO.base, isCloudMode);
         }
         if(base != null && po == null){
             node.modelPO.po = isCreateMode || idIsEmpty(base.getObjectId()) ?
@@ -367,15 +381,15 @@ public class Util {
         createRelationsInNodeRec(node);
     }
 
-    public static void setPO2Model(Map<Integer, List<ModelPONode>> map) throws IllegalAccessException {
+    public static void setPO2Model(Map<Integer, List<ModelPONode>> map, boolean isCloudMode) throws IllegalAccessException {
         for(Integer key : new TreeSet<Integer>(map.keySet()).descendingSet()){
             for(Util.ModelPONode node : map.get(key)){
                 for(Util.ModelPONode child : node.nodes){
-                    setPO2Model(child.modelPO.po, child.modelPO.base);
+                    setPO2Model(child.modelPO.po, child.modelPO.base, isCloudMode);
                 }
             }
         }
-        setPO2Model(map.get(1).get(0).modelPO.po, map.get(1).get(0).modelPO.base);
+        setPO2Model(map.get(1).get(0).modelPO.po, map.get(1).get(0).modelPO.base, isCloudMode);
     }
 
     public static void save(Map<Integer, List<ModelPONode>> map, boolean isCloudMode) throws ParseException {

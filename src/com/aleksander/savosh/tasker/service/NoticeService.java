@@ -1,7 +1,6 @@
 package com.aleksander.savosh.tasker.service;
 
 
-import android.widget.Toast;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.StringUtil;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
@@ -62,22 +61,50 @@ public class NoticeService {
         Config config = application.getConfig();
         Notice notice = new Notice(properties);
 
-        if (StringUtil.isEmpty(config.rememberMeAccountId)) { //create local notice
-
+        if (StringUtil.isEmpty(config.accountId)) { //create local notice
 
             Application.getNoticeLocalDao().createWithRelationsThrowException(notice);
             application.getLocalNotices().put(notice.getObjectId(), notice);
 
-
         } else { //create cloud notice
 
-            Account acc = application.getAccounts().get(config.rememberMeAccountId);
+            Account acc = application.getAccounts().get(config.accountId);
             acc.getNotices().add(notice);
             Application.getAccountCloudDao().updateWithRelationsThrowException(acc);
             Application.getAccountLocalDao().updateWithRelationsThrowException(acc);
 
-
         }
     }
 
+    public static void updateNotice(Notice notice) throws OtherException, DataNotFoundException {
+        Application application = (Application) Application.getContext().getApplicationContext();
+        Config config = application.getConfig();
+
+        if (StringUtil.isEmpty(config.accountId)) { //update local notice
+
+            Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
+            application.getLocalNotices().remove(notice.getObjectId());
+            application.getLocalNotices().put(notice.getObjectId(), notice);
+
+
+        } else { //update cloud notice
+
+            //обновляем заметку в памяти
+            Account acc = application.getAccounts().get(config.accountId);
+            List<Notice> notices = acc.getNotices();
+            Iterator<Notice> iterator = notices.iterator();
+            while (iterator.hasNext()){
+                if(iterator.next().getObjectId().equals(notice.getObjectId())){
+                    iterator.remove();
+                    break;
+                }
+            }
+            notices.add(notice);
+
+            //обновляем заметку в облаке
+            Application.getNoticeCloudDao().updateWithRelationsThrowException(notice);
+            //обновляем заметку в локальном хранилище
+            Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
+        }
+    }
 }

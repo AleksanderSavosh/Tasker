@@ -6,6 +6,7 @@ import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
+import com.aleksander.savosh.tasker.dao.object.KeyValue;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
 import com.aleksander.savosh.tasker.dao.object.parse.Util;
 import com.aleksander.savosh.tasker.model.object.Account;
@@ -13,6 +14,8 @@ import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Phone;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -74,10 +77,21 @@ public class ExxActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            testUpdateWithRelatives();
+//            testCreateWithRelations();
+
+            testGetParent();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void testGetParent() throws OtherException, DataNotFoundException {
+        CrudDao<Phone, String> crudDao = new ParseCloudCrudDaoImpl<Phone>(Phone.class);
+        Phone phone = crudDao.readThrowException("M6QZ67q2RP");
+        System.out.println("PHONE: " + phone);
+        Account account = (Account) crudDao.getParentWithRelationsThrowException(Account.class, phone);
+        System.out.println("ACCOUNT: " + account);
     }
 
     public void testCreate() throws OtherException, CannotCreateException {

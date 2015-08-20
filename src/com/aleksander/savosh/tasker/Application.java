@@ -66,6 +66,10 @@ public class Application extends android.app.Application {
         if(config == null){
             config = new Config();
         }
+        if(config.rememberMe == null || !config.rememberMe){
+            config.rememberMe = false;
+            config.accountId = null;
+        }
 
         for(Account acc : accountLocalDao.readAllWithRelations()){
             accounts.put(acc.getObjectId(), acc);

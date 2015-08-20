@@ -29,59 +29,48 @@ public class NoticeActivity extends Activity {
         @Override
         protected Boolean doInBackground(Notice... params) {
             try {
-//                Notice oldNoticeWithProperties = params[0];
-//
-//                Map<Integer, List<Property>> newPropertiesMap = NoticeActivity.this
-//                        .getNewMapOfProperties(oldNoticeWithProperties.getNotice().getObjectId());
-//
-//                Set<Integer> newNoticeTypes = new HashSet<Integer>();
-//                Set<Integer> commonNoticeTypes = new HashSet<Integer>();
-//                Set<Integer> oldNoticeTypes = new HashSet<Integer>();
-//
-//                newNoticeTypes.addAll(newPropertiesMap.keySet());
-//                oldNoticeTypes.addAll(oldNoticeWithProperties.getPropertiesMap().keySet());
-//
-//                newNoticeTypes.remove(PropertyType.CREATE_DATE);
-//                oldNoticeTypes.remove(PropertyType.CREATE_DATE);
-//
-//                Set<Integer> allNoticeTypes = new HashSet<Integer>();
-//                allNoticeTypes.addAll(newNoticeTypes);
-//                allNoticeTypes.addAll(oldNoticeTypes);
-//
-//                for(Integer key : allNoticeTypes){
-//                    if(newNoticeTypes.contains(key) && oldNoticeTypes.contains(key)){
-//                        commonNoticeTypes.add(key);
-//                        newNoticeTypes.remove(key);
-//                        oldNoticeTypes.remove(key);
-//                    }
-//                }
-//
-//                LocalDao<Property> propertyLocalDao = Application.getPropertyLocalDao();
-//
-//                for(Integer key : newNoticeTypes){
-//                    for(Property property : newPropertiesMap.get(key)){
-//                        propertyLocalDao.createThrowExceptions(property);
-//                    }
-//                }
-//
-//                for(Integer key : oldNoticeTypes){
-//                    for(Property property : oldNoticeWithProperties.getPropertiesMap().get(key)){
-//                        propertyLocalDao.deleteThrowExceptions(property);
-//                    }
-//                }
-//
-//                for(Integer key : commonNoticeTypes){
-//                    List<Property> newProperties = newPropertiesMap.get(key);
-//                    List<Property> oldProperties = oldNoticeWithProperties.getPropertiesMap().get(key);
-//
-//                    for(Property property : oldProperties){
-//                        propertyLocalDao.deleteThrowExceptions(property);
-//                    }
-//
-//                    for(Property property : newProperties){
-//                        propertyLocalDao.createThrowExceptions(property);
-//                    }
-//                }
+                Notice notice = params[0];
+
+                Map<Integer, List<Property>> existsPropsMap = PropertyService.convertToMap(notice.getProperties());
+                Map<Integer, List<Property>> newPropsMap = getNewMapOfProperties();
+
+                List<Property> forSave = new ArrayList<Property>();
+                for(Integer key : newPropsMap.keySet()){
+                    if(existsPropsMap.containsKey(key)){//если тип таких свойтсв существовали, смотрим дальше
+
+                        List<Property> existsProps = existsPropsMap.get(key);
+                        List<Property> newProps = newPropsMap.get(key);
+
+                        if(key == PropertyType.CREATE_DATE){
+                            forSave.addAll(existsProps);
+                            continue;
+                        }
+
+                        if(existsProps.size() == newProps.size()){// если количество свойст по типу совпадает, обновляем
+                            for(int i = 0; i < existsProps.size(); i++){
+                                Property existsProp = existsProps.get(i);
+                                Property newProp = newProps.get(i);
+                                forSave.add(new Property(
+                                        existsProp.getObjectId(),
+                                        existsProp.getCreatedAt(),
+                                        existsProp.getUpdatedAt(),
+                                        newProp.getType(),
+                                        newProp.getText(),
+                                        newProp.getDate()
+                                        ));
+                            }
+                        } else {
+                            forSave.addAll(newProps);
+                        }
+
+                    } else { //если раньше такого свойства не встречалось, смело сохраняем
+                        forSave.addAll(newPropsMap.get(key));
+                    }
+                }
+
+                notice.setProperties(forSave);
+
+                NoticeService.updateNotice(notice);
 
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
@@ -149,10 +138,10 @@ public class NoticeActivity extends Activity {
         Notice notice = null;
 
         if(!StringUtil.isEmpty(noticeId)) {
-            if (StringUtil.isEmpty(config.rememberMeAccountId)) {
+            if (StringUtil.isEmpty(config.accountId)) {
                 notice = application.getLocalNotices().get(noticeId);
             } else {
-                for(Notice note : application.getAccounts().get(config.rememberMeAccountId).getNotices()){
+                for(Notice note : application.getAccounts().get(config.accountId).getNotices()){
                     if(note.getObjectId().equals(noticeId)) {
                         notice = note;
                         break;

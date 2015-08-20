@@ -12,7 +12,6 @@ import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
-import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.service.PropertyService;
 
 import java.util.*;
@@ -30,12 +29,12 @@ public class MainActivity extends Activity {
             try {
                 Config config = ((Application) getApplicationContext()).getConfig();
 
-                if(StringUtil.isEmpty(config.rememberMeAccountId)){
+                if(StringUtil.isEmpty(config.accountId)){
                     return ((Application) getApplicationContext()).getLocalNotices().values();
                 } else {
                     return ((Application) getApplicationContext())
                             .getAccounts()
-                            .get(config.rememberMeAccountId)
+                            .get(config.accountId)
                             .getNotices();
                 }
 
@@ -95,7 +94,7 @@ public class MainActivity extends Activity {
         });
 
         Config config = ((Application) getApplicationContext()).getConfig();
-        if(StringUtil.isEmpty(config.rememberMeAccountId)) {
+        if(StringUtil.isEmpty(config.accountId)) {
             MenuItem itemLogIn = menu.add(R.string.action_log_in);
             itemLogIn.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
