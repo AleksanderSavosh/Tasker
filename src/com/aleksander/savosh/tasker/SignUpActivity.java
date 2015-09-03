@@ -11,24 +11,14 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
-import com.aleksander.savosh.tasker.model.object.Account;
-import com.aleksander.savosh.tasker.model.object.Phone;
-import com.aleksander.savosh.tasker.service.SynchronizeService;
+import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
+
+import static com.aleksander.savosh.tasker.service.SingUpLogInLogOutService.SignUpData;
+import static com.aleksander.savosh.tasker.service.SingUpLogInLogOutService.SignUpResult;
 
 public class SignUpActivity extends Activity {
 
-    private class SignUpData {
-        public String number;
-        public String password;
-        public String password2;
-        public Boolean transferNotes;
-    }
 
-    private class SignUpResult {
-        public Boolean isSignUp;
-        public String message;
-    }
 
     private static SignUpTask signUpTask;
 
@@ -36,89 +26,8 @@ public class SignUpActivity extends Activity {
 
         @Override
         protected SignUpResult doInBackground(SignUpData... params) {
-//            CloudDao<Phone> phoneCloudDao = Application.getPhoneCloudDao();
-//            CloudDao<Account> accountCloudDao = Application.getAccountCloudDao();
-//            LocalDao<LogInData> logInDataLocalDao = Application.getLogInDataLocalDao();
-//
-//
-//            SignUpData data = params[0];
-            SignUpResult result = new SignUpResult();
-            result.isSignUp = false;
-//
-//            //проверка на правильный формат телефона
-//
-//
-//            //проверка на совпадение паролей
-//            if (!data.password.equals(data.password2)) {
-//                result.message = getResources().getString(R.string.passwords_doesnt_equal);
-//                return result;
-//            }
-//            data.password = StringUtil.encodePassword(data.password);
-//
-//
-//            //проверка что такого телефона еще нет
-//            try {
-//                phoneCloudDao.readFirstThrowExceptions(Phone.builder().setNumber(data.number).build());
-//                result.message = getResources().getString(R.string.this_phone_already_exist);
-//                return result;
-//            } catch (DataNotFoundException normalSituationException) {
-//
-//            } catch (Exception e) {
-//                result.message = getResources().getString(R.string.some_error_message);
-//                return result;
-//            }
-//
-//            Account account = null;
-//            Phone phone = null;
-//            LogInData logInData = null;
-//            try {
-//                account = accountCloudDao.createThrowExceptions(Account.builder()
-//                        .setPassword(data.password)
-//                        .build());
-//
-//                phone = phoneCloudDao.createThrowExceptions(Phone.builder()
-//                        .setAccountId(account.getObjectId())
-//                        .setNumber(data.number)
-//                        .build());
-//
-//                logInData = logInDataLocalDao.createThrowExceptions(LogInData.builder()
-//                        .setAccountId(account.getObjectId())
-//                        .setPhoneNumber(phone.getNumber())
-//                        .setPassword(data.password)
-//                        .build());
-//
-//                if(data.transferNotes) {
-//                    SynchronizeService.transferLocalNoticesToCloud(account.getObjectId());
-//                }
-//                result.isSignUp = true;
-//            } catch (Exception e) {
-//                Log.e(getClass().getName(), e.getMessage());
-//                Log.d(getClass().getName(), e.getMessage(), e);
-//
-//                Log.d(getClass().getName(), "#################### ROLLBACK ####################");
-//                Log.d(getClass().getName(), ".    delete cloud account: " + account);
-//                Log.d(getClass().getName(), ".      delete cloud phone: " + phone);
-//                Log.d(getClass().getName(), ".               logInData: " + logInData);
-//
-//
-//                if (account != null) {
-//                    accountCloudDao.delete(Account.builder().setObjectId(account.getObjectId()).build());
-//                }
-//                if (phone != null) {
-//                    phoneCloudDao.delete(Phone.builder().setObjectId(phone.getObjectId()).build());
-//                }
-//                if (logInData != null) {
-//                    logInDataLocalDao.delete(LogInData.builder()
-//                            .setObjectId(logInData.getObjectId())
-//                            .build());
-//                }
-//
-//                Log.d(getClass().getName(), "##################################################");
-//                result.message = getResources().getString(R.string.some_error_message);
-//                return result;
-//            }
-
-            return result;
+            SignUpData data = params[0];
+            return SingUpLogInLogOutService.singUp(data);
         }
 
         @Override

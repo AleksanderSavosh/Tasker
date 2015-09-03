@@ -1,6 +1,7 @@
 package com.aleksander.savosh.tasker.dao.object.parse;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.KeyValue;
@@ -300,14 +301,17 @@ public class Util {
                     }
                 }
                 if(base != null && po == null){
-                    for(Base childBase : (List<Base>) field.get(base)){
-                        Map<Integer, List<ModelPONode>> childMap =
-                                getModelPoTreeRec(childClazz, deep + 1, childBase, null, isCreateMode, isCloudMode);
+                    List<Base> list = (List<Base>) field.get(base);
+                    if(list != null && !list.isEmpty()){
+                        for(Base childBase : list){
+                            Map<Integer, List<ModelPONode>> childMap =
+                                    getModelPoTreeRec(childClazz, deep + 1, childBase, null, isCreateMode, isCloudMode);
 
-                        if(childMap.containsKey(deep + 1)){
-                            node.nodes.addAll(childMap.get(deep + 1));
+                            if(childMap.containsKey(deep + 1)){
+                                node.nodes.addAll(childMap.get(deep + 1));
+                            }
+                            mergeMaps(map, childMap);
                         }
-                        mergeMaps(map, childMap);
                     }
                 }
             } else {
@@ -401,6 +405,8 @@ public class Util {
                         child.modelPO.po.save();
                     } else {
                         child.modelPO.po.pin();
+                        Log.i("BASE OBJECT PIN", "CLASS: " + child.modelPO.po.getClassName() + " ID: " + child.modelPO.po.get("objectId"));
+                        Log.i("BASE OBJECT PIN", " BASE: " + child.modelPO.base);
                     }
                 }
             }
@@ -410,6 +416,8 @@ public class Util {
             map.get(1).get(0).modelPO.po.save();
         } else {
             map.get(1).get(0).modelPO.po.pin();
+            Log.i("BASE OBJECT PIN", "CLASS: " + map.get(1).get(0).modelPO.po.getClassName() + " ID: " + map.get(1).get(0).modelPO.po.get("objectId"));
+            Log.i("BASE OBJECT PIN", " BASE: " + map.get(1).get(0).modelPO.base);
         }
     }
 

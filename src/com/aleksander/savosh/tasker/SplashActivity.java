@@ -20,7 +20,7 @@ public class SplashActivity extends Activity {
             try {
                 Map<String, Account> accounts = ((Application) getApplicationContext()).getAccounts();
                 for(Account acc : accounts.values()) {
-                    SynchronizeService.updateAccountLocalByCloud(acc);
+                    SynchronizeService.synchronizeLocalWithCloud(acc);
                 }
 
             } catch (Exception e) {

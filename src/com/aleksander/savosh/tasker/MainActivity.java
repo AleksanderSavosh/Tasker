@@ -13,6 +13,7 @@ import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.PropertyService;
+import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 
 import java.util.*;
 
@@ -29,14 +30,12 @@ public class MainActivity extends Activity {
             try {
                 Config config = ((Application) getApplicationContext()).getConfig();
 
-                if(StringUtil.isEmpty(config.accountId)){
-                    return ((Application) getApplicationContext()).getLocalNotices().values();
-                } else {
-                    return ((Application) getApplicationContext())
-                            .getAccounts()
-                            .get(config.accountId)
-                            .getNotices();
-                }
+                String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
+
+                return ((Application) getApplicationContext())
+                        .getAccounts()
+                        .get(accountId)
+                        .getNotices();
 
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
@@ -110,7 +109,11 @@ public class MainActivity extends Activity {
             itemLogOut.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    ((Application) getApplicationContext()).logOut();
+                    SingUpLogInLogOutService.LogOutResult result = SingUpLogInLogOutService.logOut();
+                    if(!result.isLogOut){
+                        Toast.makeText(Application.getContext(), result.message, Toast.LENGTH_LONG).show();
+                        return true;
+                    }
                     Intent intent = new Intent(Application.getContext(), MainActivity.class);
                     startActivity(intent);
                     finish();
@@ -121,36 +124,6 @@ public class MainActivity extends Activity {
 
         return true;
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.menu_main_log_out) {
-//            if(logOutTask == null){
-//                logOutTask = new LogOutTask();
-//                logOutTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//            }
-//            return true;
-//        } else if (id == R.id.menu_main_add_notice){
-//            Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 
     public class Adapter extends ArrayAdapter<Notice> {
 

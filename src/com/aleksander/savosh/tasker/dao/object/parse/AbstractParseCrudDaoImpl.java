@@ -80,6 +80,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
             return readWithRelationsThrowException(s);
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+            Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
         }
         return null;
     }
@@ -409,7 +410,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
         }
-        return null;
+        return new ArrayList<Model>();
     }
 
     @Override
@@ -457,7 +458,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
         }
-        return null;
+        return new ArrayList<Model>();
     }
 
 
@@ -468,7 +469,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
         }
-        return null;
+        return new ArrayList<Model>();
     }
 
     @Override
@@ -517,7 +518,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
         }
-        return null;
+        return new ArrayList<Model>();
     }
 
     @Override

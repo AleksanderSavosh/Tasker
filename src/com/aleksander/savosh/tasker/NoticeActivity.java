@@ -104,7 +104,6 @@ public class NoticeActivity extends Activity {
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
                 Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
-                Toast.makeText(Application.getContext(), "Cannt create notice", Toast.LENGTH_LONG).show();
                 return false;
             }
             return true;
@@ -112,6 +111,10 @@ public class NoticeActivity extends Activity {
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
+            if(!aBoolean) {
+                Toast.makeText(Application.getContext(), "Cannt create notice", Toast.LENGTH_LONG).show();
+            }
+
             if(aBoolean){
                 Intent intent = new Intent(Application.getContext(), MainActivity.class);
                 NoticeActivity.this.startActivity(intent);
@@ -138,14 +141,11 @@ public class NoticeActivity extends Activity {
         Notice notice = null;
 
         if(!StringUtil.isEmpty(noticeId)) {
-            if (StringUtil.isEmpty(config.accountId)) {
-                notice = application.getLocalNotices().get(noticeId);
-            } else {
-                for(Notice note : application.getAccounts().get(config.accountId).getNotices()){
-                    if(note.getObjectId().equals(noticeId)) {
-                        notice = note;
-                        break;
-                    }
+            String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
+            for(Notice note : application.getAccounts().get(accountId).getNotices()){
+                if(note.getObjectId().equals(noticeId)) {
+                    notice = note;
+                    break;
                 }
             }
         }

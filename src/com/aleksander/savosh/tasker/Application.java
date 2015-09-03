@@ -2,6 +2,7 @@ package com.aleksander.savosh.tasker;
 
 import android.content.Context;
 import android.widget.Toast;
+import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
@@ -10,13 +11,13 @@ import com.aleksander.savosh.tasker.dao.object.parse.ParseLocalCrudDaoImpl;
 import com.aleksander.savosh.tasker.model.object.*;
 import com.parse.Parse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Application extends android.app.Application {
 
     private Map<String, Account> accounts = new HashMap<String, Account>();
-    private Map<String, Notice> localNotices = new HashMap<String, Notice>();
     private Config config;
 
     private static Context context;
@@ -38,6 +39,10 @@ public class Application extends android.app.Application {
 
     public static Context getContext() {
         return context;
+    }
+
+    public static Application instance(){
+        return (Application) context.getApplicationContext();
     }
 
     @Override
@@ -75,21 +80,9 @@ public class Application extends android.app.Application {
             accounts.put(acc.getObjectId(), acc);
         }
 
-        for(Notice note : noticeLocalDao.readAllWithRelations()) {
-            localNotices.put(note.getObjectId(), note);
-        }
-    }
-
-    public void logOut(){
-        if(!StringUtil.isEmpty(config.getObjectId())) {
-            try {
-                configLocalCrudDao.deleteThrowException(config.getObjectId());
-                config = new Config();
-            } catch (DataNotFoundException e) {
-                Toast.makeText(this, "Log out operation not successful", Toast.LENGTH_LONG).show();
-            } catch (OtherException e) {
-                Toast.makeText(this, "Log out operation not successful", Toast.LENGTH_LONG).show();
-            }
+        if(!accounts.containsKey(Config.ACC_ZERO)){
+            accounts.put(Config.ACC_ZERO,
+                    new Account(Config.ACC_ZERO, null, null, null, new ArrayList<Phone>(), new ArrayList<Notice>()));
         }
     }
 
@@ -137,7 +130,7 @@ public class Application extends android.app.Application {
         return config;
     }
 
-    public Map<String, Notice> getLocalNotices() {
-        return localNotices;
+    public void setConfig(Config config) {
+        this.config = config;
     }
 }

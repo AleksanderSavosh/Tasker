@@ -1,6 +1,7 @@
 package com.aleksander.savosh.tasker.service;
 
 
+import android.util.Log;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.StringUtil;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
@@ -56,15 +57,28 @@ public class NoticeService {
             properties.addAll(propertiesMap.get(key));
         }
 
-
         Application application = (Application) Application.getContext().getApplicationContext();
         Config config = application.getConfig();
         Notice notice = new Notice(properties);
 
         if (StringUtil.isEmpty(config.accountId)) { //create local notice
 
-            Application.getNoticeLocalDao().createWithRelationsThrowException(notice);
-            application.getLocalNotices().put(notice.getObjectId(), notice);
+//            Account zero = application.getAccounts().get(Config.ACC_ZERO);
+            Account zero = Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO);
+            if(zero == null){
+                zero = Application.getAccountLocalDao()
+                        .createWithRelationsThrowException(
+                                new Account(Config.ACC_ZERO, null, null, null, null, new ArrayList<Notice>(Arrays.asList(notice))));
+                Log.i("ACCOUNT ZERO", "BEFORE ID: " + zero.getObjectId());
+                Application.getAccountLocalDao().createWithRelationsThrowException(zero);
+                Log.i("ACCOUNT ZERO", "AFTER  ID: " + zero.getObjectId());
+                Log.i("ACCOUNT ZERO", "ZERO ACC: " + Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO));
+
+                application.getAccounts().put(Config.ACC_ZERO, zero);
+            } else {
+                zero.getNotices().add(notice);
+                Application.getAccountLocalDao().updateWithRelationsThrowException(zero);
+            }
 
         } else { //create cloud notice
 
@@ -80,31 +94,27 @@ public class NoticeService {
         Application application = (Application) Application.getContext().getApplicationContext();
         Config config = application.getConfig();
 
-        if (StringUtil.isEmpty(config.accountId)) { //update local notice
+        String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
 
-            Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
-            application.getLocalNotices().remove(notice.getObjectId());
-            application.getLocalNotices().put(notice.getObjectId(), notice);
-
-
-        } else { //update cloud notice
-
-            //обновляем заметку в памяти
-            Account acc = application.getAccounts().get(config.accountId);
-            List<Notice> notices = acc.getNotices();
-            Iterator<Notice> iterator = notices.iterator();
-            while (iterator.hasNext()){
-                if(iterator.next().getObjectId().equals(notice.getObjectId())){
-                    iterator.remove();
-                    break;
-                }
+        //обновляем заметку в памяти
+        Account acc = application.getAccounts().get(accountId);
+        List<Notice> notices = acc.getNotices();
+        Iterator<Notice> iterator = notices.iterator();
+        while (iterator.hasNext()){
+            if(iterator.next().getObjectId().equals(notice.getObjectId())){
+                iterator.remove();
+                break;
             }
-            notices.add(notice);
+        }
+        notices.add(notice);
 
+        if(!StringUtil.isEmpty(config.accountId)) {
             //обновляем заметку в облаке
             Application.getNoticeCloudDao().updateWithRelationsThrowException(notice);
-            //обновляем заметку в локальном хранилище
-            Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
         }
+
+        //обновляем заметку в локальном хранилище
+        Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
+
     }
 }

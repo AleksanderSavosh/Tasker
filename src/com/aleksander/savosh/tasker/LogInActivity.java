@@ -4,82 +4,22 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
-import com.aleksander.savosh.tasker.dao.object.KeyValue;
-import com.aleksander.savosh.tasker.model.object.Account;
-import com.aleksander.savosh.tasker.model.object.Phone;
+import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 
-import java.util.List;
+import static com.aleksander.savosh.tasker.service.SingUpLogInLogOutService.LogInResult;
+import static com.aleksander.savosh.tasker.service.SingUpLogInLogOutService.LogInData;
 
 public class LogInActivity extends Activity {
-
-    private class LogInData {
-        public String number;
-        public String password;
-        public Boolean rememberMe;
-
-        public LogInData(String number, String password, Boolean rememberMe) {
-            this.number = number;
-            this.password = password;
-            this.rememberMe = rememberMe;
-        }
-    }
-
-    private class LogInResult {
-        public Boolean isLogIn = false;
-        public String message = "";
-    }
 
     private static LogInTask logInTask;
     private class LogInTask extends AsyncTask<LogInData, Void, LogInResult> {
         @Override
         protected LogInResult doInBackground(LogInData... params) {
-            LogInData logInData = params[0];
-            LogInResult logInResult = new LogInResult();
-            try {
-
-                List<Phone> phones = Application.getPhoneCloudDao()
-                        .readByThrowException(new KeyValue("number", logInData.number));
-
-                if(phones.size() != 1){
-                    throw new DataNotFoundException("Phone list size is not equal 1");
-                }
-
-                Phone phone = phones.get(0);
-                Account account = (Account) Application.getPhoneCloudDao()
-                        .getParentWithRelationsThrowException(Account.class, phone);
-
-
-
-
-//                Phone phone = Application.getPhoneCloudDao()
-//                        .readFirstThrowExceptions(Phone.builder().setNumber(logInData.getPhoneNumber()).build());
-//                Account account = Application.getAccountCloudDao()
-//                        .readFirstThrowExceptions(Account.builder().setObjectId(phone.getAccountId()).build());
-//                logInResult.isLogIn = logInData.getPassword().equals(account.getPassword());
-//
-//                if (logInResult.isLogIn) {
-//                    Application.getLogInDataLocalDao().delete(logInData);
-//                    Application.getLogInDataLocalDao().createThrowExceptions(LogInData.builder()
-//                            .setAccountId(account.getObjectId())
-//                            .setPhoneNumber(phone.getNumber())
-//                            .setPassword(account.getPassword())
-//                            .setRememberMe(logInData.getRememberMe())
-//                            .build());
-//                }
-            } catch (DataNotFoundException e) {
-                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
-                logInResult.message = LogInActivity.this.getResources().getString(R.string.log_in_invalid_number_or_password_message);
-            } catch (Exception e) {
-                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
-                logInResult.message = LogInActivity.this.getResources().getString(R.string.some_error_message);
-            }
-            return logInResult;
+            return SingUpLogInLogOutService.logIn(params[0]);
         }
 
         @Override
@@ -110,7 +50,6 @@ public class LogInActivity extends Activity {
                     String number = ((EditText) findViewById(R.id.login_activity_phone_number)).getText().toString();
                     String password = ((EditText) findViewById(R.id.login_activity_password)).getText().toString();
                     Boolean rememberMe = ((CheckBox) findViewById(R.id.login_activity_remember_me)).isChecked();
-
 
                     LogInData logInData = new LogInData(number, StringUtil.encodePassword(password), rememberMe);
 
