@@ -1,6 +1,7 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
@@ -66,6 +67,10 @@ public class Application extends android.app.Application {
         phoneLocalDao = new ParseLocalCrudDaoImpl<Phone>(Phone.class);
         noticeLocalDao = new ParseLocalCrudDaoImpl<Notice>(Notice.class);
         propertyLocalDao = new ParseLocalCrudDaoImpl<Property>(Property.class);
+
+        if(true){
+            accountLocalDao.deleteWithRelations(Config.ACC_ZERO);
+        }
 
         config = configLocalCrudDao.readWithRelations(Config.ID);
         if(config == null){

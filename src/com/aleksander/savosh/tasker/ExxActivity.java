@@ -8,6 +8,7 @@ import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.KeyValue;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
+import com.aleksander.savosh.tasker.dao.object.parse.ParseLocalCrudDaoImpl;
 import com.aleksander.savosh.tasker.dao.object.parse.Util;
 import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.model.object.Notice;
@@ -16,6 +17,7 @@ import com.aleksander.savosh.tasker.model.object.Property;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -79,7 +81,37 @@ public class ExxActivity extends Activity {
         try {
 //            testCreateWithRelations();
 
-            testGetParent();
+//            testGetParent();
+
+            testCreateWithRelationsLocal();
+
+//            final String objectName = "Account";
+//            final String propName = "CreatedAt";
+//            final Date propValue = new Date();
+//
+//            System.out.println("TEST");
+//            ParseObject parseObject = ParseObject.create(objectName);
+//            parseObject.put(propName, propValue);
+//            parseObject.pinInBackground(new SaveCallback() {
+//                @Override
+//                public void done(ParseException e) {
+//                    if(e == null){
+//                        ParseObject po = null;
+//                        try {
+//                            po = ParseQuery.getQuery(objectName).fromLocalDatastore()
+//                                    .whereEqualTo(propName, propValue).getFirst();
+//                            System.out.println("SIZE:" + po.get(propName));
+//                        } catch (ParseException e1) {
+//                            e1.printStackTrace();
+//                        }
+//                    } else {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            });
+
+//            new ParseQuery<ParseObject>("Account").
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,6 +154,17 @@ public class ExxActivity extends Activity {
         account.setPassword("WithRelations");
         crudDao.createWithRelationsThrowException(account);
         System.out.println("ACCOUNT: " + account);
+    }
+
+    public void testCreateWithRelationsLocal() throws OtherException, CannotCreateException, DataNotFoundException {
+        CrudDao<Account, String> crudDao = new ParseLocalCrudDaoImpl<Account>(Account.class);
+        Account account = createAccount();
+        account.setPassword("WithRelations");
+        crudDao.createWithRelationsThrowException(account);
+        System.out.println("ACCOUNT: " + account);
+
+        Account readAcc = crudDao.readWithRelationsThrowException(account.getObjectId());
+        System.out.println("READ ACC: " + readAcc);
     }
 
     public void testReadWithRelations() throws OtherException, CannotCreateException, DataNotFoundException {

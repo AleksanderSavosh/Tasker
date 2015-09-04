@@ -69,10 +69,10 @@ public class NoticeService {
                 zero = Application.getAccountLocalDao()
                         .createWithRelationsThrowException(
                                 new Account(Config.ACC_ZERO, null, null, null, null, new ArrayList<Notice>(Arrays.asList(notice))));
-                Log.i("ACCOUNT ZERO", "BEFORE ID: " + zero.getObjectId());
-                Application.getAccountLocalDao().createWithRelationsThrowException(zero);
-                Log.i("ACCOUNT ZERO", "AFTER  ID: " + zero.getObjectId());
-                Log.i("ACCOUNT ZERO", "ZERO ACC: " + Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO));
+//                Log.i("ACCOUNT ZERO", "BEFORE ID: " + zero.getObjectId());
+//                Application.getAccountLocalDao().createWithRelationsThrowException(zero);
+//                Log.i("ACCOUNT ZERO", "AFTER  ID: " + zero.getObjectId());
+//                Log.i("ACCOUNT ZERO", "ZERO ACC: " + Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO));
 
                 application.getAccounts().put(Config.ACC_ZERO, zero);
             } else {

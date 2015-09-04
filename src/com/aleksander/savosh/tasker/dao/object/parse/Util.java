@@ -73,6 +73,7 @@ public class Util {
         } else {
             List<ParseObject> objects = ParseQuery.getQuery(clazz.getSimpleName())
                     .fromLocalDatastore().whereEqualTo("ObjectId", id).find();
+            Log.d(Util.class.getName(), "LOCAL FIND BY ID: " + id + " SIZE: " + objects.size());
             if(objects.size() == 1){
                 return objects.get(0);
             } else if(objects.size() == 0){
