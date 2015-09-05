@@ -69,12 +69,24 @@ public class SingUpLogInLogOutService {
                 Application.getAccountLocalDao().deleteWithRelationsThrowException(Config.ACC_ZERO);
             }
 
-            Application.getAccountCloudDao().createWithRelationsThrowException(account);
+            account = Application.getAccountCloudDao().createWithRelationsThrowException(account);
             Application.instance().getAccounts().put(account.getObjectId(), account);
 
-            if(!account.getObjectId().equals(Config.ACC_ZERO)) {
-                Application.instance().getConfig().accountId = account.getObjectId();
+//            if(!account.getObjectId().equals(Config.ACC_ZERO)) {
+//                Application.instance().getConfig().accountId = account.getObjectId();
+//            }
+
+            Config config = Application.getConfigLocalCrudDao().read(Config.ID);
+            if(config == null){
+                config = new Config();
+                config.accountId = account.getObjectId();
+                Application.getConfigLocalCrudDao().createThrowException(config);
+            } else {
+                config.accountId = account.getObjectId();
+                Application.getConfigLocalCrudDao().updateThrowException(config);
             }
+            Application.instance().setConfig(config);
+
 
             result.isSignUp = true;
         } catch (Exception e) {
@@ -155,6 +167,7 @@ public class SingUpLogInLogOutService {
     }
 
     public static LogOutResult logOut(){
+        Log.d(SingUpLogInLogOutService.class.getName(), "Log out operation");
         LogOutResult logOutResult = new LogOutResult();
         if(!StringUtil.isEmpty(Application.instance().getConfig().accountId)) {
             try {
@@ -163,9 +176,11 @@ public class SingUpLogInLogOutService {
                 logOutResult.isLogOut = true;
             } catch (DataNotFoundException e) {
                 Log.e(SingUpLogInLogOutService.class.getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                Log.d(SingUpLogInLogOutService.class.getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
                 logOutResult.message = "Log out operation not successful";
             } catch (OtherException e) {
                 Log.e(SingUpLogInLogOutService.class.getName(), e.getMessage() != null ? e.getMessage() : e.toString());
+                Log.d(SingUpLogInLogOutService.class.getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
                 logOutResult.message = "Log out operation not successful";
             }
         }

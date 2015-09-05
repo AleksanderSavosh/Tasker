@@ -15,7 +15,7 @@ import java.util.*;
 
 public class NoticeService {
 
-    public static final String DEFAULT_ACCOUNT_ID = "noAccountId";
+//    public static final String DEFAULT_ACCOUNT_ID = "noAccountId";
 
 //    public static List<NoticeWithProperties> getLocalNoticesByAccountId(String accountId){
 //        try {
@@ -62,10 +62,11 @@ public class NoticeService {
         Notice notice = new Notice(properties);
 
         if (StringUtil.isEmpty(config.accountId)) { //create local notice
-
+            Log.d(NoticeService.class.getName(), "Create local notice");
 //            Account zero = application.getAccounts().get(Config.ACC_ZERO);
             Account zero = Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO);
             if(zero == null){
+                Log.d(NoticeService.class.getName(), "Create first local notice");
                 zero = Application.getAccountLocalDao()
                         .createWithRelationsThrowException(
                                 new Account(Config.ACC_ZERO, null, null, null, null, new ArrayList<Notice>(Arrays.asList(notice))));
@@ -77,11 +78,13 @@ public class NoticeService {
                 application.getAccounts().put(Config.ACC_ZERO, zero);
             } else {
                 zero.getNotices().add(notice);
-                Application.getAccountLocalDao().updateWithRelationsThrowException(zero);
+                zero = Application.getAccountLocalDao().updateWithRelationsThrowException(zero);
+                application.getAccounts().remove(Config.ACC_ZERO);
+                application.getAccounts().put(Config.ACC_ZERO, zero);
             }
 
         } else { //create cloud notice
-
+            Log.d(NoticeService.class.getName(), "Create cloud notice");
             Account acc = application.getAccounts().get(config.accountId);
             acc.getNotices().add(notice);
             Application.getAccountCloudDao().updateWithRelationsThrowException(acc);

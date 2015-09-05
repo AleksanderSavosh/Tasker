@@ -8,10 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.aleksander.savosh.tasker.model.object.Config;
-import com.aleksander.savosh.tasker.model.object.Notice;
-import com.aleksander.savosh.tasker.model.object.Property;
-import com.aleksander.savosh.tasker.model.object.PropertyType;
+import com.aleksander.savosh.tasker.model.object.*;
 import com.aleksander.savosh.tasker.service.PropertyService;
 import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 
@@ -32,10 +29,13 @@ public class MainActivity extends Activity {
 
                 String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
 
-                return ((Application) getApplicationContext())
+                Account account = ((Application) getApplicationContext())
                         .getAccounts()
-                        .get(accountId)
-                        .getNotices();
+                        .get(accountId);
+
+                Log.d(getClass().getName(), "Current notices count: " + account.getNotices().size());
+
+                return  account.getNotices();
 
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
