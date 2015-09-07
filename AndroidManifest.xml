@@ -19,5 +19,6 @@
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".NoticeActivity"></activity>
         <activity android:name=".ExxActivity"></activity>
+        <activity android:name=".HtmlExxActivity"></activity>
     </application>
 </manifest>
