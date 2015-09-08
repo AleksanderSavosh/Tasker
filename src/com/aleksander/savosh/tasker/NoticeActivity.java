@@ -10,13 +10,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+import com.aleksander.savosh.tasker.crypt.AesCrypt;
+import com.aleksander.savosh.tasker.crypt.AesException;
 import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.service.PropertyService;
+import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 
 import java.util.*;
 
@@ -239,6 +243,36 @@ public class NoticeActivity extends Activity {
                     view.setVisibility(View.VISIBLE);
                 } else {
                     view.setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
+
+        MenuItem itemEncode = menu.add(R.string.action_encode_notice);
+        itemEncode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                TextView view = (TextView) findViewById(R.id.notice_activity_text);
+                String text = view.getText().toString();
+                try {
+                    view.setText(new AesCrypt("password").encrypt(text));
+                } catch (AesException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
+            }
+        });
+
+        MenuItem itemDecode = menu.add(R.string.action_decode_notice);
+        itemDecode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                TextView view = (TextView) findViewById(R.id.notice_activity_text);
+                String text = view.getText().toString();
+                try {
+                    view.setText(new AesCrypt("password").decrypt(text));
+                } catch (AesException e) {
+                    throw new RuntimeException(e);
                 }
                 return true;
             }

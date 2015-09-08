@@ -39,4 +39,6 @@
     <string name="action_add_title">Add title</string>
     <string name="action_add_remove_title">Title</string>
     <string name="update_local_data_exception">Update local data error</string>
+    <string name="action_encode_notice">Encode notice</string>
+    <string name="action_decode_notice">Decode notice</string>
 </resources>

@@ -11,6 +11,7 @@ import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseLocalCrudDaoImpl;
 import com.aleksander.savosh.tasker.model.object.*;
 import com.parse.Parse;
+import com.parse.ParseCrashReporting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +52,8 @@ public class Application extends android.app.Application {
         super.onCreate();
 
         context = this;
-
+        //enable crash reporting
+        ParseCrashReporting.enable(this);
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "cv5X8Il8up7Y4YvrBz6nM6icaf7lBYXfPlwQSmAR", "6fDQLSh7mmIqoZEU5V0BNOrFxHavGEFkVnNDZlrZ");
