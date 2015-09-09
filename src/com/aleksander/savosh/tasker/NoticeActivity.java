@@ -1,7 +1,10 @@
 package com.aleksander.savosh.tasker;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +23,7 @@ import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.service.PropertyService;
-import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
+import com.parse.ParseCrashReporting;
 
 import java.util.*;
 
@@ -128,12 +131,17 @@ public class NoticeActivity extends Activity {
         }
     }
 
+    public final static String BROADCAST_ACTION = "com.aleksander.savosh.tasker.BROADCAST_ACTION";
+    public final static String PARAM_PASSWORD = "PASSWORD";
+    private BroadcastReceiver passwordReceiver;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notice_activity);
 
-        EditText text = (EditText) findViewById(R.id.notice_activity_text);
+        final EditText text = (EditText) findViewById(R.id.notice_activity_text);
         EditText title = (EditText) findViewById(R.id.notice_activity_title);
 
         String noticeId = getIntent().getStringExtra(EXTRA_NOTICE_ID);
@@ -190,6 +198,33 @@ public class NoticeActivity extends Activity {
                 }
             }
         });
+
+        passwordReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String receivedPassword = intent.getStringExtra(PARAM_PASSWORD);
+                if(!StringUtil.isEmpty(receivedPassword)){
+                    try {
+                        String textForCode = text.getText().toString();
+                        AesCrypt aesCrypt = new AesCrypt(receivedPassword);
+                        Log.d(getClass().getName(), "TEXT: " + textForCode);
+                        if (NoticeActivity.this.mode == Mode.ENCODE) {
+                            textForCode = aesCrypt.encrypt(textForCode);
+                        } else if (NoticeActivity.this.mode == Mode.DECODE) {
+                            textForCode = aesCrypt.decrypt(textForCode);
+                        }
+                        Log.d(getClass().getName(), "TEXT: " + textForCode);
+                        text.setText(textForCode);
+                    } catch(AesException e){
+                        throw new RuntimeException("Crypt exception", e);
+                    }
+                }
+            }
+        };
+        // создаем фильтр для BroadcastReceiver
+        IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
+        // регистрируем (включаем) BroadcastReceiver
+        registerReceiver(passwordReceiver, intFilt);
     }
 
     private Map<Integer, List<Property>> getNewMapOfProperties(){
@@ -231,6 +266,12 @@ public class NoticeActivity extends Activity {
         return properties;
     }
 
+    enum Mode {
+        NONE, ENCODE, DECODE;
+    }
+
+    private Mode mode = Mode.NONE;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -252,13 +293,9 @@ public class NoticeActivity extends Activity {
         itemEncode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                TextView view = (TextView) findViewById(R.id.notice_activity_text);
-                String text = view.getText().toString();
-                try {
-                    view.setText(new AesCrypt("password").encrypt(text));
-                } catch (AesException e) {
-                    throw new RuntimeException(e);
-                }
+                mode = Mode.ENCODE;
+                DialogFragment dialog = new GetPasswordDialog();
+                dialog.show(getFragmentManager(), "DIALOG");
                 return true;
             }
         });
@@ -267,13 +304,9 @@ public class NoticeActivity extends Activity {
         itemDecode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                TextView view = (TextView) findViewById(R.id.notice_activity_text);
-                String text = view.getText().toString();
-                try {
-                    view.setText(new AesCrypt("password").decrypt(text));
-                } catch (AesException e) {
-                    throw new RuntimeException(e);
-                }
+                mode = Mode.DECODE;
+                DialogFragment dialog = new GetPasswordDialog();
+                dialog.show(getFragmentManager(), "DIALOG");
                 return true;
             }
         });
