@@ -1,12 +1,10 @@
 package com.aleksander.savosh.tasker.crypt;
 
-import android.util.Base64;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-//import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -23,42 +21,42 @@ public class AesCrypt {
         seed = password;
     }
 
-    public String encrypt(String cleartext) throws AesException {
+    public String encrypt(String cleartext) throws CryptException {
         try {
             byte[] rawKey = getRawKey(seed);
             byte[] result = encrypt(rawKey, cleartext.getBytes());
             return toHex(result);
         } catch (NoSuchAlgorithmException e) {
-            throw new AesException("AES encrypt error", e);
+            throw new CryptException("AES encrypt error", e);
         } catch (NoSuchPaddingException e) {
-            throw new AesException("AES encrypt error", e);
+            throw new CryptException("AES encrypt error", e);
         } catch (InvalidKeyException e) {
-            throw new AesException("AES encrypt error", e);
+            throw new CryptException("AES encrypt error", e);
         } catch (IllegalBlockSizeException e) {
-            throw new AesException("AES encrypt error", e);
+            throw new CryptException("AES encrypt error", e);
         } catch (BadPaddingException e) {
-            throw new AesException("AES encrypt error", e);
+            throw new CryptException("AES encrypt error", e);
         }
     }
 
-    public String decrypt(String encrypted) throws AesException {
+    public String decrypt(String encrypted) throws CryptException {
         try {
             byte[] rawKey = getRawKey(seed);
             byte[] enc = toByte(encrypted);
             byte[] result = decrypt(rawKey, enc);
             return new String(result);
         } catch (NoSuchAlgorithmException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         } catch (NoSuchPaddingException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         } catch (InvalidKeyException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         } catch (IllegalBlockSizeException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         } catch (BadPaddingException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         } catch (DecoderException e) {
-            throw new AesException("AES decrypt error", e);
+            throw new CryptException("AES decrypt error", e);
         }
     }
 

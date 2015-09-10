@@ -1,11 +1,8 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
-import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
-import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
-import com.aleksander.savosh.tasker.dao.exception.OtherException;
+import com.aleksander.savosh.tasker.crypt.CaesarCryptImpl;
+import com.aleksander.savosh.tasker.crypt.Crypt;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseLocalCrudDaoImpl;
@@ -38,6 +35,7 @@ public class Application extends android.app.Application {
     private static CrudDao<Property, String> propertyCloudDao;
     private static CrudDao<Property, String> propertyLocalDao;
 
+    private static Crypt crypt = new CaesarCryptImpl();
 
     public static Context getContext() {
         return context;
@@ -139,5 +137,9 @@ public class Application extends android.app.Application {
 
     public void setConfig(Config config) {
         this.config = config;
+    }
+
+    public static Crypt getCrypt() {
+        return crypt;
     }
 }

@@ -1,8 +1,6 @@
 package com.aleksander.savosh.tasker;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.*;
 import android.os.AsyncTask;
@@ -13,23 +11,49 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-import com.aleksander.savosh.tasker.crypt.AesCrypt;
-import com.aleksander.savosh.tasker.crypt.AesException;
+import com.aleksander.savosh.tasker.crypt.CryptException;
 import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.service.PropertyService;
-import com.parse.ParseCrashReporting;
 
 import java.util.*;
 
 public class NoticeActivity extends Activity {
 
     public static final String EXTRA_NOTICE_ID = "com.aleksander.savosh.tasker.EXTRA_NOTICE_ID";
+
+    public static DeleteNoticeTask deleteNoticeTask;
+    public static class DeleteNoticeTask extends AsyncTask<String, Void, Boolean> {
+        private Activity currActivity;
+        public void setCurrActivity(Activity currActivity) {
+            this.currActivity = currActivity;
+        }
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String noticeId = params[0];
+            try {
+                NoticeService.deleteNotice(noticeId);
+                return true;
+            } catch(Exception e){
+                Log.e(getClass().getName(), e.getMessage());
+                Log.d(getClass().getName(), e.getMessage(), e);
+            }
+            return false;
+        }
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if(aBoolean){
+                Intent intent = new Intent(Application.getContext(), MainActivity.class);
+                currActivity.startActivity(intent);
+                currActivity.finish();
+            }
+            deleteNoticeTask = null;
+        }
+    }
 
     public UpdateNoticeTask updateNoticeTask;
     public class UpdateNoticeTask extends AsyncTask<Notice, Void, Boolean> {
@@ -204,20 +228,22 @@ public class NoticeActivity extends Activity {
             public void onReceive(Context context, Intent intent) {
                 String receivedPassword = intent.getStringExtra(PARAM_PASSWORD);
                 if(!StringUtil.isEmpty(receivedPassword)){
+                    String textForCode = text.getText().toString();
                     try {
-                        String textForCode = text.getText().toString();
-                        AesCrypt aesCrypt = new AesCrypt(receivedPassword);
                         Log.d(getClass().getName(), "TEXT: " + textForCode);
                         if (NoticeActivity.this.mode == Mode.ENCODE) {
-                            textForCode = aesCrypt.encrypt(textForCode);
+                            textForCode = Application.getCrypt().encrypt(receivedPassword, textForCode);
                         } else if (NoticeActivity.this.mode == Mode.DECODE) {
-                            textForCode = aesCrypt.decrypt(textForCode);
+                            textForCode = Application.getCrypt().decrypt(receivedPassword, textForCode);
                         }
                         Log.d(getClass().getName(), "TEXT: " + textForCode);
-                        text.setText(textForCode);
-                    } catch(AesException e){
-                        throw new RuntimeException("Crypt exception", e);
+                    } catch(CryptException e){
+                        Log.e(getClass().getName(), e.getMessage());
+                        Log.d(getClass().getName(), e.getMessage(), e);
+                        Toast.makeText(Application.getContext(), getResources().getString(R.string.crypt_error),
+                                Toast.LENGTH_LONG).show();
                     }
+                    text.setText(textForCode);
                 }
             }
         };
@@ -310,6 +336,27 @@ public class NoticeActivity extends Activity {
                 return true;
             }
         });
+
+        final String noticeId = getIntent().getStringExtra(EXTRA_NOTICE_ID);
+        if(deleteNoticeTask != null){
+            deleteNoticeTask.setCurrActivity(this);
+        }
+        if(!StringUtil.isEmpty(noticeId)) {
+            MenuItem itemRemove = menu.add(R.string.action_remove_notice);
+            itemRemove.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    if(deleteNoticeTask == null){
+                        deleteNoticeTask = new DeleteNoticeTask();
+                        deleteNoticeTask.setCurrActivity(NoticeActivity.this);
+                        deleteNoticeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, noticeId);
+                    } else {
+                        Toast.makeText(Application.getContext(), "Wait for deletion notice operation", Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                }
+            });
+        }
 
         return true;
     }

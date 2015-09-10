@@ -118,6 +118,32 @@ public class NoticeService {
 
         //обновляем заметку в локальном хранилище
         Application.getNoticeLocalDao().updateWithRelationsThrowException(notice);
+    }
+
+    public static void deleteNotice(String noticeId) throws OtherException, DataNotFoundException {
+        //get account
+        Config config = Application.instance().getConfig();
+        String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
+
+        //delete from cloud
+        if (!accountId.equals(Config.ACC_ZERO)) {
+            Application.getNoticeCloudDao().deleteWithRelationsThrowException(noticeId);
+        }
+
+        //delete from local
+        Application.getNoticeLocalDao().deleteWithRelationsThrowException(noticeId);
+
+        //delete from cache
+        List<Notice> notices = Application.instance().getAccounts().get(accountId).getNotices();
+        Iterator<Notice> iterator = notices.iterator();
+        while (iterator.hasNext()){
+            if(iterator.next().getObjectId().equals(noticeId)){
+                iterator.remove();
+                break;
+            }
+        }
+        Application.instance().getAccounts().get(accountId).setNotices(notices);
 
     }
+
 }

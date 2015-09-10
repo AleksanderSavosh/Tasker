@@ -18,8 +18,6 @@ import static com.aleksander.savosh.tasker.service.SingUpLogInLogOutService.Sign
 
 public class SignUpActivity extends Activity {
 
-
-
     private static SignUpTask signUpTask;
 
     private class SignUpTask extends AsyncTask<SignUpData, Void, SignUpResult> {
