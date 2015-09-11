@@ -3,57 +3,19 @@ package com.aleksander.savosh.tasker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.aleksander.savosh.tasker.model.object.*;
 import com.aleksander.savosh.tasker.service.PropertyService;
 import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
+import com.aleksander.savosh.tasker.task.UpdateAdapterTask;
+import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.util.*;
 
 
 public class MainActivity extends Activity {
-
-
-    private Adapter adapter = new Adapter(Application.getContext());
-
-    private UpdateAdapterTask updateAdapterTask;
-    public class UpdateAdapterTask extends AsyncTask<Void, Void, Collection<Notice>> {
-        @Override
-        protected Collection<Notice> doInBackground(Void... params) {
-            try {
-                Config config = ((Application) getApplicationContext()).getConfig();
-
-                String accountId = StringUtil.isEmpty(config.accountId) ? Config.ACC_ZERO : config.accountId;
-
-                Account account = ((Application) getApplicationContext())
-                        .getAccounts()
-                        .get(accountId);
-
-                Log.d(getClass().getName(), "Current notices count: " + account.getNotices().size());
-
-                return  account.getNotices();
-
-            } catch (Exception e) {
-                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString());
-                Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : e.toString(), e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Collection<Notice> notices) {
-            if(notices != null) {
-                adapter.clear();
-                adapter.addAll(notices);
-                adapter.notifyDataSetChanged();
-            }
-            updateAdapterTask = null;
-        }
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +23,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity);
 
         final ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
+
+        Adapter adapter = new Adapter(this);
+        UpdateAdapterTask.initTask(adapter, true);
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -72,10 +37,6 @@ public class MainActivity extends Activity {
                 finish();
             }
         });
-        if(updateAdapterTask == null){
-            updateAdapterTask = new UpdateAdapterTask();
-            updateAdapterTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
     }
 
     @Override
@@ -176,15 +137,5 @@ public class MainActivity extends Activity {
 
             return rowView;
         }
-
-
-
-
     }
-
-
-
-
-
-
 }

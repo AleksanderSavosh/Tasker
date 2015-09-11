@@ -19,6 +19,7 @@ import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.model.object.PropertyType;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.service.PropertyService;
+import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.util.*;
 

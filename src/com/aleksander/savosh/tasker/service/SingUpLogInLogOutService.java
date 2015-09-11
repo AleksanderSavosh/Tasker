@@ -4,7 +4,11 @@ package com.aleksander.savosh.tasker.service;
 import android.util.Log;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.R;
-import com.aleksander.savosh.tasker.StringUtil;
+import com.aleksander.savosh.tasker.data.LogInData;
+import com.aleksander.savosh.tasker.data.LogInResult;
+import com.aleksander.savosh.tasker.data.SignUpData;
+import com.aleksander.savosh.tasker.data.SignUpResult;
+import com.aleksander.savosh.tasker.util.StringUtil;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
 import com.aleksander.savosh.tasker.dao.object.KeyValue;
@@ -19,18 +23,6 @@ import java.util.List;
 
 public class SingUpLogInLogOutService {
 
-
-    public static class SignUpData {
-        public String number;
-        public String password;
-        public String password2;
-        public Boolean transferNotes;
-    }
-
-    public static class SignUpResult {
-        public Boolean isSignUp;
-        public String message;
-    }
 
     public static SignUpResult singUp(SignUpData signUpData){
         SignUpResult result = new SignUpResult();
@@ -96,26 +88,8 @@ public class SingUpLogInLogOutService {
         return result;
     }
 
-
-    public static class LogInData {
-        public String number;
-        public String password;
-        public Boolean rememberMe;
-
-        public LogInData(String number, String password, Boolean rememberMe) {
-            this.number = number;
-            this.password = password;
-            this.rememberMe = rememberMe;
-        }
-    }
-
-    public static class LogInResult {
-        public Boolean isLogIn = false;
-        public String message = "";
-    }
-
     public static LogInResult logIn(LogInData logInData){
-
+        Log.d(SingUpLogInLogOutService.class.getName(), "--- === LOG IN === ---");
         LogInResult logInResult = new LogInResult();
         try {
 
@@ -130,10 +104,8 @@ public class SingUpLogInLogOutService {
             Account account = (Account) Application.getPhoneCloudDao()
                     .getParentWithRelationsThrowException(Account.class, phone);
 
-            logInResult.isLogIn = logInData.password.equals(account.getPassword());
+            logInResult.isLogIn = StringUtil.encodePassword(logInData.password).equals(account.getPassword());
             if(logInResult.isLogIn){
-                SynchronizeService.synchronizeLocalWithCloud(account);
-
 
                 Config config = Application.getConfigLocalCrudDao().read(Config.ID);
                 if(config == null){
@@ -148,6 +120,11 @@ public class SingUpLogInLogOutService {
                 }
                 Application.instance().setConfig(config);
 
+                //синхронизация локал с клауд
+                SynchronizeService.synchronizeLocalWithCloud(account.getObjectId());
+
+            } else {
+                logInResult.message = Application.getContext().getResources().getString(R.string.log_in_invalid_number_or_password_message);
             }
 
         } catch (DataNotFoundException e) {
@@ -156,7 +133,11 @@ public class SingUpLogInLogOutService {
         } catch (Exception e) {
             Log.e(SingUpLogInLogOutService.class.getName(), e.getMessage() != null ? e.getMessage() : e.toString());
             logInResult.message = Application.getContext().getResources().getString(R.string.some_error_message);
+        } finally {
+            Log.d(SingUpLogInLogOutService.class.getName(), "RESULT: " + logInResult);
+            Log.d(SingUpLogInLogOutService.class.getName(), "--- === LOG IN END === ---");
         }
+
         return logInResult;
 
     }

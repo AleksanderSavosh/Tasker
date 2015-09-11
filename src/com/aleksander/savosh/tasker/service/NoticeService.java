@@ -3,7 +3,7 @@ package com.aleksander.savosh.tasker.service;
 
 import android.util.Log;
 import com.aleksander.savosh.tasker.Application;
-import com.aleksander.savosh.tasker.StringUtil;
+import com.aleksander.savosh.tasker.util.StringUtil;
 import com.aleksander.savosh.tasker.dao.exception.CannotCreateException;
 import com.aleksander.savosh.tasker.dao.exception.DataNotFoundException;
 import com.aleksander.savosh.tasker.dao.exception.OtherException;
