@@ -232,9 +232,9 @@ public class NoticeActivity extends Activity {
                     try {
                         Log.d(getClass().getName(), "TEXT: " + textForCode);
                         if (NoticeActivity.this.mode == Mode.ENCODE) {
-                            textForCode = Application.getCrypt().encrypt(receivedPassword, textForCode);
+                            textForCode = Application.getCrypt().encrypt(textForCode, receivedPassword);
                         } else if (NoticeActivity.this.mode == Mode.DECODE) {
-                            textForCode = Application.getCrypt().decrypt(receivedPassword, textForCode);
+                            textForCode = Application.getCrypt().decrypt(textForCode, receivedPassword);
                         }
                         Log.d(getClass().getName(), "TEXT: " + textForCode);
                     } catch(CryptException e){

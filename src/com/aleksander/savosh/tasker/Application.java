@@ -1,7 +1,7 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
-import com.aleksander.savosh.tasker.crypt.CaesarCryptImpl;
+import com.aleksander.savosh.tasker.crypt.AesCryptImpl;
 import com.aleksander.savosh.tasker.crypt.Crypt;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
@@ -35,7 +35,7 @@ public class Application extends android.app.Application {
     private static CrudDao<Property, String> propertyCloudDao;
     private static CrudDao<Property, String> propertyLocalDao;
 
-    private static Crypt crypt = new CaesarCryptImpl();
+    private static Crypt crypt = new AesCryptImpl();
 
     public static Context getContext() {
         return context;
