@@ -146,4 +146,34 @@ public class NoticeService {
 
     }
 
+    public static void createNotice(Notice notice) throws OtherException, CannotCreateException, DataNotFoundException {
+
+        Config config = Application.instance().getConfig();
+
+        if (StringUtil.isEmpty(config.accountId)) { //create local notice
+            Log.d(NoticeService.class.getName(), "Create local notice");
+            Account zero = Application.getAccountLocalDao().readWithRelations(Config.ACC_ZERO);
+            if(zero == null){
+                Log.d(NoticeService.class.getName(), "Create first local notice");
+                zero = Application.getAccountLocalDao()
+                        .createWithRelationsThrowException(
+                                new Account(Config.ACC_ZERO, null, null, null, null, new ArrayList<Notice>(Arrays.asList(notice))));
+                Application.instance().getAccounts().put(Config.ACC_ZERO, zero);
+            } else {
+                zero.getNotices().add(notice);
+                zero = Application.getAccountLocalDao().updateWithRelationsThrowException(zero);
+                Application.instance().getAccounts().remove(Config.ACC_ZERO);
+                Application.instance().getAccounts().put(Config.ACC_ZERO, zero);
+            }
+
+        } else { //create cloud notice
+            Log.d(NoticeService.class.getName(), "Create cloud notice");
+            Account acc = Application.instance().getAccounts().get(config.accountId);
+            acc.getNotices().add(notice);
+            Application.getAccountCloudDao().updateWithRelationsThrowException(acc);
+            Application.getAccountLocalDao().updateWithRelationsThrowException(acc);
+
+        }
+    }
+
 }

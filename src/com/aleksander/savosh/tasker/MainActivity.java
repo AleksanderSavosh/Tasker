@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.aleksander.savosh.tasker.model.object.*;
@@ -19,22 +20,21 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(getClass().getName(), "--- === ON CREATE MAIN ACTIVITY === ---");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        final ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
+        ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
 
         Adapter adapter = new Adapter(this);
-        UpdateAdapterTask.initTask(adapter, true);
+        UpdateAdapterTask.initTask(adapter, listview, progressBar, true);
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                 Notice item = (Notice) parent.getItemAtPosition(position);
-                Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
-                intent.putExtra(NoticeActivity.EXTRA_NOTICE_ID, item.getObjectId());
-                startActivity(intent);
-                finish();
+                startNoticeActivity(item.getObjectId());
             }
         });
     }
@@ -46,9 +46,7 @@ public class MainActivity extends Activity {
         itemAddNotice.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(Application.getContext(), NoticeActivity.class);
-                startActivity(intent);
-                finish();
+                startNoticeActivity(null);
                 return true;
             }
         });
@@ -84,6 +82,15 @@ public class MainActivity extends Activity {
         }
 
         return true;
+    }
+
+    private void startNoticeActivity(String noticeId){
+        Intent intent = new Intent(Application.getContext(), NoticeActivity2.class);
+        if(noticeId != null){
+            intent.putExtra(NoticeActivity2.EXTRA_NOTICE_ID, noticeId);
+        }
+        startActivity(intent);
+        finish();
     }
 
     public class Adapter extends ArrayAdapter<Notice> {

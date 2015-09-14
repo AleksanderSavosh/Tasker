@@ -41,7 +41,29 @@ public class PropertyService {
         return map;
     }
 
-
+    public static void validateProperties(List<Property> properties){
+        // 1 title
+        // 1 text
+        int countTitles = 0;
+        int countTexts = 0;
+        int countCreateDate = 0;
+        for(Property property : properties){
+            switch (property.getType()){
+                case PropertyType.TITLE: countTitles++; break;
+                case PropertyType.TEXT: countTexts++; break;
+                case PropertyType.CREATE_DATE: countCreateDate++; break;
+            }
+        }
+        if(countTitles > 1){
+            throw new RuntimeException("");
+        }
+        if(countTexts > 1){
+            throw new RuntimeException("");
+        }
+        if(countCreateDate > 1){
+            throw new RuntimeException("");
+        }
+    }
 
 
 }

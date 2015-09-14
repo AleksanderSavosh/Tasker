@@ -9,7 +9,9 @@ import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.R;
 import com.aleksander.savosh.tasker.model.object.Account;
+import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.service.SynchronizeService;
+import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.util.Map;
 
@@ -36,14 +38,13 @@ public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            Map<String, Account> accounts = Application.instance().getAccounts();
-            for(Account acc : accounts.values()) {
-                SynchronizeService.synchronizeLocalWithCloud(acc.getObjectId());
+            Config config = Application.instance().getConfig();
+            if(!StringUtil.isEmpty(config.accountId)){
+                SynchronizeService.synchronizeLocalWithCloud(config.accountId);
             }
-
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
-            Log.d(getClass().getName(), e.getMessage(), e);
+            Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
+            Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
             return true;
         }
         return false;

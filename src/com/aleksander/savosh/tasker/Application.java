@@ -68,9 +68,9 @@ public class Application extends android.app.Application {
         noticeLocalDao = new ParseLocalCrudDaoImpl<Notice>(Notice.class);
         propertyLocalDao = new ParseLocalCrudDaoImpl<Property>(Property.class);
 
-        if(true){
-            accountLocalDao.deleteWithRelations(Config.ACC_ZERO);
-        }
+//        if(true){
+//            accountLocalDao.deleteWithRelations(Config.ACC_ZERO);
+//        }
 
         config = configLocalCrudDao.readWithRelations(Config.ID);
         if(config == null){

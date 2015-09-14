@@ -17,8 +17,9 @@
         <activity android:name=".LogInActivity"></activity>
         <activity android:name=".SignUpActivity"></activity>
         <activity android:name=".MainActivity"></activity>
-        <activity android:name=".NoticeActivity"></activity>
+        <activity android:name=".NoticeActivity2"></activity>
         <activity android:name=".ExxActivity"></activity>
         <activity android:name=".HtmlExxActivity"></activity>
+        <activity android:name=".view.CustomViewExxActivity"></activity>
     </application>
 </manifest>
