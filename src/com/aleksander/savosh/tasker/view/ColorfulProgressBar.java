@@ -43,6 +43,7 @@ public class ColorfulProgressBar extends ProgressBar {
         add(new PercentFactor(){{ name = "s19"; xPos = 0.5f; yPos = 88.7f; length = 11.3f; }});
     }};
     private static final float CORNER_RADIUS_IN_PERCENT = 2.5f;
+    private static final int REDRAW_STEP = 500;
 
 
     public int getSize(){
@@ -94,7 +95,7 @@ public class ColorfulProgressBar extends ProgressBar {
                 protected Void doInBackground(Void... params) {
                     //wait one second
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(REDRAW_STEP);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

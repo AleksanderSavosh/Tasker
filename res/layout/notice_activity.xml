@@ -11,11 +11,24 @@
             android:hint="@string/title"
             android:visibility="gone"/>
 
-    <Button android:id="@+id/notice_activity_save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="@string/save_btn"/>
+    <FrameLayout android:id="@+id/notice_activity_save_layout"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_alignParentBottom="true">
+
+        <com.aleksander.savosh.tasker.view.ColorfulProgressBar
+                android:id="@+id/notice_activity_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
+        <Button android:id="@+id/notice_activity_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/save_btn"/>
+
+    </FrameLayout>
 
     <EditText
             android:id="@+id/notice_activity_text"
@@ -23,7 +36,7 @@
             android:layout_height="match_parent"
             android:hint="@string/some_notice_text"
             android:gravity="start"
-            android:layout_above="@id/notice_activity_save"
+            android:layout_above="@id/notice_activity_save_layout"
             android:layout_below="@id/notice_activity_title"/>
 
 </RelativeLayout>

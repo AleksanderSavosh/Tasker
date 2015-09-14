@@ -5,7 +5,7 @@
               android:layout_height="fill_parent"
               android:background="#ff000000">
 
-    <ProgressBar
+    <com.aleksander.savosh.tasker.view.ColorfulProgressBar
             android:id="@+id/main_activity_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

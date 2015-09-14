@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.aleksander.savosh.tasker.crypt.CryptException;
 import com.aleksander.savosh.tasker.model.object.Notice;
@@ -93,6 +95,8 @@ public class NoticeActivity2 extends Activity {
 
     private EditText titleEditText;
     private EditText textEditText;
+    private Button saveButton;
+    private ProgressBar saveProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,9 @@ public class NoticeActivity2 extends Activity {
 
         titleEditText = (EditText) findViewById(R.id.notice_activity_title);
         textEditText = (EditText) findViewById(R.id.notice_activity_text);
+        saveButton = (Button) findViewById(R.id.notice_activity_save);
+        saveProgressBar = (ProgressBar) findViewById(R.id.notice_activity_progress_bar);
+
 
         String noticeId = getIntent().getStringExtra(EXTRA_NOTICE_ID);
         Log.d(getClass().getName(), "GET EXTRA_NOTICE_ID: " + noticeId);
@@ -113,17 +120,17 @@ public class NoticeActivity2 extends Activity {
             }
         }
 
-        CreateNoticeTask.initTask(null, NoticeActivity2.this, false);
-        UpdateNoticeTask.initTask(null, NoticeActivity2.this, false);
+        CreateNoticeTask.initTask(null, NoticeActivity2.this, saveButton, saveProgressBar, false);
+        UpdateNoticeTask.initTask(null, NoticeActivity2.this, saveButton, saveProgressBar, false);
         DeleteNoticeTask.initTask(null, NoticeActivity2.this, false);
         findViewById(R.id.notice_activity_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(notice != null){ // edit mode
                     notice.setProperties(getPropertiesForUpdate());
-                    UpdateNoticeTask.initTask(notice ,NoticeActivity2.this, true);
+                    UpdateNoticeTask.initTask(notice ,NoticeActivity2.this, saveButton, saveProgressBar, true);
                 } else { // create mode
-                    CreateNoticeTask.initTask(getPropertiesForCreate(), NoticeActivity2.this, true);
+                    CreateNoticeTask.initTask(getPropertiesForCreate(), NoticeActivity2.this, saveButton, saveProgressBar, true);
                 }
             }
         });
