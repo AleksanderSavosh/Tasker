@@ -1,42 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <com.aleksander.savosh.tasker.view.ColorfulProgressBar
+            android:id="@+id/notice_activity_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:progressBarSizeInPercent="12"
+            app:progressBarRedrawTime="325"
+            android:visibility="gone"/>
+
     <EditText
             android:id="@+id/notice_activity_title"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/title"
             android:visibility="gone"/>
 
-    <FrameLayout android:id="@+id/notice_activity_save_layout"
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:layout_alignParentBottom="true">
 
-        <com.aleksander.savosh.tasker.view.ColorfulProgressBar
-                android:id="@+id/notice_activity_progress_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"/>
+    <Button android:id="@+id/notice_activity_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/save_btn"/>
 
-        <Button android:id="@+id/notice_activity_save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/save_btn"/>
-
-    </FrameLayout>
 
     <EditText
             android:id="@+id/notice_activity_text"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/some_notice_text"
             android:gravity="start"
-            android:layout_above="@id/notice_activity_save_layout"
+            android:layout_above="@id/notice_activity_save"
             android:layout_below="@id/notice_activity_title"/>
 
 </RelativeLayout>

@@ -8,13 +8,11 @@ import android.widget.Toast;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.R;
-import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.service.SynchronizeService;
 import com.aleksander.savosh.tasker.util.StringUtil;
 
-import java.util.Map;
-
+import java.util.Date;
 
 public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -35,8 +33,11 @@ public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
     private SynchronizeDataTask(){}
     private Activity activity;
 
+    private Date taskStart;// добавляем немного тормозов
     @Override
     protected Boolean doInBackground(Void... params) {
+        taskStart = new Date();
+        boolean wasException = false;
         try {
             Config config = Application.instance().getConfig();
             if(!StringUtil.isEmpty(config.accountId)){
@@ -45,9 +46,21 @@ public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
         } catch (Exception e) {
             Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
             Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
-            return true;
+            wasException = true;
         }
-        return false;
+
+        long taskTime = new Date().getTime() - taskStart.getTime();
+        if(taskTime < 5000){ // если время выполнения меньше 5 сек
+            try {
+                Thread.sleep(5000 - taskTime);
+            } catch (InterruptedException e) {
+                Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
+                Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
+                wasException = true;
+            }
+        }
+
+        return wasException;
     }
 
     @Override

@@ -1,20 +1,24 @@
 package com.aleksander.savosh.tasker.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.*;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
+import com.aleksander.savosh.tasker.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ColorfulProgressBar extends ProgressBar {
+public class ColorfulProgressBar extends View {
 
-    public static final int SIZE_FROM_WIDTH_SCREEN_IN_PERCENT = 20;
+    public float sizeInPercent; //view size in percent calculated from min length of screen
+    private int redrawStep; //frequency redraw view in milliseconds
+
     static class PercentFactor {
         public String name;
         public float xPos;
@@ -42,32 +46,7 @@ public class ColorfulProgressBar extends ProgressBar {
         add(new PercentFactor(){{ name = "s18"; xPos = 24.7f; yPos = 77f; length = 19f; }});
         add(new PercentFactor(){{ name = "s19"; xPos = 0.5f; yPos = 88.7f; length = 11.3f; }});
     }};
-    private static final float CORNER_RADIUS_IN_PERCENT = 2.5f;
-    private static final int REDRAW_STEP = 500;
-
-
-    public int getSize(){
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        return (width * SIZE_FROM_WIDTH_SCREEN_IN_PERCENT)/100;
-    }
-
-    public ColorfulProgressBar(Context context) {
-        super(context);
-    }
-
-    public ColorfulProgressBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public ColorfulProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    private List<Paint> paints = new ArrayList<Paint>(){{
+    private static final List<Paint> PAINTS = new ArrayList<Paint>(){{
         add(new Paint(){{ setStyle(Paint.Style.FILL); setColor(Color.BLUE); }});
         add(new Paint(){{ setStyle(Paint.Style.FILL); setColor(Color.RED); }});
         add(new Paint(){{ setStyle(Paint.Style.FILL); setColor(Color.GREEN); }});
@@ -75,27 +54,83 @@ public class ColorfulProgressBar extends ProgressBar {
         add(new Paint(){{ setStyle(Paint.Style.FILL); setColor(Color.WHITE); }});
         add(new Paint(){{ setStyle(Paint.Style.FILL); setColor(Color.BLACK); }});
     }};
+    private static final Paint BACKGROUND = new Paint(){{ setStyle(Style.FILL); setARGB(125, 0, 0, 0); }};
+    private static final float CORNER_RADIUS_IN_PERCENT = 2.5f; //corner radius in percent
+
+
+    public ColorfulProgressBar(Context context) {
+        super(context);
+        setupAttributes(null);
+    }
+
+    public ColorfulProgressBar(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setupAttributes(attrs);
+    }
+
+    public ColorfulProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setupAttributes(attrs);
+    }
+
+    private void setupAttributes(AttributeSet attrs){
+        // Obtain a typed array of attributes
+        TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.ColorfulProgressBar, 0, 0);
+        // Extract custom attributes into member variables
+        try {
+            sizeInPercent = a.getFloat(R.styleable.ColorfulProgressBar_progressBarSizeInPercent, 15);
+            redrawStep = a.getInt(R.styleable.ColorfulProgressBar_progressBarRedrawTime, 750);
+        } finally {
+            // TypedArray objects are shared and must be recycled.
+            a.recycle();
+        }
+    }
+
+    /**
+     * calculate min size
+     * @return size in pixel
+     */
+    private int getSize(){
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        int common = width < height ? width : height;
+        return (int)((common * sizeInPercent)/100);
+    }
+
+
 
     private List<RectF> rects = new ArrayList<RectF>();
     private int cornerRadius = 0;
     private Random random = new Random();
 
-
-    private AsyncTask<Void, Void, Void> reDraw;
+    private AsyncTask<Void, Void, Void> reDrawNone;
     @Override
-    protected synchronized void onDraw(Canvas canvas) {
-        for(RectF rectF : rects){
-            int i = random.nextInt();
-            i = i < 0 ? -i : i;
-            canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paints.get(i % paints.size()));
-        }
-        if(reDraw == null) {
-            reDraw = new AsyncTask<Void, Void, Void>() {
+    protected synchronized void onDraw(final Canvas canvas) {
+        if(reDrawNone == null && isShown()) {
+            reDrawNone = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected void onPreExecute() {
+                    // draw background shadow
+                    int h = getMeasuredHeight();
+                    int w = getMeasuredWidth();
+                    canvas.drawRect(0, 0, w, h, BACKGROUND);
+
+                    //draw rectangles
+                    for(RectF rectF : rects){
+                        int i = random.nextInt();
+                        i = i < 0 ? -i : i;
+                        canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, PAINTS.get(i % PAINTS.size()));
+                    }
+                }
                 @Override
                 protected Void doInBackground(Void... params) {
-                    //wait one second
+                    //wait
                     try {
-                        Thread.sleep(REDRAW_STEP);
+                        Thread.sleep(redrawStep);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -104,11 +139,13 @@ public class ColorfulProgressBar extends ProgressBar {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-                    invalidate();
-                    reDraw = null;
+                    if(isShown()) {
+                        invalidate();
+                    }
+                    reDrawNone = null;
                 }
             };
-            reDraw.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            reDrawNone.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -116,48 +153,54 @@ public class ColorfulProgressBar extends ProgressBar {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int measuredHeight = measure(heightMeasureSpec);
         int measuredWidth = measure(widthMeasureSpec);
-        int commonSize = measuredHeight < measuredWidth ? measuredHeight : measuredWidth;
-        createRectangles(commonSize);
-        setMeasuredDimension(commonSize, commonSize);
+        createRectangles(measuredWidth, measuredHeight);
+        setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
     private int measure(int measureSpec) {
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
+
         // Размер по умолчанию, если ограничения не были установлены.
-        int result = getSize();
+        int result = getSize();//нужный размер
 
         if (specMode == MeasureSpec.AT_MOST) {
             // Рассчитайте идеальный размер вашего
             // элемента в рамках максимальных значений.
             // Если ваш элемент заполняет все доступное
             // пространство, верните внешнюю границу.
-            if(specSize < result){
+            if(result < specSize) {
                 result = specSize;
             }
         } else if (specMode == MeasureSpec.EXACTLY) {
             // Если ваш элемент может поместиться внутри этих границ, верните это значение.
-            if(specSize < result){
+            if(result < specSize) {
                 result = specSize;
             }
         }
         return result;
     }
 
+    /**
+     * расчет положения и размеры прямоугольников исходя из допустимых размеров view
+     * @param w - доступное пространство по ширине
+     * @param h - доступное пространство по высоте
+     */
+    private void createRectangles(int w, int h){
+        final int viewSize = getSize();
+        final int xOffset = (w - viewSize)/2; //смещение по оси х
+        final int yOffset = (h - viewSize)/2; //смещение по оси y
 
-    private void createRectangles(final int viewSize){
         this.rects = new ArrayList<RectF>(){{
             for(PercentFactor factor : RECT_FACTORS) {
                 int length = (int)(viewSize * factor.length / 100);
 
-                int xLeft = (int)(viewSize * factor.xPos / 100);
-                int yTop = (int)(viewSize * factor.yPos / 100);
+                int xLeft = (int)(viewSize * factor.xPos / 100) + xOffset;
+                int yTop = (int)(viewSize * factor.yPos / 100) + yOffset;
                 int xRight = xLeft + length;
                 int yBottom = yTop + length;
 
                 add(new RectF(xLeft, yTop, xRight, yBottom));
-
-
             }
         }};
         cornerRadius = (int) (viewSize * CORNER_RADIUS_IN_PERCENT / 100);

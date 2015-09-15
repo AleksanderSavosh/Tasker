@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorfulProgressBar">
+        <attr name="progressBarSizeInPercent" format="float"/>
+        <attr name="progressBarRedrawTime" format="integer"/>
+    </declare-styleable>
+</resources>

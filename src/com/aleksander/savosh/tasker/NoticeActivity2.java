@@ -24,6 +24,7 @@ import com.aleksander.savosh.tasker.service.PropertyService;
 import com.aleksander.savosh.tasker.task.CreateNoticeTask;
 import com.aleksander.savosh.tasker.task.DeleteNoticeTask;
 import com.aleksander.savosh.tasker.task.UpdateNoticeTask;
+import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
 import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.util.*;
@@ -96,7 +97,8 @@ public class NoticeActivity2 extends Activity {
     private EditText titleEditText;
     private EditText textEditText;
     private Button saveButton;
-    private ProgressBar saveProgressBar;
+    private View saveProgressBar;
+    ComponentsHolder holder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +108,15 @@ public class NoticeActivity2 extends Activity {
         titleEditText = (EditText) findViewById(R.id.notice_activity_title);
         textEditText = (EditText) findViewById(R.id.notice_activity_text);
         saveButton = (Button) findViewById(R.id.notice_activity_save);
-        saveProgressBar = (ProgressBar) findViewById(R.id.notice_activity_progress_bar);
+        saveProgressBar = findViewById(R.id.notice_activity_progress_bar);
 
+        holder = new ComponentsHolder(){{
+            this.activity = NoticeActivity2.this;
+            this.titleEditText = NoticeActivity2.this.titleEditText;
+            this.textEditText = NoticeActivity2.this.textEditText;
+            this.button = NoticeActivity2.this.saveButton;
+            this.progressBar = NoticeActivity2.this.saveProgressBar;
+        }};
 
         String noticeId = getIntent().getStringExtra(EXTRA_NOTICE_ID);
         Log.d(getClass().getName(), "GET EXTRA_NOTICE_ID: " + noticeId);
@@ -120,17 +129,19 @@ public class NoticeActivity2 extends Activity {
             }
         }
 
-        CreateNoticeTask.initTask(null, NoticeActivity2.this, saveButton, saveProgressBar, false);
-        UpdateNoticeTask.initTask(null, NoticeActivity2.this, saveButton, saveProgressBar, false);
-        DeleteNoticeTask.initTask(null, NoticeActivity2.this, false);
+
+
+        CreateNoticeTask.initTask(null, holder, false);
+        UpdateNoticeTask.initTask(null, holder, false);
+        DeleteNoticeTask.initTask(null, holder, false);
         findViewById(R.id.notice_activity_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(notice != null){ // edit mode
                     notice.setProperties(getPropertiesForUpdate());
-                    UpdateNoticeTask.initTask(notice ,NoticeActivity2.this, saveButton, saveProgressBar, true);
+                    UpdateNoticeTask.initTask(notice , holder, true);
                 } else { // create mode
-                    CreateNoticeTask.initTask(getPropertiesForCreate(), NoticeActivity2.this, saveButton, saveProgressBar, true);
+                    CreateNoticeTask.initTask(getPropertiesForCreate(), holder, true);
                 }
             }
         });
@@ -173,13 +184,13 @@ public class NoticeActivity2 extends Activity {
             }
         });
 
-        DeleteNoticeTask.initTask(null, NoticeActivity2.this, false);
+        DeleteNoticeTask.initTask(null, holder, false);
         if(notice != null) {
             MenuItem itemRemove = menu.add(R.string.action_remove_notice);
             itemRemove.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    DeleteNoticeTask.initTask(notice, NoticeActivity2.this, true);
+                    DeleteNoticeTask.initTask(notice, holder, true);
                     return true;
                 }
             });

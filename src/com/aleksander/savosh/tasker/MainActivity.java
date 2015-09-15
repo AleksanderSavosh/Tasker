@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity);
 
         ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
+        View progressBar = findViewById(R.id.main_activity_progress_bar);
 
         Adapter adapter = new Adapter(this);
         UpdateAdapterTask.initTask(adapter, listview, progressBar, true);

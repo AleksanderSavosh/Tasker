@@ -1,6 +1,5 @@
 package com.aleksander.savosh.tasker.task;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -8,47 +7,50 @@ import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.service.NoticeService;
+import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
 
 
-public class DeleteNoticeTask extends AsyncTask<Notice, Void, Boolean> {
+public class DeleteNoticeTask extends AbstractNoticeTask<Notice, Void, Boolean> {
 
     private static DeleteNoticeTask currentTask;
 
-    public static void initTask(Notice noticeForDelete, Activity activity, boolean createAndExecute) {
+    public static void initTask(Notice noticeForDelete, ComponentsHolder holder, boolean createAndExecute) {
         if (currentTask == null) {
             if (createAndExecute) {
                 currentTask = new DeleteNoticeTask();
-                currentTask.activity = activity;
+                currentTask.holder = holder;
                 currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, noticeForDelete);
             }
         } else {
-            currentTask.activity = activity;
+            currentTask.holder = holder;
         }
     }
 
     private DeleteNoticeTask() {}
-    private Activity activity;
 
     @Override
     protected Boolean doInBackground(Notice... params) {
+        boolean wasException = false;
+        startTask();
         try {
             NoticeService.deleteNotice(params[0].getObjectId());
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage());
             Log.d(getClass().getName(), e.getMessage(), e);
-            return false;
+            wasException = true;
         }
-        return true;
+        waitIfNeed();
+        return wasException;
     }
 
     @Override
     protected void onPostExecute(Boolean aBoolean) {
-        if (aBoolean) {
+        if (!aBoolean) {
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
-            activity.startActivity(intent);
-            activity.finish();
+            holder.activity.startActivity(intent);
+            holder.activity.finish();
         }
-        activity = null;
+        super.onPostExecute(aBoolean);
         currentTask = null;
     }
 }

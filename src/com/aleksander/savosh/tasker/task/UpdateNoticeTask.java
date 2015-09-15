@@ -1,73 +1,56 @@
 package com.aleksander.savosh.tasker.task;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.service.NoticeService;
+import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
 
 
-public class UpdateNoticeTask extends AsyncTask<Notice, Void, Boolean> {
+public class UpdateNoticeTask extends AbstractNoticeTask<Notice, Void, Boolean> {
 
     private static UpdateNoticeTask currentTask;
 
-    public static void initTask(Notice noticeForUpdate, Activity activity, Button button, ProgressBar progressBar, boolean createAndExecute) {
+    public static void initTask(Notice noticeForUpdate, ComponentsHolder holder, boolean createAndExecute) {
         if (currentTask == null) {
             if (createAndExecute) {
                 currentTask = new UpdateNoticeTask();
-                currentTask.activity = activity;
-                currentTask.button = button;
-                currentTask.progressBar = progressBar;
+                currentTask.holder = holder;
                 currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, noticeForUpdate);
             }
         } else {
-            currentTask.activity = activity;
-            currentTask.button = button;
-            currentTask.progressBar = progressBar;
+            currentTask.holder = holder;
         }
     }
 
     private UpdateNoticeTask() {}
-    private Activity activity;
-    private Button button;
-    private ProgressBar progressBar;
-
-    @Override
-    protected void onPreExecute() {
-        button.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-    }
 
     @Override
     protected Boolean doInBackground(Notice... params) {
+        boolean wasException = false;
+        startTask();
         try {
             NoticeService.updateNotice(params[0]);
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage());
             Log.d(getClass().getName(), e.getMessage(), e);
-            return false;
+            wasException = true;
         }
-        return true;
+        waitIfNeed();
+        return wasException;
     }
 
     @Override
     protected void onPostExecute(Boolean aBoolean) {
-        button.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
-        if (aBoolean) {
+        if (!aBoolean) {
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
-            activity.startActivity(intent);
-            activity.finish();
+            holder.activity.startActivity(intent);
+            holder.activity.finish();
         }
-        button = null;
-        progressBar = null;
-        activity = null;
+        super.onPostExecute(aBoolean);
         currentTask = null;
     }
 }

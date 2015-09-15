@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <EditText
+            android:id="@+id/exx_activity_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <Button android:id="@+id/exx_activity_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/exx_activity_edit_text"
+            android:text="START PROGRESS BAR"/>
+
+
+
+    <com.aleksander.savosh.tasker.view.ColorfulProgressBar
+            android:id="@+id/exx_activity_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:progressBarSizeInPercent="12"
+            app:progressBarRedrawTime="325"
+            android:visibility="gone"/>
+
+</RelativeLayout>
