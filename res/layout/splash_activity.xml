@@ -7,7 +7,7 @@
     <com.aleksander.savosh.tasker.view.ColorfulProgressBar
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:progressBarSizeInPercent="12"
-            app:progressBarRedrawTime="325"/>
+            app:progressBarSizeInPercent="15"
+            app:progressBarRedrawTime="750"/>
 
 </RelativeLayout>

@@ -51,4 +51,6 @@
             android:layout_below="@id/sign_up_activity_message"
             android:text="@string/sign_up"/>
 
+    <!--TODO добавить прогресс бар-->
+
 </RelativeLayout>

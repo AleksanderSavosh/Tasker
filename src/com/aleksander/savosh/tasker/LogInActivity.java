@@ -4,18 +4,22 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import com.aleksander.savosh.tasker.data.LogInData;
 import com.aleksander.savosh.tasker.task.LogInTask;
+import com.aleksander.savosh.tasker.task.holder.LogInTaskHolder;
 
 public class LogInActivity extends Activity {
 
     private EditText numberEditText;
     private EditText passwordEditText;
     private CheckBox rememberMeCheckBox;
-    private TextView messageTextView;
+    private Button logInButton;
+    private Button signUpButton;
+    private View progressBar;
+    private LogInTaskHolder holder;
 
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -26,7 +30,7 @@ public class LogInActivity extends Activity {
                     number = numberEditText.getText().toString();
                     password = passwordEditText.getText().toString();
                     rememberMe = rememberMeCheckBox.isChecked();
-                }}, LogInActivity.this, messageTextView, true);
+                }}, holder, true);
 
             } else if (v.getId() == R.id.login_activity_sign_up) {
                 //sign up
@@ -42,12 +46,23 @@ public class LogInActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log_in_activity);
 
-        messageTextView = (TextView) findViewById(R.id.login_activity_message);
         numberEditText = ((EditText) findViewById(R.id.login_activity_phone_number));
         passwordEditText = ((EditText) findViewById(R.id.login_activity_password));
         rememberMeCheckBox = ((CheckBox) findViewById(R.id.login_activity_remember_me));
+        logInButton = (Button) findViewById(R.id.login_activity_log_in);
+        signUpButton = (Button) findViewById(R.id.login_activity_sign_up);
+        progressBar = findViewById(R.id.login_activity_progress_bar);
+        holder = new LogInTaskHolder(){{
+            this.activity = LogInActivity.this;
+            this.numberEditText = LogInActivity.this.numberEditText;
+            this.passwordEditText = LogInActivity.this.passwordEditText;
+            this.rememberMeCheckBox = LogInActivity.this.rememberMeCheckBox;
+            this.logInButton = LogInActivity.this.logInButton;
+            this.signUpButton = LogInActivity.this.signUpButton;
+            this.progressBar = LogInActivity.this.progressBar;
+        }};
 
-        LogInTask.initTask(null, LogInActivity.this, messageTextView, false);
+        LogInTask.initTask(null, holder, false);
 
         findViewById(R.id.login_activity_log_in).setOnClickListener(clickListener);
         findViewById(R.id.login_activity_sign_up).setOnClickListener(clickListener);

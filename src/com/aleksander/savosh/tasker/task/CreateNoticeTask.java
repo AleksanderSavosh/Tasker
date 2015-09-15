@@ -2,22 +2,20 @@ package com.aleksander.savosh.tasker.task;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.text.method.KeyListener;
 import android.util.Log;
-import android.view.View;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.service.NoticeService;
-import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
+import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
 
 import java.util.List;
 
 public class CreateNoticeTask extends AbstractNoticeTask<List<Property>, Void, Boolean> {
 
     private static CreateNoticeTask currentTask;
-    public static void initTask(List<Property> propertiesForCreate, ComponentsHolder holder, boolean createAndExecute) {
+    public static void initTask(List<Property> propertiesForCreate, NoticeTaskHolder holder, boolean createAndExecute) {
         if (currentTask == null) {
             if (createAndExecute) {
                 currentTask = new CreateNoticeTask();

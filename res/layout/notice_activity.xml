@@ -5,14 +5,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <com.aleksander.savosh.tasker.view.ColorfulProgressBar
-            android:id="@+id/notice_activity_progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:progressBarSizeInPercent="12"
-            app:progressBarRedrawTime="325"
-            android:visibility="gone"/>
-
     <EditText
             android:id="@+id/notice_activity_title"
             android:layout_width="match_parent"
@@ -36,5 +28,13 @@
             android:gravity="start"
             android:layout_above="@id/notice_activity_save"
             android:layout_below="@id/notice_activity_title"/>
+
+    <com.aleksander.savosh.tasker.view.ColorfulProgressBar
+            android:id="@+id/notice_activity_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:progressBarSizeInPercent="15"
+            app:progressBarRedrawTime="750"
+            android:visibility="gone"/>
 
 </RelativeLayout>

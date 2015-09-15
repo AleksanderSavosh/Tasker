@@ -289,6 +289,7 @@ public class AbstractParseCrudDaoImpl<Model extends Base> implements CrudDao<Mod
 
     @Override
     public Model updateWithRelationsThrowException(Model model) throws DataNotFoundException, OtherException {
+        //TODO был баг при обновлении... протестить еще раз
         String className = clazz.getSimpleName();
         try {
             Log.d(getClass().getName(), " --- === UPDATE WITH RELATIONS " + (isCloudStorage ? "" : "LOCAL") + " === ----");

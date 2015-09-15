@@ -4,14 +4,15 @@ import android.os.AsyncTask;
 import android.text.method.KeyListener;
 import android.util.Log;
 import android.view.View;
-import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
+import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
 
 import java.util.Date;
 
 public abstract class AbstractNoticeTask<Param, Progress, Result> extends AsyncTask<Param, Progress, Result> {
 
-    protected ComponentsHolder holder;
+    protected NoticeTaskHolder holder;
 
+    //TODO так как локи не сохраняются при перевороте экрана, доработать AsyncTasks
     @Override
     protected void onPreExecute() {
         holder.progressBar.setVisibility(View.VISIBLE);
@@ -32,7 +33,7 @@ public abstract class AbstractNoticeTask<Param, Progress, Result> extends AsyncT
 
     protected void waitIfNeed(){
         long taskTime = new Date().getTime() - startTask.getTime();
-        if(taskTime < 5000){
+        if(taskTime < 5000){ //TODO переписать 5000 милисек на использование константы
             try {
                 Thread.sleep(5000 - taskTime);
             } catch (InterruptedException e) {
@@ -41,8 +42,6 @@ public abstract class AbstractNoticeTask<Param, Progress, Result> extends AsyncT
             }
         }
     }
-
-
 
     @Override
     protected void onPostExecute(Result aBoolean) {

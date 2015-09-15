@@ -28,7 +28,7 @@ public class SingUpLogInLogOutService {
         SignUpResult result = new SignUpResult();
         result.isSignUp = false;
 
-        //проверка на правильный формат телефона
+        //TODO проверка на правильный формат телефона, написать регулярное выражение
 
 
         //проверка на совпадение паролей

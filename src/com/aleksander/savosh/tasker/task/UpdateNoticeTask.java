@@ -7,14 +7,14 @@ import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.service.NoticeService;
-import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
+import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
 
 
 public class UpdateNoticeTask extends AbstractNoticeTask<Notice, Void, Boolean> {
 
     private static UpdateNoticeTask currentTask;
 
-    public static void initTask(Notice noticeForUpdate, ComponentsHolder holder, boolean createAndExecute) {
+    public static void initTask(Notice noticeForUpdate, NoticeTaskHolder holder, boolean createAndExecute) {
         if (currentTask == null) {
             if (createAndExecute) {
                 currentTask = new UpdateNoticeTask();

@@ -20,7 +20,7 @@ public class SignUpActivity extends Activity {
         setContentView(R.layout.sign_up_activity);
 
         TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        String mPhoneNumber = tMgr.getLine1Number();
+        String mPhoneNumber = tMgr.getLine1Number(); //TODO сделать предложение ввести это номер
         Log.i(getClass().getName(), "Number 1: " + tMgr.getLine1Number());
         Log.i(getClass().getName(), "Device id: " + tMgr.getDeviceId());
 

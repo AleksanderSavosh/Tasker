@@ -7,6 +7,7 @@ import com.aleksander.savosh.tasker.model.object.Base;
 
 import java.util.List;
 
+//TODO разбить на несколько интерфейсов
 public interface CrudDao<Model extends Base, PK> {
 
     public Model create(Model model);

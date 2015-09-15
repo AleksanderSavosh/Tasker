@@ -18,6 +18,9 @@ public class SynchronizeService {
      * @param accountCloudId
      */
     public static void synchronizeLocalWithCloud(String accountCloudId){
+        if(accountCloudId == null){
+            return;
+        }
         if(accountCloudId.equals(Config.ACC_ZERO)){
             return;
         }

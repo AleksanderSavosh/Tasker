@@ -11,7 +11,7 @@ import com.aleksander.savosh.tasker.data.SignUpData;
 import com.aleksander.savosh.tasker.data.SignUpResult;
 import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 
-
+//TODO переписать класс с использование ViewHolder, избавляемся от лишних рапаметров в методе initTask
 public class SignUpTask extends AsyncTask<SignUpData, Void, SignUpResult> {
 
     private static SignUpTask currentTask;

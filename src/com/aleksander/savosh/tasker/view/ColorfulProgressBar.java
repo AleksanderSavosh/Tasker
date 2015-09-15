@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.View;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Random;
 
 public class ColorfulProgressBar extends View {
-
     public float sizeInPercent; //view size in percent calculated from min length of screen
     private int redrawStep; //frequency redraw view in milliseconds
 
@@ -125,6 +125,8 @@ public class ColorfulProgressBar extends View {
                         i = i < 0 ? -i : i;
                         canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, PAINTS.get(i % PAINTS.size()));
                     }
+
+                    //TODO сделать для прямоугольников рамку
                 }
                 @Override
                 protected Void doInBackground(Void... params) {
