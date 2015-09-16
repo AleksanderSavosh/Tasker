@@ -52,14 +52,14 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         context = this;
-    }
-
-    public void init(){
         //enable crash reporting
         ParseCrashReporting.enable(this);
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "cv5X8Il8up7Y4YvrBz6nM6icaf7lBYXfPlwQSmAR", "6fDQLSh7mmIqoZEU5V0BNOrFxHavGEFkVnNDZlrZ");
+    }
+
+    public void init(){
 
         configLocalCrudDao = new ParseLocalCrudDaoImpl<Config>(Config.class);
 

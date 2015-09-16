@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +28,7 @@ import com.aleksander.savosh.tasker.util.StringUtil;
 import java.util.*;
 
 //TODO переименовать класс
-public class NoticeActivity2 extends Activity {
+public class NoticeActivity2 extends AppCompatActivity {
 
     public static final String EXTRA_NOTICE_ID = "com.aleksander.savosh.tasker.EXTRA_NOTICE_ID";
 
