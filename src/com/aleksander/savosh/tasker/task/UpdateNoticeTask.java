@@ -10,28 +10,11 @@ import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
 
 
-public class UpdateNoticeTask extends AbstractNoticeTask<Notice, Void, Boolean> {
-
-    private static UpdateNoticeTask currentTask;
-
-    public static void initTask(Notice noticeForUpdate, NoticeTaskHolder holder, boolean createAndExecute) {
-        if (currentTask == null) {
-            if (createAndExecute) {
-                currentTask = new UpdateNoticeTask();
-                currentTask.holder = holder;
-                currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, noticeForUpdate);
-            }
-        } else {
-            currentTask.holder = holder;
-        }
-    }
-
-    private UpdateNoticeTask() {}
+public class UpdateNoticeTask extends AbstractAsyncTask<Notice, Void, Boolean, NoticeTaskHolder> {
 
     @Override
     protected Boolean doInBackground(Notice... params) {
         boolean wasException = false;
-        startTask();
         try {
             NoticeService.updateNotice(params[0]);
         } catch (Exception e) {
@@ -50,7 +33,6 @@ public class UpdateNoticeTask extends AbstractNoticeTask<Notice, Void, Boolean> 
             holder.activity.startActivity(intent);
             holder.activity.finish();
         }
-        super.onPostExecute(aBoolean);
-        currentTask = null;
+        finish();
     }
 }

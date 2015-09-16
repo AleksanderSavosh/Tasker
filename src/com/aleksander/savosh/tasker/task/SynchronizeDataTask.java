@@ -1,42 +1,21 @@
 package com.aleksander.savosh.tasker.task;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.R;
 import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.service.SynchronizeService;
+import com.aleksander.savosh.tasker.task.holder.SynchronizeTaskHolder;
+import com.aleksander.savosh.tasker.util.LogUtil;
 import com.aleksander.savosh.tasker.util.StringUtil;
 
-import java.util.Date;
 
-public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
+public class SynchronizeDataTask extends AbstractAsyncTask<Void, Void, Boolean, SynchronizeTaskHolder> {
 
-    private static SynchronizeDataTask currentTask;
-    public static void initTask(Activity activity, boolean createAndExecute) {
-        if (currentTask == null) {
-            if (createAndExecute) {
-                currentTask = new SynchronizeDataTask();
-                currentTask.activity = activity;
-                currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            }
-        } else {
-            currentTask.activity = activity;
-        }
-    }
-
-
-    private SynchronizeDataTask(){}
-    private Activity activity;
-
-    private Date taskStart;// добавляем немного тормозов
     @Override
     protected Boolean doInBackground(Void... params) {
-        taskStart = new Date();
         boolean wasException = false;
         try {
             Config config = Application.instance().getConfig();
@@ -44,22 +23,10 @@ public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
                 SynchronizeService.synchronizeLocalWithCloud(config.accountId);
             }
         } catch (Exception e) {
-            Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
-            Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
+            LogUtil.toLog("Error in doInBackground synch task", e);
             wasException = true;
         }
-
-        long taskTime = new Date().getTime() - taskStart.getTime();
-        if(taskTime < 5000){ // если время выполнения меньше 5 сек
-            try {
-                Thread.sleep(5000 - taskTime);
-            } catch (InterruptedException e) {
-                Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
-                Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
-                wasException = true;
-            }
-        }
-
+        waitIfNeed();
         return wasException;
     }
 
@@ -73,9 +40,8 @@ public class SynchronizeDataTask extends AsyncTask<Void, Void, Boolean> {
                     .show();
         }
         Intent intent = new Intent(Application.getContext(), MainActivity.class);
-        activity.startActivity(intent);
-        activity.finish();
-        activity = null;
-        currentTask = null;
+        holder.getActivity().startActivity(intent);
+        holder.getActivity().finish();
+        finish();
     }
 }

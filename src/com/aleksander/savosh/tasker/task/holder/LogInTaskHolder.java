@@ -5,9 +5,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import com.aleksander.savosh.tasker.task.ComponentsHolder;
 
-//TODO написать Util class который будет разбирать Holder и делать разные елементы активными или неактивными, избавляемся от копипаст
-public class LogInTaskHolder {
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class LogInTaskHolder implements ComponentsHolder {
 
     public Activity activity;
     public EditText numberEditText;
@@ -17,4 +21,26 @@ public class LogInTaskHolder {
     public Button signUpButton;
     public View progressBar;
 
+    @Override
+    public Activity getActivity() {
+        return activity;
+    }
+
+    @Override
+    public List<View> getViewsForLock() {
+        return new ArrayList<View>(){{
+            add(numberEditText);
+            add(passwordEditText);
+            add(rememberMeCheckBox);
+            add(logInButton);
+            add(signUpButton);
+        }};
+    }
+
+    @Override
+    public List<View> getProgressBars() {
+        return new ArrayList<View>(){{
+            add(progressBar);
+        }};
+    }
 }

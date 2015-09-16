@@ -7,6 +7,7 @@ import com.aleksander.savosh.tasker.dao.object.CrudDao;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseCloudCrudDaoImpl;
 import com.aleksander.savosh.tasker.dao.object.parse.ParseLocalCrudDaoImpl;
 import com.aleksander.savosh.tasker.model.object.*;
+import com.aleksander.savosh.tasker.task.AsyncTaskManager;
 import com.parse.Parse;
 import com.parse.ParseCrashReporting;
 
@@ -36,6 +37,8 @@ public class Application extends android.app.Application {
     private static CrudDao<Property, String> propertyLocalDao;
 
     private static Crypt crypt = new AesCryptImpl();
+
+    private static AsyncTaskManager asyncTaskManager = new AsyncTaskManager();
 
     public static Context getContext() {
         return context;
@@ -143,5 +146,9 @@ public class Application extends android.app.Application {
 
     public static Crypt getCrypt() {
         return crypt;
+    }
+
+    public static AsyncTaskManager getAsyncTaskManager() {
+        return asyncTaskManager;
     }
 }

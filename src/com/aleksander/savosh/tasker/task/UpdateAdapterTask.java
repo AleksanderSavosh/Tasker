@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.aleksander.savosh.tasker.Application;
+import com.aleksander.savosh.tasker.R;
 import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.model.object.Config;
 import com.aleksander.savosh.tasker.model.object.Notice;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+//TODO add component holder
 public class UpdateAdapterTask extends AsyncTask<Void, Void, Collection<Notice>> {
 
     private static UpdateAdapterTask currentTask;
@@ -64,12 +66,13 @@ public class UpdateAdapterTask extends AsyncTask<Void, Void, Collection<Notice>>
         }
 
         long taskTime = new Date().getTime() - taskStart.getTime();
-        if(taskTime < 5000){ // если время выполнения меньше 5 сек
+        long minTaskTime = Application.getContext().getResources().getInteger(R.integer.min_task_time);
+        if(taskTime < minTaskTime){ // если время выполнения меньше 5 сек
             try {
-                Thread.sleep(5000 - taskTime);
+                Thread.sleep(minTaskTime - taskTime);
             } catch (InterruptedException e) {
-                Log.e(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground");
-                Log.d(getClass().getName(), e != null ? e.getMessage() : "Error in doInBackground", e);
+                Log.e(getClass().getName(), e.getMessage() != null ? e.getMessage() : "Error in doInBackground");
+                Log.d(getClass().getName(), e.getMessage() != null ? e.getMessage() : "Error in doInBackground", e);
             }
         }
 

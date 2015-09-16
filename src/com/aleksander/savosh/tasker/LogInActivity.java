@@ -26,11 +26,11 @@ public class LogInActivity extends Activity {
         public void onClick(View v) {
             if (v.getId() == R.id.login_activity_log_in) {
 
-                LogInTask.initTask(new LogInData(){{
+                Application.getAsyncTaskManager().startTask(LogInTask.class, holder, new LogInData() {{
                     number = numberEditText.getText().toString();
                     password = passwordEditText.getText().toString();
                     rememberMe = rememberMeCheckBox.isChecked();
-                }}, holder, true);
+                }});
 
             } else if (v.getId() == R.id.login_activity_sign_up) {
                 //sign up
@@ -62,7 +62,7 @@ public class LogInActivity extends Activity {
             this.progressBar = LogInActivity.this.progressBar;
         }};
 
-        LogInTask.initTask(null, holder, false);
+        Application.getAsyncTaskManager().updateTask(LogInTask.class, holder);
 
         findViewById(R.id.login_activity_log_in).setOnClickListener(clickListener);
         findViewById(R.id.login_activity_sign_up).setOnClickListener(clickListener);

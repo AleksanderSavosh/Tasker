@@ -127,17 +127,17 @@ public class NoticeActivity2 extends Activity {
             }
         }
 
-        CreateNoticeTask.initTask(null, holder, false);
-        UpdateNoticeTask.initTask(null, holder, false);
-        DeleteNoticeTask.initTask(null, holder, false);
+        Application.getAsyncTaskManager().updateTask(CreateNoticeTask.class, holder);
+        Application.getAsyncTaskManager().updateTask(UpdateNoticeTask.class, holder);
+        Application.getAsyncTaskManager().updateTask(DeleteNoticeTask.class, holder);
         findViewById(R.id.notice_activity_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(notice != null){ // edit mode
                     notice.setProperties(getPropertiesForUpdate());
-                    UpdateNoticeTask.initTask(notice , holder, true);
+                    Application.getAsyncTaskManager().startTask(UpdateNoticeTask.class, holder, notice);
                 } else { // create mode
-                    CreateNoticeTask.initTask(getPropertiesForCreate(), holder, true);
+                    Application.getAsyncTaskManager().startTask(CreateNoticeTask.class, holder, getPropertiesForCreate());
                 }
             }
         });
@@ -180,13 +180,13 @@ public class NoticeActivity2 extends Activity {
             }
         });
 
-        DeleteNoticeTask.initTask(null, holder, false);
+        Application.getAsyncTaskManager().updateTask(DeleteNoticeTask.class, holder);
         if(notice != null) {
             MenuItem itemRemove = menu.add(R.string.action_remove_notice);
             itemRemove.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    DeleteNoticeTask.initTask(notice, holder, true);
+                    Application.getAsyncTaskManager().startTask(DeleteNoticeTask.class, holder, notice);
                     return true;
                 }
             });
