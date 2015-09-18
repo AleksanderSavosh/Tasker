@@ -1,6 +1,5 @@
 package com.aleksander.savosh.tasker;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         MenuItem itemAddNotice = menu.add(R.string.action_add_notice);
+        itemAddNotice.setIcon(android.R.drawable.ic_menu_add);
+        itemAddNotice.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         itemAddNotice.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void startNoticeActivity(String noticeId){
@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(NoticeActivity2.EXTRA_NOTICE_ID, noticeId);
         }
         startActivity(intent);
-        finish();
     }
 
     public class Adapter extends ArrayAdapter<Notice> {
