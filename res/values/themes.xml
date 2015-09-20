@@ -2,8 +2,9 @@
 <resources>
 
     <!-- the theme applied to the application or activity -->
-    <style name="CustomActionBarTheme"
+    <style name="CustomTheme"
            parent="@style/Theme.AppCompat">
+
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         <item name="android:actionMenuTextColor">@color/icons</item>
 
@@ -28,6 +29,14 @@
     <style name="MyActionBarTitleText"
            parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/icons</item>
+    </style>
+
+
+    <!--configure dialog-->
+    <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">#FF8A65</item>
+        <item name="android:textColorPrimary">@color/icons</item>
+        <item name="android:background">@color/dialog_background</item>
     </style>
 
 

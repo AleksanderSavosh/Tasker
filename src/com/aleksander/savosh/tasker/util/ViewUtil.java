@@ -1,5 +1,7 @@
 package com.aleksander.savosh.tasker.util;
 
+import android.content.Context;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.method.KeyListener;
 import android.view.View;
 import android.widget.Button;
@@ -75,46 +77,15 @@ public class ViewUtil {
     }
 
 
-    public static void showProgressBars(List<View> views){
+    public static void showViews(List<View> views){
         for(View view : views) {
             view.setVisibility(View.VISIBLE);
         }
     }
 
-    public static void hideProgressBars(List<View> views){
+    public static void hideViews(List<View> views){
         for(View view : views) {
             view.setVisibility(View.GONE);
         }
     }
-
-    public static void showProgressBars(Object holder){
-        Set<Field> fields = ReflectionUtil.getFields(holder, new HashSet<Class>(){{
-            add(ProgressBar.class);
-            add(ColorfulProgressBar.class);
-        }});
-        for(Field field : fields){
-            try {
-                View view = (View) field.get(holder);
-                view.setVisibility(View.VISIBLE);
-            } catch (IllegalAccessException e) {
-                LogUtil.toLog("show progress bars exception", e);
-            }
-        }
-    }
-
-    public static void hideProgressBars(Object holder){
-        Set<Field> fields = ReflectionUtil.getFields(holder, new HashSet<Class>(){{
-            add(ProgressBar.class);
-            add(ColorfulProgressBar.class);
-        }});
-        for(Field field : fields){
-            try {
-                View view = (View) field.get(holder);
-                view.setVisibility(View.GONE);
-            } catch (IllegalAccessException e) {
-                LogUtil.toLog("hide progress bars exception", e);
-            }
-        }
-    }
-
 }

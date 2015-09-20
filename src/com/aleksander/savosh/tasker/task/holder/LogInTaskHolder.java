@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import com.aleksander.savosh.tasker.task.ComponentsHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,5 +41,10 @@ public class LogInTaskHolder implements ComponentsHolder {
         return new ArrayList<View>(){{
             add(progressBar);
         }};
+    }
+
+    @Override
+    public List<View> getViewsForHide() {
+        return new ArrayList<View>();
     }
 }

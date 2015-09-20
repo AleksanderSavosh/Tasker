@@ -4,18 +4,20 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import com.aleksander.savosh.tasker.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ColorfulProgressBar extends View {
+public class ColorfulProgressBar extends ProgressBar {
     public float sizeInPercent; //view size in percent calculated from min length of screen
     private int redrawStep; //frequency redraw view in milliseconds
 
@@ -94,9 +96,16 @@ public class ColorfulProgressBar extends View {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
+        int width;
+        int height;
+        if(Build.VERSION.SDK_INT >= 13) {
+            display.getSize(size);
+            width = size.x;
+            height = size.y;
+        } else {
+            width = display.getWidth();
+            height = display.getHeight();
+        }
         int common = width < height ? width : height;
         return (int)((common * sizeInPercent)/100);
     }
@@ -147,7 +156,11 @@ public class ColorfulProgressBar extends View {
                     reDrawNone = null;
                 }
             };
-            reDrawNone.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if(Build.VERSION.SDK_INT >= 11) {
+                reDrawNone.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                reDrawNone.execute();
+            }
         }
     }
 

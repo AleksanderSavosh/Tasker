@@ -48,7 +48,6 @@ public class SignUpTask extends AsyncTask<SignUpData, Void, SignUpResult> {
             //переход на след активити
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
             activity.startActivity(intent);
-            activity.finish();
         } else {
             textViewMessage.setVisibility(View.VISIBLE);
             textViewMessage.setText(result.message);

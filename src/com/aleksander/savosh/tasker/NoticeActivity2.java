@@ -1,15 +1,16 @@
 package com.aleksander.savosh.tasker;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -43,54 +44,6 @@ public class NoticeActivity2 extends AppCompatActivity {
         }
     }
 
-    public static class EncodeDecodeDialog extends DialogFragment {
-        public static final Integer ENCODE = 1;
-        public static final Integer DECODE = 2;
-        public static EncodeDecodeDialog newInstance(int mode){
-            EncodeDecodeDialog dialog = new EncodeDecodeDialog();
-            Bundle args = new Bundle();
-            args.putInt("mode", mode);
-            dialog.setArguments(args);
-            return dialog;
-        }
-        public EncodeDecodeDialog(){}
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final int mode = getArguments().getInt("mode");
-            final EditText passwordEditText = new EditText(getActivity());
-            final EditText textEditText = ((NoticeActivity2) getActivity()).textEditText;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            String text = textEditText.getText().toString();
-                            String password = passwordEditText.getText().toString();
-                            if(!StringUtil.isEmpty(password)) {
-                                try {
-                                    if (mode == ENCODE) {
-                                        text = Application.getCrypt().encrypt(text, password);
-                                    } else if (mode == DECODE) {
-                                        text = Application.getCrypt().decrypt(text, password);
-                                    }
-                                } catch (CryptException e){
-                                    Log.e(getClass().getName(), e.getMessage());
-                                    Log.d(getClass().getName(), e.getMessage(), e);
-                                    Toast.makeText(Application.getContext(), R.string.crypt_error, Toast.LENGTH_LONG).show();
-                                }
-                            }
-                            textEditText.setText(text);
-                            dialog.dismiss();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .setView(passwordEditText);
-            return builder.create();
-        }
-    }
-
     private Notice notice;
     private Map<Integer,List<PropertyView>> propViewMap;
 
@@ -102,6 +55,7 @@ public class NoticeActivity2 extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(getClass().getName(), "--- === ON CREATE NOTICE ACTIVITY === ---");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notice_activity);
 
@@ -146,13 +100,22 @@ public class NoticeActivity2 extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(R.string.notice_activity_title);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //TODO блокировать менюшки когда выполняется AsyncTask?
-        MenuItem itemAddTitle = menu.add(R.string.action_add_remove_title);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_notice, menu);
+
+        MenuItem itemAddTitle = menu.findItem(R.id.menu_notice_title);
+        MenuItem itemEncode = menu.findItem(R.id.menu_notice_encode);
+        MenuItem itemDecode = menu.findItem(R.id.menu_notice_decode);
+        MenuItem itemDelete = menu.findItem(R.id.menu_notice_delete);
+
         itemAddTitle.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -165,30 +128,26 @@ public class NoticeActivity2 extends AppCompatActivity {
             }
         });
 
-        MenuItem itemEncode = menu.add(R.string.action_encode_notice);
         itemEncode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                DialogFragment dialog = EncodeDecodeDialog.newInstance(EncodeDecodeDialog.ENCODE);
-                dialog.show(getFragmentManager(), "DIALOG");
+                showEncodeDecodeDialog(ENCODE_MODE);
                 return true;
             }
         });
 
-        MenuItem itemDecode = menu.add(R.string.action_decode_notice);
         itemDecode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                DialogFragment dialog = EncodeDecodeDialog.newInstance(EncodeDecodeDialog.DECODE);
-                dialog.show(getFragmentManager(), "DIALOG");
+                showEncodeDecodeDialog(DECODE_MODE);
                 return true;
             }
         });
 
         Application.getAsyncTaskManager().updateTask(DeleteNoticeTask.class, holder);
         if(notice != null) {
-            MenuItem itemRemove = menu.add(R.string.action_remove_notice);
-            itemRemove.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            itemDelete.setVisible(true);
+            itemDelete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     Application.getAsyncTaskManager().startTask(DeleteNoticeTask.class, holder, notice);
@@ -200,6 +159,50 @@ public class NoticeActivity2 extends AppCompatActivity {
         return true;
     }
 
+    public static final int ENCODE_MODE = 99999;
+    public static final int DECODE_MODE = 99998;
+    private void showEncodeDecodeDialog(final int mode){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(NoticeActivity2.this, R.style.CustomAlertDialogStyle);
+        if(mode == ENCODE_MODE) {
+            builder.setTitle(R.string.dialog_title_encode_notice);
+        } else if(mode == DECODE_MODE){
+            builder.setTitle(R.string.dialog_title_decode_notice);
+        }
+        View root = getLayoutInflater().inflate(R.layout.encode_decode_notice_dialog, null);
+        final AppCompatEditText input = (AppCompatEditText) root.findViewById(R.id.encode_decode_dialog_edit_text);
+        builder.setView(root);
+        builder.setMessage(R.string.dialog_message_enter_password);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String text = textEditText.getText().toString();
+                String key = input.getText().toString();
+                if(!StringUtil.isEmpty(key)) {
+                    try {
+                        if(mode == ENCODE_MODE) {
+                            text = Application.getCrypt().encrypt(text, key);
+                        } else if(mode == DECODE_MODE) {
+                            text = Application.getCrypt().decrypt(text, key);
+                        }
+                    } catch (CryptException e){
+                        Log.e(getClass().getName(), e.getMessage());
+                        Log.d(getClass().getName(), e.getMessage(), e);
+                        Toast.makeText(Application.getContext(), R.string.crypt_error, Toast.LENGTH_LONG).show();
+                    }
+                }
+                textEditText.setText(text);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
     private Map<Integer, List<PropertyView>> createPropertyViewMap(List<Property> properties){
         Map<Integer,List<PropertyView>> propMap = new HashMap<Integer, List<PropertyView>>();
         for(Property property : properties){
@@ -207,10 +210,12 @@ public class NoticeActivity2 extends AppCompatActivity {
             switch (property.getType()){
                 case PropertyType.TEXT:
                     textEditText.setText(property.getText());
+                    textEditText.setVisibility(View.VISIBLE);
                     propertyView = new PropertyView(property, textEditText);
                     break;
                 case PropertyType.TITLE:
                     titleEditText.setText(property.getText());
+                    titleEditText.setVisibility(View.VISIBLE);
                     propertyView = new PropertyView(property, titleEditText);
                     break;
                 default:
@@ -256,5 +261,11 @@ public class NoticeActivity2 extends AppCompatActivity {
             propertiesForCreate.add(new Property(PropertyType.TEXT, textEditText.getText().toString(), null));
         }
         return propertiesForCreate;
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(getClass().getName(), "--- === ON DESTROY NOTICE ACTIVITY === ---");
+        super.onDestroy();
     }
 }

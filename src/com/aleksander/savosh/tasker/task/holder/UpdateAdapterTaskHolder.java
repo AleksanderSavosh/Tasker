@@ -2,18 +2,23 @@ package com.aleksander.savosh.tasker.task.holder;
 
 import android.app.Activity;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import com.aleksander.savosh.tasker.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+public class UpdateAdapterTaskHolder implements ComponentsHolder {
 
-public class SynchronizeTaskHolder implements ComponentsHolder {
-
-    public Activity activity;
+    public MainActivity.RecyclerViewAdapter recyclerViewAdapter;
+    public ArrayAdapter adapter;
+    public ListView listView;
+    public View progressBar;
 
     @Override
     public Activity getActivity() {
-        return activity;
+        return null;
     }
 
     @Override
@@ -28,6 +33,8 @@ public class SynchronizeTaskHolder implements ComponentsHolder {
 
     @Override
     public List<View> getViewsForHide() {
-        return new ArrayList<View>();
+        return new ArrayList<View>(){{
+            add(listView);
+        }};
     }
 }

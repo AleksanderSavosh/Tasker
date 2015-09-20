@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tasker</string>
+    <string name="app_name">Notices</string>
     <string name="add_description">Make a new task</string>
     <string name="save_btn">SAVE</string>
     <string name="all">All</string>
@@ -41,6 +41,15 @@
     <string name="update_local_data_exception">Update local data error</string>
     <string name="action_encode_notice">Encode notice</string>
     <string name="action_decode_notice">Decode notice</string>
-    <string name="action_remove_notice">Remove notice</string>
+    <string name="action_delete_notice">Remove notice</string>
     <string name="crypt_error">Sorry, crypt error...</string>
+
+    <string name="main_activity_title">Notices</string>
+    <string name="notice_activity_title">Edit notice</string>
+    <string name="log_in_activity_title">Log in</string>
+    <string name="sign_up_activity_title">Sign up</string>
+    <string name="action_more">More</string>
+    <string name="dialog_title_encode_notice">Encode operation</string>
+    <string name="dialog_title_decode_notice">Decode operation</string>
+    <string name="dialog_message_enter_password">Enter key for encode/decode notice.</string>
 </resources>

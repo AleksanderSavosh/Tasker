@@ -7,6 +7,7 @@ import com.aleksander.savosh.tasker.MainActivity;
 import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
+import com.aleksander.savosh.tasker.util.LogUtil;
 
 
 public class DeleteNoticeTask extends AbstractAsyncTask<Notice, Void, Boolean, NoticeTaskHolder> {
@@ -17,8 +18,7 @@ public class DeleteNoticeTask extends AbstractAsyncTask<Notice, Void, Boolean, N
         try {
             NoticeService.deleteNotice(params[0].getObjectId());
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
-            Log.d(getClass().getName(), e.getMessage(), e);
+            LogUtil.toLog("Error in delete notice task", e);
             wasException = true;
         }
         waitIfNeed();
@@ -30,7 +30,6 @@ public class DeleteNoticeTask extends AbstractAsyncTask<Notice, Void, Boolean, N
         if (!aBoolean) {
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
             holder.activity.startActivity(intent);
-            holder.activity.finish();
         }
         finish();
     }

@@ -4,21 +4,37 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-              android:background="#ff000000">
+              android:background="@color/main_background">
 
     <ListView android:id="@+id/main_activity_list_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000"
             android:layout_margin="12dp"
             android:visibility="gone"/>
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:id="@+id/main_activity_recycler_view"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+
+
 
     <com.aleksander.savosh.tasker.view.ColorfulProgressBar
             android:id="@+id/main_activity_progress_bar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:progressBarSizeInPercent="15"
-            app:progressBarRedrawTime="750"/>
+            app:progressBarRedrawTime="750"
+            android:visibility="gone"/>
 
 </RelativeLayout>
 

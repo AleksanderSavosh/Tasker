@@ -1,8 +1,10 @@
 package com.aleksander.savosh.tasker.task;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.R;
+import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
 import com.aleksander.savosh.tasker.util.LogUtil;
 import com.aleksander.savosh.tasker.util.ViewUtil;
 
@@ -17,7 +19,9 @@ public abstract class AbstractAsyncTask<Params, Progress, Result, Holder extends
     @Override
     protected void onPreExecute() {
         ViewUtil.lock(holder.getViewsForLock());
-        ViewUtil.showProgressBars(holder.getProgressBars());
+//        ViewUtil.hideViews(holder.getViewsForHide());
+        ViewUtil.showViews(holder.getProgressBars());
+        Log.d(getClass().getName(), "SHOW PROGRESS BAR");
         startTask = new Date();
     }
 
@@ -28,7 +32,8 @@ public abstract class AbstractAsyncTask<Params, Progress, Result, Holder extends
     protected void update(Holder holder){
         this.holder = holder;
         ViewUtil.lock(this.holder.getViewsForLock());
-        ViewUtil.showProgressBars(this.holder.getProgressBars());
+        ViewUtil.showViews(this.holder.getProgressBars());
+        Log.d(getClass().getName(), "SHOW PROGRESS BAR");
     }
 
     protected void waitIfNeed(){
@@ -45,7 +50,9 @@ public abstract class AbstractAsyncTask<Params, Progress, Result, Holder extends
 
     protected void finish(){
         ViewUtil.unlock(holder.getViewsForLock());
-        ViewUtil.hideProgressBars(holder.getProgressBars());
+        ViewUtil.showViews(holder.getViewsForHide());
+        ViewUtil.hideViews(holder.getProgressBars());
+        Log.d(getClass().getName(), "HIDE PROGRESS BAR");
         holder = null;
     }
 }

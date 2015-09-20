@@ -8,6 +8,7 @@ import com.aleksander.savosh.tasker.model.object.Notice;
 import com.aleksander.savosh.tasker.model.object.Property;
 import com.aleksander.savosh.tasker.service.NoticeService;
 import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
+import com.aleksander.savosh.tasker.util.LogUtil;
 
 import java.util.List;
 
@@ -20,8 +21,7 @@ public class CreateNoticeTask extends AbstractAsyncTask<List<Property>, Void, Bo
             Notice notice = new Notice(params[0]);
             NoticeService.createNotice(notice);
         } catch(Exception e){
-            Log.e(getClass().getName(), e.getMessage());
-            Log.d(getClass().getName(), e.getMessage(), e);
+            LogUtil.toLog("Error in create notice task", e);
             wasException = true;
         }
         waitIfNeed();
@@ -33,7 +33,6 @@ public class CreateNoticeTask extends AbstractAsyncTask<List<Property>, Void, Bo
         if(!aBoolean){
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
             holder.getActivity().startActivity(intent);
-            holder.getActivity().finish();
         }
         finish();
     }

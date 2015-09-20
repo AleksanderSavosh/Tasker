@@ -1,6 +1,8 @@
 package com.aleksander.savosh.tasker;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
 import com.aleksander.savosh.tasker.crypt.AesCryptImpl;
 import com.aleksander.savosh.tasker.crypt.Crypt;
 import com.aleksander.savosh.tasker.dao.object.CrudDao;
@@ -60,6 +62,8 @@ public class Application extends android.app.Application {
     }
 
     public void init(){
+
+        Log.d(getClass().getName(), "USER SDK VERSION: " + Build.VERSION.SDK_INT);
 
         configLocalCrudDao = new ParseLocalCrudDaoImpl<Config>(Config.class);
 

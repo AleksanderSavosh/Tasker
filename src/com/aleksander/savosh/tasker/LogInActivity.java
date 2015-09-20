@@ -3,6 +3,8 @@ package com.aleksander.savosh.tasker;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -11,7 +13,7 @@ import com.aleksander.savosh.tasker.data.LogInData;
 import com.aleksander.savosh.tasker.task.LogInTask;
 import com.aleksander.savosh.tasker.task.holder.LogInTaskHolder;
 
-public class LogInActivity extends Activity {
+public class LogInActivity extends AppCompatActivity {
 
     private EditText numberEditText;
     private EditText passwordEditText;
@@ -36,15 +38,17 @@ public class LogInActivity extends Activity {
                 //sign up
                 Intent intent = new Intent(Application.getContext(), SignUpActivity.class);
                 startActivity(intent);
-                finish();
             }
         }
     };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(getClass().getName(), "--- === ON CREATE LOG IN ACTIVITY === ---");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log_in_activity);
+
+        //TODO тест на интернет конекшн
 
         numberEditText = ((EditText) findViewById(R.id.login_activity_phone_number));
         passwordEditText = ((EditText) findViewById(R.id.login_activity_password));
@@ -66,6 +70,13 @@ public class LogInActivity extends Activity {
 
         findViewById(R.id.login_activity_log_in).setOnClickListener(clickListener);
         findViewById(R.id.login_activity_sign_up).setOnClickListener(clickListener);
+
+        getSupportActionBar().setTitle(R.string.log_in_activity_title);
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.d(getClass().getName(), "--- === ON DESTROY LOG IN ACTIVITY === ---");
+        super.onDestroy();
+    }
 }

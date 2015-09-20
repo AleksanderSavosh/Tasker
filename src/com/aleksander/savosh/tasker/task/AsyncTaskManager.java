@@ -2,8 +2,10 @@ package com.aleksander.savosh.tasker.task;
 
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.widget.Toast;
 import com.aleksander.savosh.tasker.Application;
+import com.aleksander.savosh.tasker.task.holder.ComponentsHolder;
 import com.aleksander.savosh.tasker.util.LogUtil;
 
 
@@ -24,7 +26,11 @@ public class AsyncTaskManager {
 
                 absAsyncTask = (AbstractAsyncTask) asyncTaskClass.getConstructor().newInstance();
                 absAsyncTask.setHolder(holder);
-                absAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+                if(Build.VERSION.SDK_INT >= 11) {
+                    absAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+                } else {
+                    absAsyncTask.execute(params);
+                }
 
             } catch (Exception e) {
                 LogUtil.toLog("Create task exception", e);

@@ -1,4 +1,4 @@
-package com.aleksander.savosh.tasker.task;
+package com.aleksander.savosh.tasker.task.holder;
 
 
 import android.app.Activity;
@@ -11,5 +11,6 @@ public interface ComponentsHolder {
     public Activity getActivity();
     public List<View> getViewsForLock();
     public List<View> getProgressBars();
+    public List<View> getViewsForHide();
 
 }

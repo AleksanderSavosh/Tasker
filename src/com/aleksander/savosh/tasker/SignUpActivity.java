@@ -1,8 +1,8 @@
 package com.aleksander.savosh.tasker;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -13,11 +13,14 @@ import com.aleksander.savosh.tasker.data.SignUpData;
 import com.aleksander.savosh.tasker.task.SignUpTask;
 
 
-public class SignUpActivity extends Activity {
+public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(getClass().getName(), "--- === ON CREATE SIGN UP ACTIVITY === ---");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_activity);
+
+        //TODO тест на интернет конекшн
 
         TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         String mPhoneNumber = tMgr.getLine1Number(); //TODO сделать предложение ввести это номер
@@ -46,5 +49,13 @@ public class SignUpActivity extends Activity {
 
             }
         });
+
+        getSupportActionBar().setTitle(R.string.sign_up_activity_title);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(getClass().getName(), "--- === ON DESTROY SIGN UP ACTIVITY === ---");
+        super.onDestroy();
     }
 }

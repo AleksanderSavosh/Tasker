@@ -27,7 +27,6 @@ public class LogInTask extends AbstractAsyncTask<LogInData, Void, LogInResult, L
         if (logInResult.isLogIn) {
             Intent intent = new Intent(Application.getContext(), MainActivity.class);
             holder.getActivity().startActivity(intent);
-            holder.getActivity().finish();
         }
         finish();
     }

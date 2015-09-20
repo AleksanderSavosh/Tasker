@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:yourapp="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/menu_notice_more"
+          android:title="@string/action_more"
+          android:icon="@drawable/ic_more_vert_white_24dp"
+          yourapp:showAsAction="always">
+        <menu>
+            <item android:id="@+id/menu_notice_title" android:title="@string/action_add_title"/>
+            <item android:id="@+id/menu_notice_encode" android:title="@string/action_encode_notice"/>
+            <item android:id="@+id/menu_notice_decode" android:title="@string/action_decode_notice"/>
+            <item android:id="@+id/menu_notice_delete" android:title="@string/action_delete_notice" android:visible="false"/>
+        </menu>
+    </item>
+</menu>
