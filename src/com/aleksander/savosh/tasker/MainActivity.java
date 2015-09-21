@@ -2,7 +2,9 @@ package com.aleksander.savosh.tasker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +13,6 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.aleksander.savosh.tasker.model.object.*;
-import com.aleksander.savosh.tasker.service.PropertyService;
 import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 import com.aleksander.savosh.tasker.task.UpdateAdapterTask;
 import com.aleksander.savosh.tasker.task.holder.UpdateAdapterTaskHolder;
@@ -31,29 +32,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        final ListView listview = (ListView) findViewById(R.id.main_activity_list_view);
         final View progressbar = findViewById(R.id.main_activity_progress_bar);
 
-        final Adapter mainAdapter = new Adapter(this);
         final RecyclerViewAdapter mainRecyclerViewAdapter = new RecyclerViewAdapter();
 
         holder = new UpdateAdapterTaskHolder(){{
-            this.adapter = mainAdapter;
-            this.listView = listview;
             this.progressBar = progressbar;
             this.recyclerViewAdapter = mainRecyclerViewAdapter;
         }};
 
-
-
-        listview.setAdapter(mainAdapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-                Notice item = (Notice) parent.getItemAtPosition(position);
-                startNoticeActivity(item.getObjectId());
-            }
-        });
 
         getSupportActionBar().setTitle(R.string.main_activity_title);
 
@@ -65,6 +52,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         Application.getAsyncTaskManager().<UpdateAdapterTaskHolder>updateTask(UpdateAdapterTask.class, holder);
+
+        //this button work correct only api 15+
+        if(Build.VERSION.SDK_INT >= 15){
+            final View fab = findViewById(R.id.main_activity_create_notice_button);
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startNoticeActivity(null);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -80,17 +80,22 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
-        MenuItem itemAddNotice = menu.findItem(R.id.menu_main_add_notice);
+
         MenuItem itemLogIn = menu.findItem(R.id.menu_main_log_in);
         MenuItem itemLogOut = menu.findItem(R.id.menu_main_log_out);
 
-        itemAddNotice.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                startNoticeActivity(null);
-                return true;
-            }
-        });
+        //add notice button for api 7 - 14
+        if(Build.VERSION.SDK_INT < 15){
+            MenuItem itemAddNotice = menu.findItem(R.id.menu_main_add_notice);
+            itemAddNotice.setVisible(true);
+            itemAddNotice.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    startNoticeActivity(null);
+                    return true;
+                }
+            });
+        }
 
         Config config = ((Application) getApplicationContext()).getConfig();
         if(StringUtil.isEmpty(config.accountId)) {
@@ -131,59 +136,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public class Adapter extends ArrayAdapter<Notice> {
-
-        class ViewHolder {
-            public TextView title;
-            public TextView createDate;
-        }
-
-        public Adapter(Context context) {
-            super(context, 0);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View rowView = convertView;
-
-            // reuse views
-            if(rowView == null) {
-                LayoutInflater inflater = (LayoutInflater) getContext()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                rowView = inflater.inflate(R.layout.main_activity_adapter_view, parent, false);
-
-                //configure view holder
-                final ViewHolder viewHolder = new ViewHolder();
-                viewHolder.title = (TextView) rowView.findViewById(R.id.main_activity_adapter_view_title);
-                viewHolder.createDate = (TextView) rowView.findViewById(R.id.main_activity_adapter_view_date_create);
-
-                rowView.setTag(viewHolder);
-            }
-
-            ViewHolder holder = (ViewHolder) rowView.getTag();
-            Map<Integer, List<Property>> properties = PropertyService.convertToMap(getItem(position).getProperties());
-
-            //set title
-            if(properties.containsKey(PropertyType.TITLE) && !properties.get(PropertyType.TITLE).isEmpty()) {
-                holder.title.setText(properties.get(PropertyType.TITLE).get(0).getText());
-            } else if(properties.containsKey(PropertyType.TEXT) && !properties.get(PropertyType.TEXT).isEmpty()) {
-                holder.title.setText(properties.get(PropertyType.TEXT).get(0).getText());
-            } else {
-                holder.title.setText("No text or title...");
-            }
-
-            //set create date
-            if(properties.containsKey(PropertyType.CREATE_DATE) && !properties.get(PropertyType.CREATE_DATE).isEmpty()) {
-                holder.createDate.setText(StringUtil
-                        .dateToReadableString(properties.get(PropertyType.CREATE_DATE).get(0).getDate()));
-            } else {
-                holder.createDate.setText("No create date...");
-            }
-            rowView.setVisibility(View.GONE);//TODO hack
-            return rowView;
-        }
-    }
-
     public static class NoticeViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView titleTextView;
@@ -204,10 +156,6 @@ public class MainActivity extends AppCompatActivity {
         List<Notice> notices = new ArrayList<Notice>();
 
         public RecyclerViewAdapter() {}
-
-        RecyclerViewAdapter(List<Notice> notices){
-            this.notices = notices;
-        }
 
         public void addAll(Collection<Notice> collection){
             notices.addAll(new ArrayList<Notice>(collection));

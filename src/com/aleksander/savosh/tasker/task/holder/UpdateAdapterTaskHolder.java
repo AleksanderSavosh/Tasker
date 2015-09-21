@@ -12,8 +12,6 @@ import java.util.List;
 public class UpdateAdapterTaskHolder implements ComponentsHolder {
 
     public MainActivity.RecyclerViewAdapter recyclerViewAdapter;
-    public ArrayAdapter adapter;
-    public ListView listView;
     public View progressBar;
 
     @Override
@@ -34,7 +32,6 @@ public class UpdateAdapterTaskHolder implements ComponentsHolder {
     @Override
     public List<View> getViewsForHide() {
         return new ArrayList<View>(){{
-            add(listView);
         }};
     }
 }

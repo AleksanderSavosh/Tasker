@@ -1,9 +1,6 @@
 package com.aleksander.savosh.tasker.task;
 
-
-import android.os.Build;
 import android.util.Log;
-import android.view.View;
 import com.aleksander.savosh.tasker.Application;
 import com.aleksander.savosh.tasker.model.object.Account;
 import com.aleksander.savosh.tasker.model.object.Config;
@@ -39,17 +36,6 @@ public class UpdateAdapterTask extends AbstractAsyncTask<Void, Void, Collection<
     @SuppressWarnings("unchecked")
     protected void onPostExecute(Collection<Notice> notices) {
         if(!notices.isEmpty()) {
-
-            holder.adapter.clear();
-            if(Build.VERSION.SDK_INT >= 11) {
-                holder.adapter.addAll(notices);
-            } else {
-                for(Notice notice : notices){
-                    holder.adapter.add(notice);
-                }
-            }
-            holder.adapter.notifyDataSetChanged();
-            holder.listView.setVisibility(View.GONE);
 
             holder.recyclerViewAdapter.addAll(notices);
             holder.recyclerViewAdapter.notifyDataSetChanged();
