@@ -12,6 +12,7 @@ import android.widget.EditText;
 import com.aleksander.savosh.tasker.data.LogInData;
 import com.aleksander.savosh.tasker.task.LogInTask;
 import com.aleksander.savosh.tasker.task.holder.LogInTaskHolder;
+import com.aleksander.savosh.tasker.util.ActivityUtil;
 
 public class LogInActivity extends AppCompatActivity {
 
@@ -45,6 +46,7 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(getClass().getName(), "--- === ON CREATE LOG IN ACTIVITY === ---");
+        ActivityUtil.setTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.log_in_activity);
 

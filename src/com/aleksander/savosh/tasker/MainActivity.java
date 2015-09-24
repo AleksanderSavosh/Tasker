@@ -16,6 +16,7 @@ import com.aleksander.savosh.tasker.model.object.*;
 import com.aleksander.savosh.tasker.service.SingUpLogInLogOutService;
 import com.aleksander.savosh.tasker.task.UpdateAdapterTask;
 import com.aleksander.savosh.tasker.task.holder.UpdateAdapterTaskHolder;
+import com.aleksander.savosh.tasker.util.ActivityUtil;
 import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(getClass().getName(), "--- === ON CREATE MAIN ACTIVITY " + toString() + " === ---");
+        ActivityUtil.setTheme(this);
+        ActivityUtil.checkIfThemeChanged(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem itemLogIn = menu.findItem(R.id.menu_main_log_in);
         MenuItem itemLogOut = menu.findItem(R.id.menu_main_log_out);
+        MenuItem itemSettings = menu.findItem(R.id.menu_main_settings);
 
         //add notice button for api 7 - 14
         if(Build.VERSION.SDK_INT < 15){
@@ -124,6 +128,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        itemSettings.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                MainActivity.this.startActivity(intent);
+                return true;
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }

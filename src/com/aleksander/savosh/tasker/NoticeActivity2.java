@@ -25,6 +25,7 @@ import com.aleksander.savosh.tasker.task.CreateNoticeTask;
 import com.aleksander.savosh.tasker.task.DeleteNoticeTask;
 import com.aleksander.savosh.tasker.task.UpdateNoticeTask;
 import com.aleksander.savosh.tasker.task.holder.NoticeTaskHolder;
+import com.aleksander.savosh.tasker.util.ActivityUtil;
 import com.aleksander.savosh.tasker.util.StringUtil;
 
 import java.util.*;
@@ -56,6 +57,7 @@ public class NoticeActivity2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(getClass().getName(), "--- === ON CREATE NOTICE ACTIVITY === ---");
+        ActivityUtil.setTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notice_activity);
 

@@ -11,12 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.aleksander.savosh.tasker.data.SignUpData;
 import com.aleksander.savosh.tasker.task.SignUpTask;
+import com.aleksander.savosh.tasker.util.ActivityUtil;
 
 
 public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(getClass().getName(), "--- === ON CREATE SIGN UP ACTIVITY === ---");
+        ActivityUtil.setTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_activity);
 

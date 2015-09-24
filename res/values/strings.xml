@@ -52,4 +52,10 @@
     <string name="dialog_title_encode_notice">Encode operation</string>
     <string name="dialog_title_decode_notice">Decode operation</string>
     <string name="dialog_message_enter_password">Enter key for encode/decode notice.</string>
+    <string name="pref_list_themes_title">Change theme</string>
+    <string name="pref_list_themes_title_dialog">Choise theme</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="theme_light">Custom.Light</string>
+    <string name="theme_dark">Custom.Dark</string>
 </resources>

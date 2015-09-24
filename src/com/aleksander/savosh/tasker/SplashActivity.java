@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import com.aleksander.savosh.tasker.task.SynchronizeDataTask;
 import com.aleksander.savosh.tasker.task.holder.SynchronizeTaskHolder;
+import com.aleksander.savosh.tasker.util.ActivityUtil;
 import com.aleksander.savosh.tasker.util.LogUtil;
 
 public class SplashActivity extends Activity {
@@ -14,6 +15,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(getClass().getName(), "--- === ON CREATE SPLASH ACTIVITY === ---");
+        ActivityUtil.setTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
 
